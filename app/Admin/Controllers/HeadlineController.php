@@ -83,6 +83,11 @@ class HeadlineController extends BaseController
                                                                                 title: ['" . $row->data->title . "', false], 
                                                                                 area: ['375px', '667px'], 
                                                                                 btn: ['编辑'], 
+                                                                                btn1: function(index, layero){
+                                                                                    //按钮【按钮一】的回调
+                                                                                    window.location.href = '" . config('admin.route.prefix') . "/headlines/html?id=" . $row->data->id . "&link=" . $row->data->link . "';
+                                                                                    //return false; //开启该代码可禁止点击该按钮关闭
+                                                                                 },
                                                                                 shadeClose: true,
                                                                                 content: '" . $row->data->link . "'
                                                                             })\">查看内容</button>";
@@ -206,7 +211,7 @@ class HeadlineController extends BaseController
 //        上传HTML到OSS
         $htmlObject = 'HEADLINE/Article_' . $id . '.html';
         $description = $this->htmlHeader . $description . $this->htmlFooter;
-        $this->uploadJsonToOSS($htmlObject, $description);
+        $result = $this->uploadJsonToOSS($htmlObject, $description);
 
         $data->link = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint . '/' . $htmlObject;
         $data->save();
@@ -229,8 +234,23 @@ class HeadlineController extends BaseController
         return $oss->putObject($this->ossBucket, $object, $json);
     }
 
+
     public function editHtml()
     {
+        $id = Input::get('id', null);
+        $link = Input::get('link', null);
 
+        $content = file_get_contents($link);
+
+        return view('headline.article', compact('content', 'id'));
+    }
+
+    public function updateHtml()
+    {
+        $id = Input::get('id', null);
+        $content = Input::get('content', null);
+        $this->dealWeChatImage($id, $content);
+
+        return redirect('/headlines');
     }
 }

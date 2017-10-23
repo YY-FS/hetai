@@ -15,5 +15,7 @@ Route::group([
     $router->get('headlines', 'HeadlineController@index');
     $router->any('headlines/create', 'HeadlineController@anyForm');
     $router->any('headlines/edit', 'HeadlineController@anyEdit');
+    $router->get('headlines/html', 'HeadlineController@editHtml');
+    $router->post('headlines/html', 'HeadlineController@updateHtml');
 
 });
