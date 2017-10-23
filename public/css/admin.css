@@ -1,0 +1,48 @@
+.btn-export {
+    margin: 0 2px;
+    background: none;
+    border: 1px solid #3c8dbc;
+    color: #3c8dbc;
+}
+
+.btn-export:hover {
+    background: #3c8dbc;
+    color: #ffffff;
+}
+
+.btn-default {
+    margin: 0 2px;
+    background: #CECECE;
+    border: 1px solid #CECECE;
+    color: #ffffff;
+}
+
+.btn-default:hover {
+    background: #ffffff;
+    color: #CECECE;
+}
+
+.btn-primary {
+    margin: 0 2px;
+    background: #3c8dbc;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background: #3c8dbc;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    opacity: .7;
+}
+
+.form-control {
+    border-radius: 5px !important;
+}
+
+.rpd-edit{
+    background: #ffffff !important;
+    padding: 2% 10% !important;
+    border-radius: 5px !important;
+}
+
