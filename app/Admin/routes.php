@@ -13,6 +13,7 @@ Route::group([
     $router->get('/', 'HomeController@index');
 
     $router->get('headlines', 'HeadlineController@index');
-    $router->any('headlines/edit', 'HeadlineController@edit');
+    $router->any('headlines/create', 'HeadlineController@anyForm');
+    $router->any('headlines/edit', 'HeadlineController@anyEdit');
 
 });

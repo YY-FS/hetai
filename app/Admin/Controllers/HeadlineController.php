@@ -22,6 +22,8 @@ class HeadlineController extends BaseController
     public $ossAppId;
     public $ossAppSecret;
     public $ossEndpoint;
+    public $htmlHeader;
+    public $htmlFooter;
 
     public function __construct()
     {
@@ -29,13 +31,22 @@ class HeadlineController extends BaseController
         $this->ossAppId = env('ALI_OSS_PLAT_ACCESS_KEY');
         $this->ossAppSecret = env('ALI_OSS_PLAT_ACCESS_SECRET');
         $this->ossEndpoint = env('ALI_OSS_PLAT_ENDPOINT');
+
+        $this->htmlHeader = '<!DOCTYPE html><html><head>
+                <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+                <meta name="apple-mobile-web-app-capable" content="yes">
+                <meta name="apple-mobile-web-app-status-bar-style" content="black">
+                <meta name="format-detection" content="telephone=no"></head>';
+        $this->htmlFooter = '</html>';
     }
 
     public function index()
     {
 
         $title = '头条文章';
-        $filter = DataFilter::source(new Platv4Headline());
+        $filter = DataFilter::source(Platv4Headline::where('status', '>=', 0));
 
         $filter->add('title', '标题', 'text');
         $filter->add('author', '来源', 'text');
@@ -56,13 +67,30 @@ class HeadlineController extends BaseController
         $grid->add('release_time', '发布日期', true);
         $grid->add('created_at', '创建日期', true);
 
+        $grid->add('operation','操作', false);
+
         $grid->orderBy('created_at', 'desc');
 
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.prefix') . '/headlines/edit', '新增', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . '/headlines/create', '新增', 'TR', ['class' => 'btn btn-default']);
 
-        $grid->edit(config('admin.route.prefix') . '/headlines/edit', '操作', 'modify|delete');
+        $grid->row(function ($row) {
+//            skin: 'layui-layer-rim', //加上边框
+//            shadeClose: true,   //点击遮罩关闭
+            $btnPreview = "<button class=\"btn btn-primary\" onclick=\"layer.open({
+                                                                                type: 2, 
+                                                                                title: ['" . $row->data->title . "', false], 
+                                                                                area: ['375px', '667px'], 
+                                                                                btn: ['编辑'], 
+                                                                                shadeClose: true,
+                                                                                content: '" . $row->data->link . "'
+                                                                            })\">查看内容</button>";
+            $btnEdit = "<a class='btn btn-default' href='" . config('admin.route.prefix') . "/headlines/edit?modify=" . $row->data->id . "'>编辑</a>";
+            $btnDelete = '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . "/headlines/edit?delete=" . $row->data->id . '\'})">删除</button>';
+
+            $row->cell('operation')->value = $btnPreview . $btnEdit . $btnDelete;
+        });
 
         if (Input::get('export') == 1) {
             $grid->build();
@@ -76,8 +104,50 @@ class HeadlineController extends BaseController
     }
 
 
-    public function edit()
+    public function anyForm()
     {
+
+        $form = DataForm::source(new Platv4Headline());
+
+        $form->label('头条信息');
+        $form->link(config('admin.route.prefix') . "/headlines", "列表", "TR")->back();
+
+        $form->add('title', '标题', 'text')
+            ->rule("required|min:2")
+            ->placeholder("请输入 标题");
+
+        $form->add('link','内容','redactor')->rule("required");
+
+        $form->add('author', '来源', 'text')
+            ->rule("required|min:1")
+            ->placeholder("请输入 来源");
+
+
+        $form->saved(function () use ($form) {
+            try{
+                $this->dealWeChatImage($form->model->id, $form->model->link);
+                $form->message("新建头条成功");
+                $form->link(config('admin.route.prefix') . '/headlines',"返回");
+            } catch (\Exception $exception) {
+                throw new \exception($exception->getMessage());
+            }
+        });
+
+        $form->submit('保存');
+
+        return $form->view('headline.form', compact('form'));
+    }
+
+
+    public function anyEdit()
+    {
+        $id = Input::get('delete', null);
+        if ($id) {
+            $data = Platv4Headline::find($id);
+            $data->status = -1;
+            $data->save();
+            return redirect('/headlines');
+        }
 
         $edit = DataEdit::source(new Platv4Headline());
 
@@ -88,23 +158,13 @@ class HeadlineController extends BaseController
             ->rule("required|min:2")
             ->placeholder("请输入 标题");
 
-        $edit->add('link','内容','redactor')->rule("required");
-
         $edit->add('author', '来源', 'text')
             ->rule("required|min:1")
             ->placeholder("请输入 来源");
 
-        $edit->saved(function () use ($edit) {
-            try{
-                $this->dealWeChatImage($edit->model->id, $edit->model->link);
-            } catch (\Exception $exception) {
-                throw new \exception($exception->getMessage());
-            }
-        });
-
         $edit->build();
 
-        return $edit->view('headline.edit', compact('edit'));
+        return $edit->view('rapyd.edit', compact('edit'));
     }
 
 
@@ -145,11 +205,13 @@ class HeadlineController extends BaseController
 
 //        上传HTML到OSS
         $htmlObject = 'HEADLINE/Article_' . $id . '.html';
+        $description = $this->htmlHeader . $description . $this->htmlFooter;
         $this->uploadJsonToOSS($htmlObject, $description);
 
         $data->link = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint . '/' . $htmlObject;
         $data->save();
     }
+
 
     private function uploadImageToOSS($object, $file)
     {
@@ -165,5 +227,10 @@ class HeadlineController extends BaseController
 
         $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
         return $oss->putObject($this->ossBucket, $object, $json);
+    }
+
+    public function editHtml()
+    {
+
     }
 }
