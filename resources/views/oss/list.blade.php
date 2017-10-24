@@ -1,6 +1,7 @@
 @extends('style')
 <br>
 <div style="padding:2%;background-color: #ffffff;margin: 2px 20px 0 20px;border-radius: 5px;">
+    <button class="btn btn-primary pull-right">上传图片</button>
     <table class="table table-striped">
         <thead>
         <tr>
@@ -38,7 +39,11 @@
         else parent.$('#thumb').val(thumb + ',' + url);
 
 //        预览
-        var img = '<img id="' + photoId + '" onclick="delPhoto(\'' + url + '\', \'' + photoId + '\')" style="border: 1px solid #3c8dbc; border-radius: 5px;padding: 2px; height: 50px;width: auto;margin-right: 3px" src="' + url + '">';
+        var img = '<img ' +
+                    'id="' + photoId + '" ' +
+                    'onclick="delPhoto(\'' + url + '\', \'' + photoId + '\')" ' +
+                    'style="border: 1px solid #3c8dbc; border-radius: 5px;padding: 2px; height: 50px;width: auto;margin-right: 3px" ' +
+                    'src="' + url + '">';
         parent.$('#photo-preview').append(img);
 //        parent.layer.close(index);
     }

@@ -33,7 +33,7 @@ class Controller extends BaseController
     }
 
 
-    protected function requestValidate($rules, $message)
+    protected function requestValidate($rules, $message = [])
     {
         $validate = Validator::make(Input::all(), $rules, $message);
 

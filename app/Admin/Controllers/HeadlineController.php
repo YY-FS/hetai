@@ -65,9 +65,11 @@ class HeadlineController extends BaseController
         $grid->attributes(array("class" => "table table-bordered table-striped table-hover"));
         $grid->add('id', 'ID', true);
         $grid->add('title', '标题', false);
+        $grid->add('type', '类型', true);
         $grid->add('style', '样式', true);
         $grid->add('author', '来源', true);
         $grid->add('created_at', '创建日期', true);
+        $grid->add('status', '状态', true);
 
         $grid->add('operation','操作', false);
 
@@ -75,23 +77,34 @@ class HeadlineController extends BaseController
 
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.prefix') . '/headlines/create', '新增', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . '/headlines/create?type=' . Platv4Headline::TYPE_ARTICLE, '新增文章', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . '/headlines/create?type=' . Platv4Headline::TYPE_VIDEO, '新增视频', 'TR', ['class' => 'btn btn-default']);
 
         $grid->row(function ($row) {
+            $row->cell('type')->value = Platv4Headline::$typeText[$row->data->type];
+            $row->cell('style')->value = Platv4Headline::$styleText[$row->data->style];
+            $row->cell('status')->value = Platv4Headline::$statusText[$row->data->status];
+
+            ($row->data->status == Platv4Headline::STATUS_NORMAL) && $row->cell('status')->style("color: #333333;");
+            ($row->data->status == Platv4Headline::STATUS_OFFLINE) && $row->cell('status')->style("color: #CECECE;");
+
 //            skin: 'layui-layer-rim', //加上边框
 //            shadeClose: true,   //点击遮罩关闭
             if ($row->data->link) $link = $row->data->link;
             else $link = '(空)';
+
+            $btnEditHtml = ''; // 视频无法编辑
+            if ($row->data->type == Platv4Headline::TYPE_ARTICLE)
+                $btnEditHtml = "btn: ['编辑'],btn1: function(index, layero){
+                                    //按钮【按钮一】的回调
+                                    window.location.href = '" . config('admin.route.prefix') . "/headlines/html?id=" . $row->data->id . "&link=" . $row->data->link . "';
+                                    //return false; //开启该代码可禁止点击该按钮关闭
+                                 },";
             $btnPreview = "<button class=\"btn btn-primary\" onclick=\"layer.open({
                                                                                 type: 2, 
                                                                                 title: ['" . $row->data->title . "', false], 
                                                                                 area: ['375px', '667px'], 
-                                                                                btn: ['编辑'], 
-                                                                                btn1: function(index, layero){
-                                                                                    //按钮【按钮一】的回调
-                                                                                    window.location.href = '" . config('admin.route.prefix') . "/headlines/html?id=" . $row->data->id . "&link=" . $row->data->link . "';
-                                                                                    //return false; //开启该代码可禁止点击该按钮关闭
-                                                                                 },
+                                                                                " . $btnEditHtml . "
                                                                                 shadeClose: true,
                                                                                 content: '" . $link . "'
                                                                             })\">查看内容</button>";
@@ -115,6 +128,12 @@ class HeadlineController extends BaseController
 
     public function anyForm()
     {
+        $types = [Platv4Headline::TYPE_ARTICLE, Platv4Headline::TYPE_VIDEO];
+        $this->requestValidate([
+            'type' => 'required|in:"' . implode('","', $types) . '"'
+        ]);
+        $type = Input::get('type', Platv4Headline::TYPE_ARTICLE);
+
         $nextId = intval(@Platv4Headline::orderBy('id', 'DESC')->first()->id) + 1;
 
         $form = DataForm::source(new Platv4Headline());
@@ -126,13 +145,27 @@ class HeadlineController extends BaseController
             ->rule("required|min:2")
             ->placeholder("请输入 标题");
 
-        $form->add('link','内容','redactor')->rule("required");
-        $form->add('thumb', '封面图', 'text')->rule("required")->attributes(["readOnly" => true]);
-
         $form->add('author', '来源', 'text')
             ->rule("required|min:1")
             ->placeholder("请输入 来源");
 
+        $form->add('type', '类型', 'hidden')->insertValue($type);
+
+        $form->add('style', '样式', 'radiogroup')->options(Platv4Headline::$styleText)->rule("required");
+
+        if ($type == Platv4Headline::TYPE_ARTICLE) {
+            $form->add('link','内容','textarea')->rule("required")->attributes(['rows' => 15]);
+            $form->link(config('admin.route.prefix') . "/headlines/create?type=" . Platv4Headline::TYPE_VIDEO, "新建视频", "TR");
+        }
+        else {
+            $form->add('link','视频链接','text')->rule("required")->placeholder("请输入 视频链接");
+            $form->link(config('admin.route.prefix') . "/headlines/create?type=" . Platv4Headline::TYPE_ARTICLE, "新建文章", "TR");
+        }
+
+        $form->add('thumb', '封面图', 'text');
+//            ->attributes(['readOnly' => true]);
+
+        $form->add('status', '状态', 'select')->options(Platv4Headline::$statusText);
 
         $form->saved(function () use ($form) {
             try{
@@ -150,17 +183,15 @@ class HeadlineController extends BaseController
 
         $form->submit('保存');
 
-        return $form->view('headline.form', compact('form', 'nextId'));
+        return $form->view('headline.form', compact('form', 'nextId', 'type'));
     }
 
 
     public function anyEdit()
     {
-        $id = Input::get('delete', null);
-        if ($id) {
-            $data = Platv4Headline::find($id);
-            $data->status = -1;
-            $data->save();
+        $deleteId = Input::get('delete', null);
+        if ($deleteId) {
+            Platv4Headline::where('id', $deleteId)->update(['status' => -1]);
             return redirect('/headlines');
         }
 
@@ -177,9 +208,19 @@ class HeadlineController extends BaseController
             ->rule("required|min:1")
             ->placeholder("请输入 来源");
 
+        $edit->add('style', '样式', 'radiogroup')->options(Platv4Headline::$styleText);
+
+        $edit->add('link','链接','text')->rule("required")->placeholder("请输入 链接");
+
+        $edit->add('thumb', '封面图', 'text');
+//            ->attributes(["readOnly" => true]);
+
+        $edit->add('status', '状态', 'select')->options(Platv4Headline::$statusText);
+
         $edit->build();
 
-        return $edit->view('rapyd.edit', compact('edit'));
+        $id = Input::get('modify', 0);
+        return $edit->view('headline.edit', compact('edit', 'id'));
     }
 
 

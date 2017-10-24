@@ -1,6 +1,11 @@
 @extends('admin.index')
 @section('content')
     {!! Rapyd::head() !!}
+    <style>
+        input[type=radio] {
+            margin: 4px 0 0 25px !important;
+        }
+    </style>
 
     {{--百度 UEditor--}}
     {{--<script type="text/javascript" src="{{ asset ("/js/ueditor/ueditor.config.js") }}"></script>--}}
@@ -23,10 +28,18 @@
     {{--</script>--}}
 
     <script>
-        var btn = '<br><button onclick="uploadHtml()" type="button" class="pull-left btn btn-primary">上传文章图片</button><br><hr>';
-        $('#link').html('').attr("name", "link").redactor();
-        $('#div_link').append(btn);
+        @if($type == \App\Models\Platv4Headline::TYPE_ARTICLE)
+            $('#link').html('').attr("name", "link").redactor();
+//            上传HTML
+            var btn = '<br><button onclick="uploadHtml()" type="button" class="pull-left btn btn-primary">上传文章图片</button><br><hr>';
+            $('#div_link').append(btn);
+        @endif
+
         function uploadHtml() {
+//            loading
+            var index = layer.load(0, {
+                shade: [0.3,'#000']
+            });
             var data = {
                 'id': '{!! $nextId !!}',
                 'content': $('#link').val(),
@@ -46,6 +59,7 @@
                     alert('上传失败，请重新上传')
                 }
             });
+            layer.close(index);
         }
 
 //        封面图处理
@@ -72,7 +86,7 @@
                 var thumb = '';
 //                Input框
                 $("#photo-preview img").each(function(i){
-                    thumb = $(this).attr("src") + ',';
+                    thumb = thumb + $(this).attr("src") + ',';
                 });
                 thumb = thumb.substring(0, thumb.length - 1);
                 $('#thumb').val(thumb);
