@@ -127,7 +127,7 @@ class HeadlineController extends BaseController
             ->placeholder("请输入 标题");
 
         $form->add('link','内容','redactor')->rule("required");
-        $form->add('thumb', '封面图', 'text')->rule("required");
+        $form->add('thumb', '封面图', 'text')->rule("required")->attributes(["readOnly" => true]);
 
         $form->add('author', '来源', 'text')
             ->rule("required|min:1")

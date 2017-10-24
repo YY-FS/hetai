@@ -18,4 +18,6 @@ Route::group([
     $router->get('headlines/html', 'HeadlineController@editHtml');
     $router->post('headlines/html', 'HeadlineController@updateHtml');
 
+    $router->get('headlines/oss/{id}', 'OssController@headlineObject');
+
 });
