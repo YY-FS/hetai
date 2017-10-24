@@ -25,6 +25,8 @@ class HeadlineController extends BaseController
     public $htmlHeader;
     public $htmlFooter;
 
+    const MAKA_EDIT_FLAG = 'MAKA-EDIT-FLAG'; //标识是否已自动加入头部，防止编辑重复
+
     public function __construct()
     {
         $this->ossBucket = env('ALI_OSS_PLAT_BUCKET');
@@ -38,7 +40,8 @@ class HeadlineController extends BaseController
                 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
                 <meta name="apple-mobile-web-app-capable" content="yes">
                 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-                <meta name="format-detection" content="telephone=no"></head>';
+                <meta name="others" content="' . self::MAKA_EDIT_FLAG . '">
+                <meta name="format-detection" content="telephone=no">' . $this->htmlStyle() . '</head>';
         $this->htmlFooter = '</html>';
     }
 
@@ -50,7 +53,7 @@ class HeadlineController extends BaseController
 
         $filter->add('title', '标题', 'text');
         $filter->add('author', '来源', 'text');
-        $filter->add('release_time', '发布日期', 'daterange')
+        $filter->add('created_at', '发布日期', 'daterange')
             ->format('Y-m-d', 'zh-CN');
 
         $filter->submit('筛选');
@@ -64,7 +67,6 @@ class HeadlineController extends BaseController
         $grid->add('title', '标题', false);
         $grid->add('style', '样式', true);
         $grid->add('author', '来源', true);
-        $grid->add('release_time', '发布日期', true);
         $grid->add('created_at', '创建日期', true);
 
         $grid->add('operation','操作', false);
@@ -78,6 +80,8 @@ class HeadlineController extends BaseController
         $grid->row(function ($row) {
 //            skin: 'layui-layer-rim', //加上边框
 //            shadeClose: true,   //点击遮罩关闭
+            if ($row->data->link) $link = $row->data->link;
+            else $link = '(空)';
             $btnPreview = "<button class=\"btn btn-primary\" onclick=\"layer.open({
                                                                                 type: 2, 
                                                                                 title: ['" . $row->data->title . "', false], 
@@ -89,7 +93,7 @@ class HeadlineController extends BaseController
                                                                                     //return false; //开启该代码可禁止点击该按钮关闭
                                                                                  },
                                                                                 shadeClose: true,
-                                                                                content: '" . $row->data->link . "'
+                                                                                content: '" . $link . "'
                                                                             })\">查看内容</button>";
             $btnEdit = "<a class='btn btn-default' href='" . config('admin.route.prefix') . "/headlines/edit?modify=" . $row->data->id . "'>编辑</a>";
             $btnDelete = '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . "/headlines/edit?delete=" . $row->data->id . '\'})">删除</button>';
@@ -111,6 +115,7 @@ class HeadlineController extends BaseController
 
     public function anyForm()
     {
+        $nextId = intval(@Platv4Headline::orderBy('id', 'DESC')->first()->id) + 1;
 
         $form = DataForm::source(new Platv4Headline());
 
@@ -122,6 +127,7 @@ class HeadlineController extends BaseController
             ->placeholder("请输入 标题");
 
         $form->add('link','内容','redactor')->rule("required");
+        $form->add('thumb', '封面图', 'text')->rule("required");
 
         $form->add('author', '来源', 'text')
             ->rule("required|min:1")
@@ -134,13 +140,17 @@ class HeadlineController extends BaseController
                 $form->message("新建头条成功");
                 $form->link(config('admin.route.prefix') . '/headlines',"返回");
             } catch (\Exception $exception) {
-                throw new \exception($exception->getMessage());
+                $data = Platv4Headline::find($form->model->id);
+                $data->link = '';
+                $data->save();
+                $form->message('** <h3>【ERROR】</h3>下载外链图片错误 **：' . $exception->getMessage());
+                $form->link(config('admin.route.prefix') . '/headlines/html?id=' . $form->model->id . '&link=' . $form->model->link,"编辑HTML");
             }
         });
 
         $form->submit('保存');
 
-        return $form->view('headline.form', compact('form'));
+        return $form->view('headline.form', compact('form', 'nextId'));
     }
 
 
@@ -173,17 +183,21 @@ class HeadlineController extends BaseController
     }
 
 
-    private function dealWeChatImage($id, $htmlData)
+    private function dealWeChatImage($id, $htmlData, $ajax = false)
     {
-        $data = Platv4Headline::find($id);
         $html = new Document($htmlData);
 
         $client = new Client(['verify' => false]);  //忽略SSL错误
 
         $description = htmlspecialchars_decode($htmlData);
 
-        foreach ($html->find('img') as $key => $item) {
+        foreach ($html->find('img') as $item) {
             $src = $item->src;
+            if (strpos($src, $this->ossEndpoint) !== false) {
+//                OSS域图片不需处理
+                \Log::info('continue :' . $src);
+                continue;
+            }
 
 //            后缀
             $type = 'jpg';
@@ -194,27 +208,36 @@ class HeadlineController extends BaseController
             }
 
 //            图片名称
-            $fileName = 'IMAGE_' . $id . '_' . $key . '.' . $type;
+            $fileName = substr(md5($src), 8, 16) . '.' . $type;
             $file = storage_path('headline') . '/' . $fileName;
-            $imageObject = 'HEADLINE/' . $fileName;
+            $imageObject = 'HEADLINE/' . $id . '/' . $fileName;
 
-            if (!is_file($file) && strpos($src, 'http') !== false) {
+            if ($this->isImageExist($imageObject) === false && strpos($src, 'http') !== false) {
+                \Log::info('download :' . $src);
+//                下载
                 $response = $client->get($src, ['save_to' => $file]);   //保存远程url到文件
-            }
-//            上传图片到 OSS
-            $this->uploadImageToOSS($imageObject, $file);
+//                上传图片到 OSS
+                $this->uploadImageToOSS($imageObject, $file);
+//                删除本地文件
+                @unlink($file);
+            } else \Log::info('other :' . $src);
 
             $imageUrl = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint . '/' . $imageObject;
             $description = str_replace($src, $imageUrl, $description);
         }
 
 //        上传HTML到OSS
-        $htmlObject = 'HEADLINE/Article_' . $id . '.html';
-        $description = $this->htmlHeader . $description . $this->htmlFooter;
+        $htmlObject = 'HEADLINE/' . $id . '/' . substr(md5('Article_' . $id), 8, 16) . '.html';
+        $description = (strpos($description, self::MAKA_EDIT_FLAG) !== false || $ajax !== false) ? $description : ($this->htmlHeader . $description . $this->htmlFooter);
         $result = $this->uploadJsonToOSS($htmlObject, $description);
 
-        $data->link = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint . '/' . $htmlObject;
-        $data->save();
+        $data = Platv4Headline::find($id);
+        if ($data) {
+            $data->link = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint . '/' . $htmlObject;
+            $data->save();
+        }
+
+        return $description;
     }
 
 
@@ -234,13 +257,19 @@ class HeadlineController extends BaseController
         return $oss->putObject($this->ossBucket, $object, $json);
     }
 
+    private function isImageExist($object)
+    {
+        $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
+        return $oss->doesObjectExist($this->ossBucket, $object);
+    }
+
 
     public function editHtml()
     {
         $id = Input::get('id', null);
         $link = Input::get('link', null);
 
-        $content = file_get_contents($link);
+        $content = $link ? file_get_contents($link) : '';
 
         return view('headline.article', compact('content', 'id'));
     }
@@ -249,8 +278,23 @@ class HeadlineController extends BaseController
     {
         $id = Input::get('id', null);
         $content = Input::get('content', null);
-        $this->dealWeChatImage($id, $content);
+        $ajax = Input::get('ajax', null);
+        $description = $this->dealWeChatImage($id, $content, $ajax);
 
-        return redirect('/headlines');
+        if ($ajax) return $this->respData(['content' => $description]);
+        else return redirect('/headlines');
+    }
+
+    private function htmlStyle()
+    {
+        return '<style>
+                    span {
+                        font-size: 14px !important;
+                        color: #3e3e3e !important;
+                    }
+                    img {
+                        max-width: 100% !important;
+                    }
+                </style>';
     }
 }
