@@ -35,4 +35,5 @@ class Platv4Headline extends Model
         self::STATUS_NORMAL => '上线',
         self::STATUS_OFFLINE => '下线',
     ];
+
 }

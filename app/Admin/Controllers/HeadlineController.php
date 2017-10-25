@@ -2,7 +2,11 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Platv4HeadlineTag;
+use App\Models\Platv4HeadlineToTag;
 use Encore\Admin\Facades\Admin;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use OSS\OssClient;
 use Zofe\Rapyd\DataEdit\DataEdit;
@@ -53,7 +57,10 @@ class HeadlineController extends BaseController
 
         $filter->add('title', '标题', 'text');
         $filter->add('author', '来源', 'text');
-        $filter->add('created_at', '发布日期', 'daterange')
+        $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4Headline::$statusText);
+        $filter->add('type', '类型', 'select')->options(['' => '全部类型'] + Platv4Headline::$typeText);
+        $filter->add('style', '样式', 'select')->options(['' => '全部样式'] + Platv4Headline::$styleText);
+        $filter->add('created_at', '创建日期', 'daterange')
             ->format('Y-m-d', 'zh-CN');
 
         $filter->submit('筛选');
@@ -165,10 +172,14 @@ class HeadlineController extends BaseController
         $form->add('thumb', '封面图', 'text');
 //            ->attributes(['readOnly' => true]);
 
+        $form->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->pluck('name', 'id'));
+
         $form->add('status', '状态', 'select')->options(Platv4Headline::$statusText);
 
         $form->saved(function () use ($form) {
             try{
+                $this->saveHeadlineTag($form->model->id, Input::get('tags'));
+
                 $this->dealWeChatImage($form->model->id, $form->model->link);
                 $form->message("新建头条成功");
                 $form->link(config('admin.route.prefix') . '/headlines',"返回");
@@ -195,6 +206,13 @@ class HeadlineController extends BaseController
             return redirect('/headlines');
         }
 
+        $id = Input::get('modify', 0);
+        if ($id) {
+            $tagList = Platv4HeadlineToTag::where('headline_id', $id)->get()->toArray();
+            $tags = array_column($tagList, 'headline_tag_id');
+            Input::offsetSet('tags', array_values($tags));   // 选中tags
+        }
+
         $edit = DataEdit::source(new Platv4Headline());
 
         $edit->label('头条信息');
@@ -215,14 +233,52 @@ class HeadlineController extends BaseController
         $edit->add('thumb', '封面图', 'text');
 //            ->attributes(["readOnly" => true]);
 
+        $edit->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->pluck('name', 'id'));
+
         $edit->add('status', '状态', 'select')->options(Platv4Headline::$statusText);
+
+        $edit->saved(function () use ($edit) {
+            $this->saveHeadlineTag($edit->model->id, Input::get('tags'));
+        });
 
         $edit->build();
 
-        $id = Input::get('modify', 0);
         return $edit->view('headline.edit', compact('edit', 'id'));
     }
 
+
+    private function saveHeadlineTag($headlineId, $tags)
+    {
+        if(empty($headlineId)) return false;
+        if(empty($tags)) return true;
+
+        Platv4HeadlineToTag::where('headline_id', $headlineId)->delete();
+        $insertData = [];
+        foreach ($tags as $tag) {
+            $insertData[] = [
+                'headline_id' => $headlineId,
+                'headline_tag_id' => $tag,
+            ];
+        }
+        return DB::table('platv4_headline_to_tag')->insert($insertData);
+    }
+
+    private function saveHeadlineTagBak($headlineId, $tags)
+    {
+        if(empty($headlineId)) return false;
+        if(empty($tags)) return true;
+
+        Platv4HeadlineToTag::where('headline_id', $headlineId)->update(['status' => Platv4HeadlineToTag::COMMON_STATUS_DELETE]);
+        $initSql = 'INSERT INTO `platv4_headline_to_tag` (`headline_id`, `headline_tag_id`, `status`)
+                      VALUES ';
+        $sql = '';
+        foreach ($tags as $tag) {
+            $sql .=  '(' . intval($headlineId) . ', ' . intval($tag) . ', ' . Platv4HeadlineToTag::COMMON_STATUS_NORMAL . '),';
+        }
+        $sql = substr($sql, 0, -1) . ' ON DUPLICATE KEY UPDATE `status` = VALUES(status);';
+        DB::insert(DB::raw($initSql . $sql));
+        return true;
+    }
 
     private function dealWeChatImage($id, $htmlData, $ajax = false)
     {
