@@ -5,6 +5,9 @@
         input[type=radio] {
             margin: 4px 0 0 25px !important;
         }
+        input[type=checkbox] {
+            margin: 4px 4px 0 25px !important;
+        }
     </style>
 
     {{--百度 UEditor--}}

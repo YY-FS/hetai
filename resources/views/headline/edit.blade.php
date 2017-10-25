@@ -1,6 +1,14 @@
 @extends('admin.index')
 @section('content')
     {!! Rapyd::head() !!}
+    <style>
+        input[type=radio] {
+            margin: 4px 0 0 25px !important;
+        }
+        input[type=checkbox] {
+            margin: 4px 4px 0 25px !important;
+        }
+    </style>
     <div style="padding:2%">
         <div class="rpd-edit">
             {!! $edit !!}
