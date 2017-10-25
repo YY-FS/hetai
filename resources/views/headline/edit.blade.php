@@ -7,8 +7,7 @@
         </div>
     </div>
     <script>
-
-//        封面图处理
+//        ---------------- 封面图处理 ---------------------
         var btnOss = '<br><div id="photo-preview"></div><span class="pull-right" id="count-photo">0</span><button onclick="loadOss()" type="button" class="pull-left btn btn-primary">选择封面图</button><br><hr>';
         $('#div_thumb').append(btnOss);
         function loadOss() {
@@ -39,8 +38,22 @@
 
 //                计算选的封面图数量
                 $('#count-photo').text(parseInt($('#count-photo').text()) - 1);
-                layer.msg('删除预览图成功', {icon: 2});
+                layer.msg('删除预览图成功', {icon: 1});
             });
         }
+//        ---------------- 封面图处理 ---------------------
+
+//        初始化封面图预览和计数
+        $('#count-photo').text({!! count(explode(',', $edit->model->thumb)) !!});
+
+//        预览
+        @foreach(explode(',', $edit->model->thumb) as $key => $item)
+        var img = '<img ' +
+            'id="photo-{!! $key !!}" ' +
+            'onclick="delPhoto(\'{!! $item !!}\', \'photo-{!! $key !!}\')" ' +
+            'style="border: 1px solid #3c8dbc; border-radius: 5px;padding: 2px; height: 50px;width: auto;margin-right: 3px" ' +
+            'src="{!! $item !!}">';
+        $('#photo-preview').append(img);
+        @endforeach
     </script>
 @endsection
