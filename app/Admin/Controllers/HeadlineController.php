@@ -269,7 +269,15 @@ class HeadlineController extends BaseController
 
 //        上传HTML到OSS
         $htmlObject = 'HEADLINE/' . $id . '/' . substr(md5('Article_' . $id), 8, 16) . '.html';
-        $description = (strpos($description, self::MAKA_EDIT_FLAG) !== false || $ajax !== false) ? $description : ($this->htmlHeader . $description . $this->htmlFooter);
+        if ($ajax !== false) {
+            return $description;
+        }
+
+        if (strpos($description, self::MAKA_EDIT_FLAG) === false) {
+            \Log::info('--- 需要加Header ----');
+            $description = $this->htmlHeader . $description . $this->htmlFooter;
+        }
+
         $result = $this->uploadJsonToOSS($htmlObject, $description);
 
         $data = Platv4Headline::find($id);
@@ -319,7 +327,7 @@ class HeadlineController extends BaseController
     {
         $id = Input::get('id', null);
         $content = Input::get('content', null);
-        $ajax = Input::get('ajax', null);
+        $ajax = Input::get('ajax', false);
         $description = $this->dealWeChatImage($id, $content, $ajax);
 
         if ($ajax) return $this->respData(['content' => $description]);

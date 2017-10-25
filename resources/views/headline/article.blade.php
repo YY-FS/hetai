@@ -7,13 +7,6 @@
     <script type="text/javascript" src="{{ asset ("/packages/zofe/rapyd/assets/redactor/jquery.browser.min.js") }}"></script>
     <script type="text/javascript" src="{{ asset ("/packages/zofe/rapyd/assets/redactor/redactor.js") }}"></script>
 
-    <style>
-        .redactor_box {
-            width: 375px !important;
-        }
-    </style>
-
-
     <div style="padding:2%">
         <div class="rpd-edit">
             <a href="/headlines/edit?modify={!! $id !!}" class="pull-right btn btn-primary">编辑信息</a>

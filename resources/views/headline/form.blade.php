@@ -62,7 +62,7 @@
             layer.close(index);
         }
 
-//        封面图处理
+//        ---------------- 封面图处理 ---------------------
         var btnOss = '<br><div id="photo-preview"></div><span class="pull-right" id="count-photo">0</span><button onclick="loadOss()" type="button" class="pull-left btn btn-primary">选择封面图</button><br><hr>';
         $('#div_thumb').append(btnOss);
         function loadOss() {
@@ -93,8 +93,9 @@
 
 //                计算选的封面图数量
                 $('#count-photo').text(parseInt($('#count-photo').text()) - 1);
-                layer.msg('删除预览图成功', {icon: 2});
+                layer.msg('删除预览图成功', {icon: 1});
             });
         }
+//        ---------------- 封面图处理 ---------------------
     </script>
 @endsection
