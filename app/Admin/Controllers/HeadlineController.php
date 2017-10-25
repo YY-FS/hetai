@@ -53,13 +53,23 @@ class HeadlineController extends BaseController
     {
 
         $title = '头条文章';
-        $filter = DataFilter::source(Platv4Headline::where('status', '>=', 0));
+        $tips = '筛选标签时，只显示筛选的标签';
+        $filter = DataFilter::source(Platv4Headline::rapydGrid());
 
         $filter->add('title', '标题', 'text');
         $filter->add('author', '来源', 'text');
         $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4Headline::$statusText);
         $filter->add('type', '类型', 'select')->options(['' => '全部类型'] + Platv4Headline::$typeText);
         $filter->add('style', '样式', 'select')->options(['' => '全部样式'] + Platv4Headline::$styleText);
+        $filter->add('tags', '标签', 'select')
+            ->options(['' => '全部标签'] + Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->pluck('name', 'id')->toArray())
+            ->scope(function ($query, $value) {
+                if ($value == '') {
+                    return $query;
+                } else {
+                    return $query->where('h2t.headline_tag_id', $value);
+                }
+            });
         $filter->add('created_at', '创建日期', 'daterange')
             ->format('Y-m-d', 'zh-CN');
 
@@ -74,6 +84,7 @@ class HeadlineController extends BaseController
         $grid->add('title', '标题', false);
         $grid->add('type', '类型', true);
         $grid->add('style', '样式', true);
+        $grid->add('tags', '标签', false);
         $grid->add('author', '来源', true);
         $grid->add('created_at', '创建日期', true);
         $grid->add('status', '状态', true);
@@ -119,6 +130,11 @@ class HeadlineController extends BaseController
             $btnDelete = '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . "/headlines/edit?delete=" . $row->data->id . '\'})">删除</button>';
 
             $row->cell('operation')->value = $btnPreview . $btnEdit . $btnDelete;
+
+//            标签
+            if (Input::get('tags', null)) {
+                $row->cell('tags')->value = $row->data->tags . '...';
+            }
         });
 
         if (Input::get('export') == 1) {
@@ -127,7 +143,7 @@ class HeadlineController extends BaseController
         } else {
             $grid->paginate(self::DEFAULT_PER_PAGE);
             $grid->build();
-            return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
+            return view('rapyd.filtergrid', compact('filter', 'grid', 'title', 'tips'));
         }
 
     }

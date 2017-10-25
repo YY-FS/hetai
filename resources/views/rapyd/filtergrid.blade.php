@@ -8,6 +8,12 @@
         @else
             <h4 class="pull-left">列表</h4>
         @endif
+
+        @if(isset($tips))
+            <br>
+            <br>
+            <p style="color: #cecece;font-size: 12px">{!! $tips !!}</p>
+        @endif
         <div class="pull-right" style="margin-bottom: 15px">
             {!! $filter !!}
         </div>
