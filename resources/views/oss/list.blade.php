@@ -1,7 +1,32 @@
 @extends('style')
 <br>
 <div style="padding:2%;background-color: #ffffff;margin: 2px 20px 0 20px;border-radius: 5px;">
-    <button class="btn btn-primary pull-right">上传图片</button>
+    {{--<div id="container">--}}
+        {{--<button onclick="set_upload_param(uploader, 'test', false, 'HEADLINE/4');" class="btn btn-primary">上传图片</button>--}}
+    {{--</div>--}}
+    <div>
+        <form name=theform>
+            <input type="radio" name="myradio" value="local_name" checked=true/> 上传文件名字保持本地文件名字
+            <input type="radio" name="myradio" value="random_name"/> 上传文件名字是随机文件名, 后缀保留
+        </form>
+
+        <h4>您所选择的文件列表：</h4>
+        <div id="ossfile">你的浏览器不支持flash,Silverlight或者HTML5！</div>
+
+        <br/>
+
+        <div id="container">
+            <a id="selectfiles" href="javascript:void(0);" class='btn btn-primary'>选择文件</a>
+            <button id="postfiles" onclick="set_upload_param(uploader, '', false, '{!! $dir !!}')"
+                    class='btn btn-primary'>开始上传
+            </button>
+        </div>
+
+        <pre id="console"></pre>
+
+        <p>&nbsp;</p>
+    </div>
+
     <table class="table table-striped">
         <thead>
         <tr>
@@ -48,4 +73,5 @@
 //        parent.layer.close(index);
     }
 </script>
-
+<script type="text/javascript" src="{{ asset ("/js/oss/lib/plupload-2.1.2/js/plupload.full.min.js") }}"></script>
+<script type="text/javascript" src="{{ asset ("/js/oss/upload.js") }}"></script>

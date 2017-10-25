@@ -19,5 +19,6 @@ Route::group([
     $router->post('headlines/html', 'HeadlineController@updateHtml');
 
     $router->get('headlines/oss/{id}', 'OssController@headlineObject');
+    $router->get('oss/auth', 'OssController@auth');
 
 });
