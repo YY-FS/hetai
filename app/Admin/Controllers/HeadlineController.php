@@ -124,7 +124,7 @@ class HeadlineController extends BaseController
                                                                                 area: ['375px', '667px'], 
                                                                                 " . $btnEditHtml . "
                                                                                 shadeClose: true,
-                                                                                content: '" . $link . "'
+                                                                                content: '" . $link . '?new=' . date('YmdHis') . "'
                                                                             })\">查看内容</button>";
             $btnEdit = "<a class='btn btn-default' href='" . config('admin.route.prefix') . "/headlines/edit?modify=" . $row->data->id . "'>编辑</a>";
             $btnDelete = '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . "/headlines/edit?delete=" . $row->data->id . '\'})">删除</button>';
