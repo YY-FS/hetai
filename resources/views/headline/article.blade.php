@@ -17,12 +17,20 @@
                 <textarea id="redactor_content" name="content" style="height: 560px;">{!! $content !!}</textarea>
                 <input hidden="hidden" name="id" value="{!! $id !!}" />
                 <hr>
-                <button class="pull-right btn btn-primary" type="submit">提交修改</button>
+                <button onclick="loading()" class="pull-right btn btn-primary" type="submit">提交修改</button>
                 <br>
                 <br>
             </form>
         </div>
     </div>
 
-    <script>$('#redactor_content').redactor();</script>
+    <script>
+        $('#redactor_content').redactor();
+//        loading
+        function loading() {
+            var index = layer.load(0, {
+                shade: [0.3,'#000']
+            });
+        }
+    </script>
 @endsection
