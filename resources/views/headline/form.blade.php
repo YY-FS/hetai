@@ -56,13 +56,14 @@
                 success: function (data) {
                     var content = data.data.content;
                     layer.alert('上传成功');
-                    $('#link').val(content)
+                    $('#link').val(content);
+                    layer.close(index);
                 },
                 error: function (data) {
-                    alert('上传失败，请重新上传')
+                    alert('上传失败，请重新上传');
+                    layer.close(index);
                 }
             });
-            layer.close(index);
         }
 
 //        ---------------- 封面图处理 ---------------------
