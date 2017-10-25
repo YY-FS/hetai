@@ -21,4 +21,6 @@ Route::group([
     $router->get('headlines/oss/{id}', 'OssController@headlineObject');
     $router->get('oss/auth', 'OssController@auth');
 
+    $router->get('headline/tags', 'HeadlineTagController@index');
+    $router->any('headline/tags/edit', 'HeadlineTagController@anyEdit');
 });
