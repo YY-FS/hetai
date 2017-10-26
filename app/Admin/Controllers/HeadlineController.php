@@ -19,7 +19,9 @@ use App\Models\Platv4Headline;
 use DiDom\Document;
 use GuzzleHttp\Client;
 
-define ('LIBXML_HTML_NODEFDTD', 4); // libxml 低版本缺少的常量，兼容服务器低版本
+if (!defined('LIBXML_HTML_NODEFDTD')) {
+    define ('LIBXML_HTML_NODEFDTD', 4); // libxml 低版本缺少的常量，兼容服务器低版本
+}
 
 class HeadlineController extends BaseController
 {
