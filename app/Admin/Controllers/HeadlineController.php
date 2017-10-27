@@ -192,9 +192,11 @@ class HeadlineController extends BaseController
         $form->add('thumb', '封面图', 'text');
 //            ->attributes(['readOnly' => true]);
 
-        $form->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->pluck('name', 'id'));
+        $form->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->orderBy('sort', 'asc')->pluck('name', 'id'));
 
         $form->add('status', '状态', 'select')->options(Platv4Headline::$statusText);
+
+        $form->add('admin_user_id', '检录员', 'hidden')->insertValue(Admin::user()->id);
 
         $form->saved(function () use ($form) {
             try{
@@ -253,7 +255,7 @@ class HeadlineController extends BaseController
         $edit->add('thumb', '封面图', 'text');
 //            ->attributes(["readOnly" => true]);
 
-        $edit->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->pluck('name', 'id'));
+        $edit->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->orderBy('sort', 'asc')->pluck('name', 'id'));
 
         $edit->add('status', '状态', 'select')->options(Platv4Headline::$statusText);
 

@@ -2,11 +2,15 @@
 @section('content')
     {!! Rapyd::head() !!}
     <style>
-        input[type=radio] {
-            margin: 4px 0 0 25px !important;
+        #div_style label{
+            width: 100px;
+        }
+        #fg_tags label{
+            margin-left: 30px;
+            width: 120px;
         }
         input[type=checkbox] {
-            margin: 4px 4px 0 25px !important;
+            margin-right: 5px;
         }
     </style>
     <div style="padding:2%">
