@@ -198,11 +198,11 @@ class HeadlineController extends BaseController
 
         $form->add('admin_user_id', '检录员', 'hidden')->insertValue(Admin::user()->id);
 
-        $form->saved(function () use ($form) {
+        $form->saved(function () use ($form, $type) {
             try{
                 $this->saveHeadlineTag($form->model->id, Input::get('tags'));
 
-                $this->dealWeChatImage($form->model->id, $form->model->link);
+                if ($type == Platv4Headline::TYPE_ARTICLE) $this->dealWeChatImage($form->model->id, $form->model->link);
                 $form->message("新建头条成功");
                 $form->link(config('admin.route.prefix') . '/headlines',"返回");
             } catch (\Exception $exception) {
