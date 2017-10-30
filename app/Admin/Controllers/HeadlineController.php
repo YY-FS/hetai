@@ -343,7 +343,7 @@ class HeadlineController extends BaseController
                 @unlink($file);
             } else \Log::info('other :' . $src);
 
-            $imageUrl = 'http://' . $this->ossBucket . '.' . $this->ossViewDomain . '/' . $imageObject;
+            $imageUrl = 'http://' . $this->ossViewDomain . '/' . $imageObject;
             $description = str_replace($src, $imageUrl, $description);
         }
 
@@ -362,7 +362,7 @@ class HeadlineController extends BaseController
 
         $data = Platv4Headline::find($id);
         if ($data) {
-            $data->link = 'http://' . $this->ossBucket . '.' . $this->ossViewDomain . '/' . $htmlObject;
+            $data->link = 'http://' . $this->ossViewDomain . '/' . $htmlObject;
             $data->save();
         }
 
