@@ -30,6 +30,7 @@ class HeadlineController extends BaseController
     public $ossAppId;
     public $ossAppSecret;
     public $ossEndpoint;
+    public $ossViewDomain;
     public $htmlHeader;
     public $htmlFooter;
 
@@ -41,6 +42,7 @@ class HeadlineController extends BaseController
         $this->ossAppId = env('ALI_OSS_PLAT_ACCESS_KEY');
         $this->ossAppSecret = env('ALI_OSS_PLAT_ACCESS_SECRET');
         $this->ossEndpoint = env('ALI_OSS_PLAT_ENDPOINT');
+        $this->ossViewDomain = env('ALI_OSS_PLAT_VIEW_DOMAIN');
 
         $this->htmlHeader = '<!DOCTYPE html><html><head>
                 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
@@ -312,7 +314,7 @@ class HeadlineController extends BaseController
 
         foreach ($html->find('img') as $item) {
             $src = $item->src;
-            if (strpos($src, $this->ossEndpoint) !== false) {
+            if (strpos($src, $this->ossViewDomain) !== false) {
 //                OSS域图片不需处理
                 \Log::info('continue :' . $src);
                 continue;
@@ -341,7 +343,7 @@ class HeadlineController extends BaseController
                 @unlink($file);
             } else \Log::info('other :' . $src);
 
-            $imageUrl = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint . '/' . $imageObject;
+            $imageUrl = 'http://' . $this->ossBucket . '.' . $this->ossViewDomain . '/' . $imageObject;
             $description = str_replace($src, $imageUrl, $description);
         }
 
@@ -360,7 +362,7 @@ class HeadlineController extends BaseController
 
         $data = Platv4Headline::find($id);
         if ($data) {
-            $data->link = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint . '/' . $htmlObject;
+            $data->link = 'http://' . $this->ossBucket . '.' . $this->ossViewDomain . '/' . $htmlObject;
             $data->save();
         }
 
