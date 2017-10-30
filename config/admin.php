@@ -113,7 +113,7 @@ return [
      */
     'operation_log'   => [
 
-        'enable' => false,
+        'enable' => true,
 
         /*
          * Routes that will not log to database.
@@ -122,7 +122,9 @@ return [
          * or specific method to path like: get:admin/auth/logs
          */
         'except' => [
-            'admin/auth/logs*',
+            'auth/logs*',
+            'headlines/create*',
+            'headlines/html*',
         ],
     ],
 

@@ -57,6 +57,24 @@ return [
             'engine' => null,
         ],
 
+        'plat' => [
+            'read'      => [
+                'host'  => env('DB_PLAT_READ_HOST', 'localhost'),
+            ],
+            'write'     => [
+                'host'  => env('DB_PLAT_WRITE_HOST', 'localhost'),
+            ],
+            'driver'    => env('DB_PLAT_DRIVER', 'mysql'),
+            'database'  => env('DB_PLAT_DATABASE_NAME', 'forge'),
+            'username'  => env('DB_PLAT_USERNAME', 'forge'),
+            'password'  => env('DB_PLAT_PASSWORD', ''),
+            'charset'   => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix'    => '',
+            'strict' => false,
+            'engine' => null,
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'host' => env('DB_HOST', '127.0.0.1'),
