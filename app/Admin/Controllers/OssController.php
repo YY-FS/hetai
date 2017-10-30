@@ -18,6 +18,7 @@ class OssController extends Controller
     public $ossAppId;
     public $ossAppSecret;
     public $ossEndpoint;
+    public $ossViewDomain;
 
     public function __construct()
     {
@@ -25,6 +26,7 @@ class OssController extends Controller
         $this->ossAppId = env('ALI_OSS_PLAT_ACCESS_KEY');
         $this->ossAppSecret = env('ALI_OSS_PLAT_ACCESS_SECRET');
         $this->ossEndpoint = env('ALI_OSS_PLAT_ENDPOINT');
+        $this->ossViewDomain = env('ALI_OSS_PLAT_VIEW_DOMAIN');
     }
 
     public function headlineObject($id)
@@ -50,7 +52,7 @@ class OssController extends Controller
                 'type' => $item->getType(),
                 'size' => $this->fileSizeFormat($item->getSize()),
                 'storageClass' => $item->getStorageClass(),
-                'url' => 'http://' . $this->ossBucket . '.' . $this->ossEndpoint . '/' . $item->getKey(),
+                'url' => 'http://' . $this->ossViewDomain . '/' . $item->getKey(),
             ];
             $sort[] = strtotime($item->getLastModified());
         }
@@ -109,7 +111,7 @@ class OssController extends Controller
 
         $response = [];
         $response['accessid'] = $this->ossAppId;
-        $response['host'] = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint;
+        $response['host'] = 'http://' . $this->ossViewDomain;
         $response['policy'] = $base64Policy;
         $response['signature'] = $signature;
         $response['expire'] = $end;
