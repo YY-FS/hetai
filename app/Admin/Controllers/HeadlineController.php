@@ -130,6 +130,7 @@ class HeadlineController extends BaseController
                                                                                 area: ['375px', '667px'], 
                                                                                 " . $btnEditHtml . "
                                                                                 shadeClose: true,
+                                                                                scrollbar: false,
                                                                                 content: '" . $link . '?new=' . date('YmdHis') . "'
                                                                             })\">查看内容</button>";
             $btnEdit = "<a class='btn btn-default' href='" . config('admin.route.prefix') . "/headlines/edit?modify=" . $row->data->id . "'>编辑</a>";
@@ -191,8 +192,8 @@ class HeadlineController extends BaseController
             $form->link(config('admin.route.prefix') . "/headlines/create?type=" . Platv4Headline::TYPE_ARTICLE, "新建文章", "TR");
         }
 
-        $form->add('thumb', '封面图', 'text');
-//            ->attributes(['readOnly' => true]);
+        $form->add('thumb', '封面图', 'text')
+            ->attributes(['readOnly' => true]);
 
         $form->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->orderBy('sort', 'asc')->pluck('name', 'id'));
 
@@ -254,8 +255,8 @@ class HeadlineController extends BaseController
 
         $edit->add('link','链接','text')->rule("required")->placeholder("请输入 链接");
 
-        $edit->add('thumb', '封面图', 'text');
-//            ->attributes(["readOnly" => true]);
+        $edit->add('thumb', '封面图', 'text')
+            ->attributes(["readOnly" => true]);
 
         $edit->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->orderBy('sort', 'asc')->pluck('name', 'id'));
 
