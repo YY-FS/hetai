@@ -90,6 +90,7 @@ class HeadlineController extends BaseController
         $grid->add('title', '标题', false);
         $grid->add('type', '类型', true);
         $grid->add('style', '样式', true);
+        $grid->add('thumb', '封面图', true);
         $grid->add('tags', '标签', false);
         $grid->add('author', '来源', true);
         $grid->add('created_at', '创建日期', true);
@@ -142,6 +143,12 @@ class HeadlineController extends BaseController
             if (Input::get('tags', null)) {
                 $row->cell('tags')->value = $row->data->tags . '...';
             }
+
+            $thumb = '';
+            foreach (explode(',', $row->data->thumb) as $img) {
+                $thumb .= '<img style="height: 40px; width: auto; max-width: 60px; border-radius: 5px" src="' . $img . '" />&nbsp;';
+            }
+            $row->cell('thumb')->value = $thumb;
         });
 
         if (Input::get('export') == 1) {
