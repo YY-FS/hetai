@@ -71,13 +71,19 @@
         }
 
 //        ---------------- 封面图处理 ---------------------
-        var btnOss = '<br><div id="photo-preview"></div><span class="pull-right" id="count-photo">0</span><button onclick="loadOss()" type="button" class="pull-left btn btn-primary">选择封面图</button><br><hr>';
+        var btnOss = '<br>' +
+            '<div id="photo-preview"></div>' +
+            '<span class="pull-right" id="count-photo">0</span>' +
+            '<button onclick="loadOss()" type="button" class="pull-left btn btn-primary">选择封面图</button>' +
+            '<span style="font-size: 12px; color: #999999; line-height: 50px;">点击图片删除</span>' +
+            '<br><hr>';
         $('#div_thumb').append(btnOss);
         function loadOss() {
             layer.open({
                 type: 2,
                 title: '封面图选取',
                 shadeClose: true,
+                scrollbar: false,
                 area: ['860px', '640px'],
                 content: '/headlines/oss/{!! $nextId !!}'
             });
