@@ -84,7 +84,7 @@
                 title: '封面图选取',
                 shadeClose: true,
                 scrollbar: false,
-                area: ['860px', '640px'],
+                area: ['1024px', '640px'],
                 content: '/headlines/oss/{!! $nextId !!}'
             });
         }
