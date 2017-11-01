@@ -41,9 +41,11 @@ class Platv4Headline extends Model
         return DB::table('platv4_headlines AS h')
             ->leftJoin('platv4_headline_to_tag AS h2t', 'h.id', '=', 'h2t.headline_id')
             ->leftJoin('platv4_headline_tags AS ht', 'h2t.headline_tag_id', '=', 'ht.id')
+            ->leftJoin('platv4_cms_admin_users AS u', 'h.admin_user_id', '=', 'u.id')
             ->select(
                 'h.*',
-                DB::raw('GROUP_CONCAT(ht.name) AS tags')
+                DB::raw('GROUP_CONCAT(ht.name) AS tags'),
+                'u.name AS author'
             )
             ->where('h.status', '>=', 0)
             ->groupBy('h.id');
