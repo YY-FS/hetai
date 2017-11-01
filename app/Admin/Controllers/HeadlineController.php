@@ -95,6 +95,7 @@ class HeadlineController extends BaseController
         $grid->add('author', '来源', true);
         $grid->add('created_at', '创建日期', true);
         $grid->add('status', '状态', true);
+        $grid->add('author', '创建人', true);
 
         $grid->add('operation','操作', false);
 
