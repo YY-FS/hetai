@@ -45,7 +45,7 @@ class Platv4Headline extends Model
             ->select(
                 'h.*',
                 DB::raw('GROUP_CONCAT(ht.name) AS tags'),
-                'u.name AS author'
+                'u.name AS admin_user'
             )
             ->where('h.status', '>=', 0)
             ->groupBy('h.id');
