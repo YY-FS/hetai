@@ -59,4 +59,8 @@ class Platv4Headline extends Model
 
     }
 
+    public static function getAdminUser()
+    {
+        return DB::table('platv4_cms_admin_users')->pluck('name', 'id')->toArray();
+    }
 }
