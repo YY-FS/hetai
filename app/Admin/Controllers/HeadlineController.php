@@ -80,8 +80,19 @@ class HeadlineController extends BaseController
                     return $query->where('h2t.headline_tag_id', $value);
                 }
             });
-        $filter->add('created_at', '创建日期', 'daterange')
-            ->format('Y-m-d', 'zh-CN');
+        $filter->add('created_at', '创建日期', 'daterange')->scope(function ($query, $value) {
+            $value = explode('|', $value);
+            if (!empty($value[0])) {
+                $query = $query->where('h.created_at', '>=', $value[0]);
+            }
+
+            if (!empty($value[1])) {
+                $query = $query->where('h.created_at', '<=', $value[1]);
+            }
+            return $query;
+        })->format('Y-m-d', 'zh-CN');
+
+        (Admin::user()->inRoles($admin) == true) && $filter->add('admin_user_id', '创建人', 'select')->options(['' => '全部录入人'] + Platv4Headline::getAdminUser());
 
         $filter->submit('筛选');
         $filter->reset('重置');
