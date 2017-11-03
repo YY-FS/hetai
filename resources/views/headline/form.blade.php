@@ -19,9 +19,17 @@
     {{--<script type="text/javascript" src="{{ asset ("/js/ueditor/ueditor.all.min.js") }}"></script>--}}
 
     {{--jQuery 轻量级redactor--}}
-    <link rel="stylesheet" href="{{ asset("/packages/zofe/rapyd/assets/redactor/css/redactor.css") }}">
-    <script type="text/javascript" src="{{ asset ("/packages/zofe/rapyd/assets/redactor/jquery.browser.min.js") }}"></script>
-    <script type="text/javascript" src="{{ asset ("/packages/zofe/rapyd/assets/redactor/redactor.js") }}"></script>
+    {{--<link rel="stylesheet" href="{{ asset("/packages/zofe/rapyd/assets/redactor/css/redactor.css") }}">--}}
+    {{--<script type="text/javascript" src="{{ asset ("/packages/zofe/rapyd/assets/redactor/jquery.browser.min.js") }}"></script>--}}
+    {{--<script type="text/javascript" src="{{ asset ("/packages/zofe/rapyd/assets/redactor/redactor.js") }}"></script>--}}
+
+    <link rel="stylesheet" href="{{ asset("/js/simditor/styles/simditor.css") }}">
+
+    <script type="text/javascript" src="{{ asset ("/js/simditor/scripts/jquery.min.js") }}"></script>
+    <script type="text/javascript" src="{{ asset ("/js/simditor/scripts/module.js") }}"></script>
+    <script type="text/javascript" src="{{ asset ("/js/simditor/scripts/hotkeys.js") }}"></script>
+    <script type="text/javascript" src="{{ asset ("/js/simditor/scripts/uploader.js") }}"></script>
+    <script type="text/javascript" src="{{ asset ("/js/simditor/scripts/simditor.js") }}"></script>
 
     <div style="padding:2%">
         <div class="rpd-edit">
@@ -36,7 +44,11 @@
 
     <script>
         @if($type == \App\Models\Platv4Headline::TYPE_ARTICLE)
-            $('#link').html('').attr("name", "link").redactor();
+//            $('#link').html('').attr("name", "link").redactor();
+        var editor = new Simditor({
+            textarea: $('#link')
+            //optional options
+        });
 //            上传HTML
             var btn = '<br><button onclick="uploadHtml()" type="button" class="pull-left btn btn-primary">上传文章图片</button><br><hr>';
             $('#div_link').append(btn);
