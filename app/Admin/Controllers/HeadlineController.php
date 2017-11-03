@@ -439,10 +439,6 @@ class HeadlineController extends BaseController
     private function htmlStyle()
     {
         return '<style>
-                    span {
-                        font-size: 14px !important;
-                        color: #3e3e3e !important;
-                    }
                     img {
                         max-width: 100% !important;
                     }
