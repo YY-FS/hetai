@@ -360,6 +360,15 @@ class HeadlineController extends BaseController
             $description = str_replace($src, $imageUrl, $description);
         }
 
+
+//        处理p标签里面style有双引号的问题
+//        foreach ($html->find('p') as $item) {
+//            $style = $item->style;
+//            \Log::info($style);
+//            $newStyle = str_replace('"', '\'', $style);
+//            $description = str_replace($style, $newStyle, $description);
+//        }
+
 //        上传HTML到OSS
         $htmlObject = 'HEADLINE/' . $id . '/' . substr(md5('Article_' . $id), 8, 16) . '.html';
         if ($ajax !== false) {
