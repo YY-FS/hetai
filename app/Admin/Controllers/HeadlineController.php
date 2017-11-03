@@ -60,7 +60,11 @@ class HeadlineController extends BaseController
 
         $title = '头条文章';
         $tips = '筛选标签时，只显示筛选的标签';
-        $filter = DataFilter::source(Platv4Headline::rapydGrid());
+        $admin = ['administrator', 'operation-group'];
+        $adminId = Admin::user()->id;
+        (Admin::user()->inRoles($admin) == true) && $adminId = false;
+
+        $filter = DataFilter::source(Platv4Headline::rapydGrid($adminId));
 
         $filter->add('title', '标题', 'text');
         $filter->add('author', '来源', 'text');

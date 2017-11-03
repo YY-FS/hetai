@@ -36,9 +36,9 @@ class Platv4Headline extends Model
         self::STATUS_OFFLINE => '下线',
     ];
 
-    public static function rapydGrid()
+    public static function rapydGrid($adminId)
     {
-        return DB::table('platv4_headlines AS h')
+        $result = DB::table('platv4_headlines AS h')
             ->leftJoin('platv4_headline_to_tag AS h2t', 'h.id', '=', 'h2t.headline_id')
             ->leftJoin('platv4_headline_tags AS ht', 'h2t.headline_tag_id', '=', 'ht.id')
             ->leftJoin('platv4_cms_admin_users AS u', 'h.admin_user_id', '=', 'u.id')
@@ -47,8 +47,16 @@ class Platv4Headline extends Model
                 DB::raw('GROUP_CONCAT(ht.name) AS tags'),
                 'u.name AS admin_user'
             )
-            ->where('h.status', '>=', 0)
-            ->groupBy('h.id');
+            ->where('h.status', '>=', 0);
+
+        if ($adminId !== false) {
+            $result->where('h.admin_user_id', $adminId);
+        }
+
+        $result->groupBy('h.id');
+
+        return $result;
+
     }
 
 }
