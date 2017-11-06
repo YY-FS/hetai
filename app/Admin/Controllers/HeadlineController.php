@@ -135,20 +135,28 @@ class HeadlineController extends BaseController
             else $link = '(空)';
 
             $btnEditHtml = ''; // 视频无法编辑
-            if ($row->data->type == Platv4Headline::TYPE_ARTICLE)
+            $contentType = 1;
+            if ($row->data->type == Platv4Headline::TYPE_ARTICLE) {
                 $btnEditHtml = "btn: ['编辑'],btn1: function(index, layero){
                                     //按钮【按钮一】的回调
                                     window.location.href = '" . config('admin.route.prefix') . "/headlines/html?id=" . $row->data->id . "&link=" . $row->data->link . "';
                                     //return false; //开启该代码可禁止点击该按钮关闭
                                  },";
+                $link .= '?new=' . date('YmdHis');
+                $contentType = 2; //layer content类型
+            } else {
+                $link = '<style>iframe {width: 100%}</style>' . $link;
+                $link = htmlentities($link);
+            }
+
             $btnPreview = "<button class=\"btn btn-primary\" onclick=\"layer.open({
-                                                                                type: 2, 
+                                                                                type: " . $contentType . ", 
                                                                                 title: ['" . $row->data->title . "', false], 
                                                                                 area: ['375px', '667px'], 
                                                                                 " . $btnEditHtml . "
                                                                                 shadeClose: true,
                                                                                 scrollbar: false,
-                                                                                content: '" . $link . '?new=' . date('YmdHis') . "'
+                                                                                content: '" . $link . "'
                                                                             })\">查看内容</button>";
             $btnEdit = "<a class='btn btn-default' href='" . config('admin.route.prefix') . "/headlines/edit?modify=" . $row->data->id . "'>编辑</a>";
             $btnDelete = '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . "/headlines/edit?delete=" . $row->data->id . '\'})">删除</button>';
