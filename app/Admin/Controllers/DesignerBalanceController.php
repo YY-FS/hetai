@@ -129,11 +129,12 @@ class DesignerBalanceController extends BaseController
             ->onchange($changeScript);
 
         $form->add('old_balance', '原余额', 'text')
-            ->attributes(['readOnly' => true]);
+            ->attributes(['readOnly' => true])
+            ->placeholder("设计师原余额");
 
         $form->add('balance', '余额', 'text')
             ->attributes(['readOnly' => true])
-            ->placeholder("【可选】请输入 描述");
+            ->placeholder("设计师变动后的余额");
 
         $form->add('description', '描述', 'text')
 //            ->rule("required|min:2")
