@@ -39,8 +39,8 @@ class DesignerBalanceController extends BaseController
         $grid->add('product_id', '商品ID', true);
         $grid->add('withdrawal_id', '提现ID', true);
         $grid->add('balance_type', '类型', true);
-        $grid->add('amount', '变动金额', true);
-        $grid->add('balance', '余额', true);
+        $grid->add('{{ amount/100 }}', '变动金额', true);
+        $grid->add('{{ balance/100 }}', '余额', true);
         $grid->add('description', '描述', false);
         $grid->add('order_time', '订单时间', true);
         $grid->add('remark', '备注', false);
@@ -92,15 +92,18 @@ class DesignerBalanceController extends BaseController
         $script = '$.get("/designers/jx_balance?designer_id=" + $("input[name=\'designer_id\']").val(),
 			function (data) {
 				console.log(data.data);
-				$("input[name=\'old_balance\']").val(data.data.balance);
+				$("input[name=\'old_balance\']").val((data.data.balance / 100));
+				$("input[name=\'show_balance\']").val((data.data.balance / 100));
 				$("input[name=\'balance\']").val(data.data.balance);
             });';
 
         $changeScript = '
-            var change = $("input[name=\'amount\']").val();
+            var change = $("input[name=\'show_amount\']").val() * 100;
             var old = $("input[name=\'balance\']").val();
             var balance = parseInt(old) + parseInt(change);
+            $("input[name=\'amount\']").val(change);
             $("input[name=\'balance\']").val(balance);
+            $("input[name=\'show_balance\']").val(balance / 100);
             ';
 
 
@@ -111,6 +114,11 @@ class DesignerBalanceController extends BaseController
             ->rule("required|min:2")
             ->placeholder("请输入 设计师ID")
             ->onchange($script);
+
+        $form->add('show_amount', '变动金额', 'text')
+            ->rule("required")
+            ->placeholder("请输入 变动金额（单位：元）")
+            ->onchange($changeScript);
 
         $form->add('oid', '订单流水ID', 'text')
             ->placeholder("【可选】请输入 订单流水ID");
@@ -123,16 +131,17 @@ class DesignerBalanceController extends BaseController
 
         $form->add('balance_type', '类型', 'hidden')->insertValue(Platv4DesignerBalance::BALANCE_TYPE_ADMIN);
 
-        $form->add('amount', '变动金额', 'text')
-            ->rule("required")
-            ->placeholder("请输入 变动金额（单位：分）")
-            ->onchange($changeScript);
+        $form->add('amount', '变动金额', 'hidden');
 
         $form->add('old_balance', '原余额', 'text')
             ->attributes(['readOnly' => true])
             ->placeholder("设计师原余额");
 
-        $form->add('balance', '余额', 'text')
+        $form->add('show_balance', '余额', 'text')
+            ->attributes(['readOnly' => true])
+            ->placeholder("设计师变动后的余额");
+
+        $form->add('balance', '余额', 'hidden')
             ->attributes(['readOnly' => true])
             ->placeholder("设计师变动后的余额");
 
