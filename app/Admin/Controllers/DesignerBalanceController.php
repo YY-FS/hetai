@@ -39,8 +39,8 @@ class DesignerBalanceController extends BaseController
         $grid->add('product_id', '商品ID', true);
         $grid->add('withdrawal_id', '提现ID', true);
         $grid->add('balance_type', '类型', true);
-        $grid->add('{{ amount/100 }}', '变动金额', true);
-        $grid->add('{{ balance/100 }}', '余额', true);
+        $grid->add('{!! $amount/100 !!}', '变动金额', true);
+        $grid->add('{!! $balance/100 !!}', '余额', true);
         $grid->add('description', '描述', false);
         $grid->add('order_time', '订单时间', true);
         $grid->add('remark', '备注', false);
