@@ -30,4 +30,9 @@ Route::group([
 //    用户画像和头条标签关联
     $router->get('industries', 'IndustryController@index');
     $router->any('industries/edit', 'IndustryController@anyEdit');
+
+//    头条内容
+    $router->get('designers/balance', 'DesignerBalanceController@index');
+    $router->any('designers/balance/create', 'DesignerBalanceController@anyForm');
+    $router->get('designers/jx_balance', 'DesignerBalanceController@jxDesignerBalance');
 });
