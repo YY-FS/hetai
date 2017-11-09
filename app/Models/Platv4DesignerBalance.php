@@ -10,11 +10,13 @@ class Platv4DesignerBalance extends BaseModel
     protected $connection = 'plat';
     public $timestamps = false;
 
+    const BALANCE_TYPE_DEFAULT = 0;
     const BALANCE_TYPE_INCOME = 1;
     const BALANCE_TYPE_WITHDRAW = 2;
     const BALANCE_TYPE_ADMIN = 3;
 
     public static $balanceTypeText = [
+        self::BALANCE_TYPE_DEFAULT => '余额初始化',
         self::BALANCE_TYPE_INCOME => '模板收入',
         self::BALANCE_TYPE_WITHDRAW => '提现',
         self::BALANCE_TYPE_ADMIN => '管理员操作',
