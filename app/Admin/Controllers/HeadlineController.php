@@ -237,7 +237,7 @@ class HeadlineController extends BaseController
 
                 if ($type == Platv4Headline::TYPE_ARTICLE) {
                     $imageDir = date('Ymd') . 'U' . Admin::user()->id;
-                    $link = $this->dealWeChatImage($imageDir, $form->model->link);
+                    $link = $this->dealWeChatImage($imageDir, $form->model->link, false, $form->model->id);
                     $data = Platv4Headline::find($form->model->id);
                     if ($data) {
                         $data->link = $link;
@@ -346,7 +346,7 @@ class HeadlineController extends BaseController
         return true;
     }
 
-    private function dealWeChatImage($imageDir, $htmlData, $ajax = false)
+    private function dealWeChatImage($imageDir, $htmlData, $ajax = false, $id = null)
     {
         $html = new Document($htmlData);
 
@@ -395,7 +395,9 @@ class HeadlineController extends BaseController
         }
 
 //        上传HTML到OSS
-        $htmlObject = 'HEADLINE/' . substr(md5('Article_' . time() . '_' . Admin::user()->id), 8, 16) . '.html';
+        $salt = time();
+        if ($id) $salt = $id;
+        $htmlObject = 'HEADLINE/' . substr(md5('Article_' . $salt . '_' . Admin::user()->id), 8, 16) . '.html';
 
         if (strpos($description, self::MAKA_EDIT_FLAG) === false) {
             \Log::info('--- 需要加Header ----');
@@ -451,7 +453,7 @@ class HeadlineController extends BaseController
         $imageDir = Input::get('image_dir', null);
         $content = Input::get('content', null);
         $ajax = Input::get('ajax', false);
-        $result = $this->dealWeChatImage($imageDir, $content, $ajax);
+        $result = $this->dealWeChatImage($imageDir, $content, $ajax, $id);
 
         if ($ajax) return $this->respData(['content' => $result]);
         else {
