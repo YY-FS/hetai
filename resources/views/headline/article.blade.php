@@ -24,6 +24,7 @@
                 <label for="redactor_content">头条内容</label>
                 <textarea id="redactor_content" name="content" style="height: 560px;">{!! $content !!}</textarea>
                 <input hidden="hidden" name="id" value="{!! $id !!}" />
+                <input hidden="hidden" name="image_dir" value="{!! $imageDir !!}" />
                 <hr>
                 <button onclick="loading()" class="pull-right btn btn-primary" type="submit">提交修改</button>
                 <br>
