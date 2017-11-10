@@ -308,7 +308,8 @@ class HeadlineController extends BaseController
 
         $edit->build();
 
-        return $edit->view('headline.edit', compact('edit', 'id'));
+        $imageDir = date('Ymd') . 'U' . Admin::user()->id;
+        return $edit->view('headline.edit', compact('edit', 'id', 'imageDir'));
     }
 
 
