@@ -60,7 +60,7 @@
                 shade: [0.3,'#000']
             });
             var data = {
-                'id': '{!! $nextId !!}',
+                'image_dir': '{!! $imageDir !!}',
                 'content': $('#link').val(),
                 'ajax': 1 // 标识是ajax请求，服务端才不会redirect
             };
@@ -97,7 +97,7 @@
                 shadeClose: true,
                 scrollbar: false,
                 area: ['1024px', '640px'],
-                content: '/headlines/oss/{!! $nextId !!}'
+                content: '/headlines/oss/{!! $imageDir !!}'
             });
         }
 

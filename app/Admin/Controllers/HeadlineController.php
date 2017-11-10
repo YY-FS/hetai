@@ -53,6 +53,7 @@ class HeadlineController extends BaseController
                 <meta name="others" content="' . self::MAKA_EDIT_FLAG . '">
                 <meta name="format-detection" content="telephone=no">' . $this->htmlStyle() . '</head>';
         $this->htmlFooter = '</html>';
+
     }
 
     public function index()
@@ -195,8 +196,6 @@ class HeadlineController extends BaseController
         ]);
         $type = Input::get('type', Platv4Headline::TYPE_ARTICLE);
 
-        $nextId = intval(@Platv4Headline::orderBy('id', 'DESC')->first()->id) + 1;
-
         $form = DataForm::source(new Platv4Headline());
 
         $form->label('头条信息');
@@ -236,7 +235,16 @@ class HeadlineController extends BaseController
             try{
                 $this->saveHeadlineTag($form->model->id, Input::get('tags'));
 
-                if ($type == Platv4Headline::TYPE_ARTICLE) $this->dealWeChatImage($form->model->id, $form->model->link);
+                if ($type == Platv4Headline::TYPE_ARTICLE) {
+                    $imageDir = date('Ymd') . 'U' . Admin::user()->id;
+                    $link = $this->dealWeChatImage($imageDir, $form->model->link);
+                    $data = Platv4Headline::find($form->model->id);
+                    if ($data) {
+                        $data->link = $link;
+                        $data->save();
+                    }
+                }
+
                 $form->message("新建头条成功");
                 $form->link(config('admin.route.prefix') . '/headlines',"返回");
             } catch (\Exception $exception) {
@@ -250,7 +258,8 @@ class HeadlineController extends BaseController
 
         $form->submit('保存');
 
-        return $form->view('headline.form', compact('form', 'nextId', 'type'));
+        $imageDir = date('Ymd') . 'U' . Admin::user()->id;
+        return $form->view('headline.form', compact('form', 'imageDir', 'type'));
     }
 
 
@@ -336,7 +345,7 @@ class HeadlineController extends BaseController
         return true;
     }
 
-    private function dealWeChatImage($id, $htmlData, $ajax = false)
+    private function dealWeChatImage($imageDir, $htmlData, $ajax = false)
     {
         $html = new Document($htmlData);
 
@@ -363,7 +372,8 @@ class HeadlineController extends BaseController
 //            图片名称
             $fileName = substr(md5($src), 8, 16) . '.' . $type;
             $file = storage_path('headline') . '/' . $fileName;
-            $imageObject = 'HEADLINE/' . $id . '/' . $fileName;
+//            $imageObject = 'HEADLINE/IMAGES/' . date('Ymd') . 'U' . Admin::user()->id . '/' . $fileName;
+            $imageObject = 'HEADLINE/IMAGES/' . $imageDir . '/' . $fileName;
 
             if ($this->isImageExist($imageObject) === false && strpos($src, 'http') !== false) {
                 \Log::info('download :' . $src);
@@ -379,20 +389,12 @@ class HeadlineController extends BaseController
             $description = str_replace($src, $imageUrl, $description);
         }
 
-
-//        处理p标签里面style有双引号的问题
-//        foreach ($html->find('p') as $item) {
-//            $style = $item->style;
-//            \Log::info($style);
-//            $newStyle = str_replace('"', '\'', $style);
-//            $description = str_replace($style, $newStyle, $description);
-//        }
-
-//        上传HTML到OSS
-        $htmlObject = 'HEADLINE/' . $id . '/' . substr(md5('Article_' . $id), 8, 16) . '.html';
         if ($ajax !== false) {
             return $description;
         }
+
+//        上传HTML到OSS
+        $htmlObject = 'HEADLINE/' . substr(md5('Article_' . time() . '_' . Admin::user()->id), 8, 16) . '.html';
 
         if (strpos($description, self::MAKA_EDIT_FLAG) === false) {
             \Log::info('--- 需要加Header ----');
@@ -401,13 +403,9 @@ class HeadlineController extends BaseController
 
         $result = $this->uploadJsonToOSS($htmlObject, $description);
 
-        $data = Platv4Headline::find($id);
-        if ($data) {
-            $data->link = 'http://' . $this->ossViewDomain . '/' . $htmlObject;
-            $data->save();
-        }
+        $link = 'http://' . $this->ossViewDomain . '/' . $htmlObject;
 
-        return $description;
+        return $link;
     }
 
 
@@ -441,18 +439,28 @@ class HeadlineController extends BaseController
 
         $content = $link ? file_get_contents($link) : '';
 
-        return view('headline.article', compact('content', 'id'));
+        $imageDir = date('Ymd') . 'U' . Admin::user()->id;
+
+        return view('headline.article', compact('content', 'id', 'imageDir'));
     }
 
     public function updateHtml()
     {
         $id = Input::get('id', null);
+        $imageDir = Input::get('image_dir', null);
         $content = Input::get('content', null);
         $ajax = Input::get('ajax', false);
-        $description = $this->dealWeChatImage($id, $content, $ajax);
+        $result = $this->dealWeChatImage($imageDir, $content, $ajax);
 
-        if ($ajax) return $this->respData(['content' => $description]);
-        else return redirect('/headlines');
+        if ($ajax) return $this->respData(['content' => $result]);
+        else {
+            $data = Platv4Headline::find($id);
+            if ($data) {
+                $data->link = $result;
+                $data->save();
+            }
+            return redirect('/headlines');
+        }
     }
 
     private function htmlStyle()

@@ -29,11 +29,11 @@ class OssController extends Controller
         $this->ossViewDomain = env('ALI_OSS_PLAT_VIEW_DOMAIN');
     }
 
-    public function headlineObject($id)
+    public function headlineObject($imageDir)
     {
         $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
         $options = [
-            'prefix' => 'HEADLINE/' . $id . '/',
+            'prefix' => 'HEADLINE/IMAGES/' . $imageDir . '/',
             'delimiter' => '/',
         ];
         $objectInfo = $oss->listObjects($this->ossBucket, $options);
