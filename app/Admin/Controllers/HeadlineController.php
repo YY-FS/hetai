@@ -395,9 +395,9 @@ class HeadlineController extends BaseController
         }
 
 //        上传HTML到OSS
-        $salt = time();
+        $salt = time() . '_' . Admin::user()->id;
         if ($id) $salt = $id;
-        $htmlObject = 'HEADLINE/' . substr(md5('Article_' . $salt . '_' . Admin::user()->id), 8, 16) . '.html';
+        $htmlObject = 'HEADLINE/' . substr(md5('Article_' . $salt), 8, 16) . '.html';
 
         if (strpos($description, self::MAKA_EDIT_FLAG) === false) {
             \Log::info('--- 需要加Header ----');
