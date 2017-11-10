@@ -34,7 +34,7 @@
                 shadeClose: true,
                 scrollbar: false,
                 area: ['1024px', '640px'],
-                content: '/headlines/oss/{!! $id !!}'
+                content: '/headlines/oss/{!! $imageDir !!}'
             });
         }
 
