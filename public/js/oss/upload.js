@@ -142,7 +142,7 @@ function set_upload_param(up, filename, ret, dir)
     });
 
     up.start();
-    location.reload(true)
+    // location.reload(true)
 }
 
 var uploader = new plupload.Uploader({
@@ -198,6 +198,8 @@ var uploader = new plupload.Uploader({
             if (info.status == 200)
             {
                 document.getElementById(file.id).getElementsByTagName('b')[0].innerHTML = 'upload to oss success, object name:' + get_uploaded_object_name(file.name);
+                layer.alert('上传成功，文件名:' + get_uploaded_object_name(file.name))
+                setTimeout(location.reload(true), 1000);
             }
             else
             {
