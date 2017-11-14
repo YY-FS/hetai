@@ -111,7 +111,7 @@ class OssController extends Controller
 
         $response = [];
         $response['accessid'] = $this->ossAppId;
-        $response['host'] = 'http://' . $this->ossViewDomain;
+        $response['host'] = 'http://' . $this->ossBucket . '.' . $this->ossEndpoint;
         $response['policy'] = $base64Policy;
         $response['signature'] = $signature;
         $response['expire'] = $end;
