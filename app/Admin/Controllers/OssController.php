@@ -10,6 +10,7 @@ namespace App\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Input;
+use OSS\Core\OssException;
 use OSS\OssClient;
 
 class OssController extends Controller
@@ -31,34 +32,54 @@ class OssController extends Controller
 
     public function headlineObject($imageDir)
     {
+        $nextMarker = '';
         $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
-        $options = [
-            'prefix' => 'HEADLINE/IMAGES/' . $imageDir . '/',
-            'delimiter' => '/',
-        ];
-        $objectInfo = $oss->listObjects($this->ossBucket, $options);
-        $objectList = $objectInfo->getObjectList();
-
         $list = [];
         $sort = [];
-        foreach ($objectList as $key => $item) {
-            if (strpos($item->getKey(), 'html') !== false) continue;
-            $list[] = [
-                'auto_id' => $key,
-                'name' => str_replace($options['prefix'], '', $item->getKey()),
-                'key' => $item->getKey(),
-                'last_modify' => date('Y-m-d H:i:s',strtotime($item->getLastModified())),
-                'eTag' => $item->getETag(),
-                'type' => $item->getType(),
-                'size' => $this->fileSizeFormat($item->getSize()),
-                'storageClass' => $item->getStorageClass(),
-                'url' => 'http://' . $this->ossViewDomain . '/' . $item->getKey(),
+        $prefix = 'HEADLINE/IMAGES/' . $imageDir . '/';
+        while (true) {
+            $options = [
+                'prefix' => $prefix,
+                'delimiter' => '/',
+                'max-keys' => 200,
+                'marker' => $nextMarker,
             ];
-            $sort[] = strtotime($item->getLastModified());
+            try {
+                $objectInfo = $oss->listObjects($this->ossBucket, $options);
+            } catch (OssException $e) {
+                printf(__FUNCTION__ . ": FAILED\n");
+                printf($e->getMessage() . "\n");
+                return;
+            }
+
+//            得到nextMarker，从上一次listObjects读到的最后一个文件的下一个文件开始继续获取文件列表
+            $nextMarker = $objectInfo->getNextMarker();
+
+            $objectList = $objectInfo->getObjectList();
+
+            foreach ($objectList as $key => $item) {
+                if (strpos($item->getKey(), 'html') !== false) continue;
+                $list[] = [
+                    'auto_id' => $key,
+                    'name' => str_replace($options['prefix'], '', $item->getKey()),
+                    'key' => $item->getKey(),
+                    'last_modify' => date('Y-m-d H:i:s', strtotime($item->getLastModified())),
+                    'eTag' => $item->getETag(),
+                    'type' => $item->getType(),
+                    'size' => $this->fileSizeFormat($item->getSize()),
+                    'storageClass' => $item->getStorageClass(),
+                    'url' => 'http://' . $this->ossViewDomain . '/' . $item->getKey(),
+                ];
+                $sort[] = strtotime($item->getLastModified());
+            }
+
+            if ($nextMarker === '') {
+                break;
+            }
         }
         array_multisort($sort, SORT_DESC, $list);
 
-        $dir = $options['prefix'];
+        $dir = $prefix;
         return view('oss.list', compact('list', 'dir'));
     }
 
