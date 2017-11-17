@@ -113,6 +113,6 @@ class IndustryController extends BaseController
                 'headline_tag_id' => $tag,
             ];
         }
-        return DB::table('platv4_industry_to_headline_taggit')->insert($insertData);
+        return DB::table('platv4_industry_to_headline_tag')->insert($insertData);
     }
 }
