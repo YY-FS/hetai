@@ -54,7 +54,10 @@
 //        });
 //            上传HTML
             var btn = '<br><button onclick="uploadHtml()" type="button" class="pull-left btn btn-primary">上传文章图片</button><br><hr>';
-            $('#div_link').append(btn);
+            setTimeout(function(){
+                $('#div_link').append(btn);
+            },1000);
+
         @endif
 
         function uploadHtml() {
