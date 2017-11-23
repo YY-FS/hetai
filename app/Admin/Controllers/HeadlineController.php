@@ -440,7 +440,16 @@ class HeadlineController extends BaseController
         $id = Input::get('id', null);
         $link = Input::get('link', null);
 
-        $content = $link ? file_get_contents($link) : '';
+        if ($link && strpos($link, 'http') !== false) {
+            $html = new Document($link, true);
+            $content = $html->find('body');
+            $content = $content[0]->html();
+        } else $content = '';
+
+        $content = str_replace('<body>', '', $content);
+        $content = str_replace('</body>', '', $content);
+
+        $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
 
         $imageDir = date('Ymd') . 'U' . Admin::user()->id;
 
