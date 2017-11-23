@@ -73,7 +73,7 @@ class HeadlineController extends BaseController
             } else {
                 return $query->where('h.id', $value);
             }
-        });;
+        });
         $filter->add('title', '标题', 'text');
         $filter->add('author', '来源', 'text');
         $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4Headline::$statusText);
