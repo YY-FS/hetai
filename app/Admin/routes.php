@@ -31,8 +31,12 @@ Route::group([
     $router->get('industries', 'IndustryController@index');
     $router->any('industries/edit', 'IndustryController@anyEdit');
 
-//    头条内容
+//    设计师余额
     $router->get('designers/balance', 'DesignerBalanceController@index');
     $router->any('designers/balance/create', 'DesignerBalanceController@anyForm');
     $router->get('designers/jx_balance', 'DesignerBalanceController@jxDesignerBalance');
+
+//    设计师余额
+    $router->get('vipclass', 'VipClassController@index');
+    $router->any('vipclass/edit', 'VipClassController@anyEdit');
 });
