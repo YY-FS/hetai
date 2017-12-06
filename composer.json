@@ -17,10 +17,12 @@
         "encore/laravel-admin": "1.5.*",
         "fideloper/proxy": "~3.3",
         "guzzlehttp/guzzle": "^6.3",
+        "illuminate/redis": "^5.5",
         "imangazaliev/didom": "^1.12",
         "laravel/framework": "5.5.*",
         "laravel/tinker": "~1.0",
-        "lvsongdong/rapyd": "*"
+        "lvsongdong/rapyd": "*",
+        "predis/predis": "^1.1"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
