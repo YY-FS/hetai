@@ -44,6 +44,11 @@ Route::group([
     $router->get('customer_vips', 'CustomerVipController@index');
     $router->any('customer_vips/edit', 'CustomerVipController@anyEdit');
     $router->get('customer_vips/cache', 'CustomerVipController@cleanCache');
+    // 会员价格表
     $router->get('customer_vips/packages', 'CustomerVipController@package');
     $router->any('customer_vips/packages/edit', 'CustomerVipController@packageEdit');
+    // 会员优惠
+    $router->get('customer_vips/discounts', 'CustomerVipController@discount');
+    $router->any('customer_vips/discounts/edit', 'CustomerVipController@discountEdit');
+    $router->any('customer_vips/discounts/rule', 'CustomerVipController@discountRuleEdit');
 });
