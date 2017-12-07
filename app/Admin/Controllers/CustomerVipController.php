@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Redis;
 use Zofe\Rapyd\DataEdit\DataEdit;
 use Zofe\Rapyd\DataGrid\DataGrid;
 use Zofe\Rapyd\DataFilter\DataFilter;
+use Zofe\Rapyd\Facades\Rapyd;
 use Zofe\Rapyd\Url;
 
 class CustomerVipController extends BaseController
@@ -44,7 +45,7 @@ class CustomerVipController extends BaseController
         $grid->add('sort', '排序', true);
         $grid->add('status', '状态', true);
 
-        $grid->add('packages','package', false);
+        $grid->add('packages','查看', false);
         $grid->add('operation','操作', false);
 
         $grid->orderBy('id', 'asc');
@@ -52,6 +53,19 @@ class CustomerVipController extends BaseController
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
         $grid->link(config('admin.route.prefix') . $this->route . '/edit', '新增', 'TR', ['class' => 'btn btn-default']);
+
+        $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
+            $.get('"  . $this->route . "/cache',
+                function (data) {
+                    console.log(data);
+                    if(data.success === true) {
+                        layer.msg('清理成功');
+                    } else {
+                        layer.msg('清理失败');
+                    }
+                });
+            })";
+        $grid->button('清缓存', 'TR', ['class' => 'btn btn-warning', 'onclick' => $cleanCache]);
 
         $grid->row(function ($row) {
 
@@ -69,7 +83,7 @@ class CustomerVipController extends BaseController
                 $statusText = '上线';
             }
 
-            $row->cell('packages')->value = "<a class='btn btn-primary' href='" . config('admin.route.prefix') . $this->route . "/packages?search=1&customer_vip_id=" . $row->data->id . "'>查看价格包</a>";
+            $row->cell('packages')->value = "<a class='btn btn-success' href='" . config('admin.route.prefix') . $this->route . "/packages?search=1&customer_vip_id=" . $row->data->id . "'>价格包</a>";
             $row->cell('operation')->value = $this->getEditBtn($row->data->id) . $this->getStatusBtn($row->data->id, $status, $statusText);
         });
 
@@ -133,20 +147,27 @@ class CustomerVipController extends BaseController
 
         $edit->add('status', '状态', 'select')->options(Platv4CustomerVip::$commonStatusText);
 
-        $edit->saved(function () use ($edit) {
-//            清缓存
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:ALL:MODULO:ALL');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:ios:MODULO:ALL');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:pc:MODULO:ALL');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:wap:MODULO:ALL');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:0');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:1');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:2');
-        });
+//        $edit->saved(function () use ($edit) {
+//
+//        });
 
         $edit->build();
 
         return $edit->view('rapyd.edit', compact('edit'));
+    }
+
+    public function cleanCache()
+    {
+        Redis::del('CUSTOMER_VIP_LIST:DEVICE:ALL:MODULO:ALL');
+        Redis::del('CUSTOMER_VIP_LIST:DEVICE:ios:MODULO:ALL');
+        Redis::del('CUSTOMER_VIP_LIST:DEVICE:pc:MODULO:ALL');
+        Redis::del('CUSTOMER_VIP_LIST:DEVICE:wap:MODULO:ALL');
+        Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:0');
+        Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:1');
+        Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:2');
+        Redis::del('CUSTOMER_VIP_PACKAGE_LIST');
+
+        return $this->respData();
     }
 
     public function package()
@@ -263,18 +284,6 @@ class CustomerVipController extends BaseController
             ->placeholder("请输入 排序");
 
         $edit->add('status', '状态', 'select')->options(Platv4CustomerVipPackage::$commonStatusText);
-
-        $edit->saved(function () use ($edit) {
-//            清缓存
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:ALL:MODULO:ALL');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:ios:MODULO:ALL');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:pc:MODULO:ALL');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:wap:MODULO:ALL');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:0');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:1');
-            Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:2');
-            Redis::hdel('CUSTOMER_VIP_PACKAGE_LIST', $edit->model->id);
-        });
 
         $edit->build();
 

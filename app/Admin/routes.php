@@ -43,6 +43,7 @@ Route::group([
 //    用户会员
     $router->get('customer_vips', 'CustomerVipController@index');
     $router->any('customer_vips/edit', 'CustomerVipController@anyEdit');
+    $router->get('customer_vips/cache', 'CustomerVipController@cleanCache');
     $router->get('customer_vips/packages', 'CustomerVipController@package');
     $router->any('customer_vips/packages/edit', 'CustomerVipController@packageEdit');
 });
