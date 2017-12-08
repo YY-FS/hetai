@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Models\Platv4Corner;
 use App\Models\Platv4CustomerVip;
 use App\Models\Platv4CustomerVipDiscount;
 use App\Models\Platv4CustomerVipDiscountType;
@@ -133,7 +134,7 @@ class CustomerVipController extends BaseController
             ->rule("required")
             ->placeholder("请输入 基准单价（单位：分）");
 
-        $edit->add('corner', '角标', 'select')->options(['normal', 'recommend']);
+        $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
 
         $edit->add('enable_maka', 'MAKA模板', 'select')->options([0 => '不可用', 1 => '可租用']);
         $edit->add('enable_danye', '单页模板', 'select')->options([0 => '不可用', 1 => '可租用']);
@@ -275,10 +276,10 @@ class CustomerVipController extends BaseController
             ->rule("required")
             ->placeholder("请输入 价格（单位：分）");
 
-        $edit->add('corner', '角标', 'select')->options(['normal', 'recommend']);
+        $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
 
         $edit->add('auto_renewal', '自动续费', 'select')->options([0 => '否', 1 => '是']);
-        $edit->add('device', '终端', 'select')->options(['ios', 'wap', 'android', 'pc']);
+        $edit->add('device', '终端', 'select')->options(Platv4Terminal::all()->pluck('description', 'name')->toArray());
         $edit->add('modulo', '灰度', 'select')->options([0, 1, 2]);
 
         $edit->add('sort', '排序', 'text')
@@ -312,6 +313,7 @@ class CustomerVipController extends BaseController
         $grid->attributes(array("class" => "table table-bordered table-striped table-hover"));
         $grid->add('id', 'ID', true);
         $grid->add('name', '优惠名称', true);
+        $grid->add('corner', '活动角标', true);
         $grid->add('rule', '优惠细则', true);
         $grid->add('start_time', '开始时间', true);
         $grid->add('end_time', '结束时间', true);
@@ -404,6 +406,8 @@ class CustomerVipController extends BaseController
             ->rule("required|min:2")
             ->placeholder("请输入 活动名称");
 
+        $edit->add('corner', '活动角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
+
         $edit->add('start_time', '开始时间', 'date')->format('Y-m-d', 'zh-CN')->rule("required");
         $edit->add('end_time', '结束时间', 'date')->format('Y-m-d', 'zh-CN')->rule("required");
 
@@ -427,7 +431,7 @@ class CustomerVipController extends BaseController
     public function discountRuleEdit()
     {
         $this->route = '/customer_vips/discounts';
-        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'content', 'policy', 'deadline', 'image'];
+        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'content', 'policy', 'deadline', 'image', 'package_corner'];
 //        tag
         $id = Input::get('modify', 0);
         if ($id) {
@@ -459,6 +463,8 @@ class CustomerVipController extends BaseController
 
         $edit->add('quantity', '可优惠的价格包', 'checkboxgroup')->options(Platv4CustomerVipPackage::where('status', 1)->groupBy('quantity')->pluck('name', 'quantity')->toArray());
 
+        $edit->add('package_corner', '价格包角标', 'select')->options(['' => '无'] + Platv4Corner::where('type', 'customer_vip_package')->pluck('description', 'name')->toArray());
+
         $edit->add('discount', '折扣', 'number')
             ->rule("min:1|max:10")
             ->placeholder("折扣")->updateValue('10');
@@ -471,7 +477,8 @@ class CustomerVipController extends BaseController
             ->rule("min:2")
             ->placeholder("请输入 APP弹窗文案");
 
-        $edit->add('policy', '用户规则', 'text')
+        $edit->add('policy', '用户规则', 'textarea')
+            ->attributes(['rows' => 5])
             ->rule("min:2")
             ->placeholder("请输入 用户规则（链接或文案）");
 
