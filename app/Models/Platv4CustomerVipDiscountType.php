@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Support\Facades\DB;
 
-class Platv4CustomerVipDiscountGroup extends BaseModel
+class Platv4CustomerVipDiscountType extends BaseModel
 {
     protected $connection = 'plat';
     public $timestamps = false;
