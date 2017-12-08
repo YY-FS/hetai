@@ -445,21 +445,19 @@ class CustomerVipController extends BaseController
         if (Input::get('show', 0)) {
             $discount = Platv4CustomerVipDiscount::find(Input::get('show'));
             $rule = json_decode($discount->rule, true);
-            if (!empty($rule)) {
-                foreach ($rule AS $k => $v) {
-                    $edit->model->$k = $v;
-                }
+            foreach ($rule AS $k => $v) {
+                $edit->model->$k = $v;
             }
         }
 
         $edit->label('优惠活动规则');
 
-        $edit->add('alias', '优惠会员', 'select')->options([0 => '所有会员'] + Platv4CustomerVip::all()->pluck('name', 'alias')->toArray());
+        $edit->add('alias', '优惠会员', 'checkboxgroup')->options(Platv4CustomerVip::all()->pluck('name', 'alias')->toArray());
 
         $edit->add('icon', '会员icon链接', 'text')
             ->placeholder("请输入 会员icon链接");
 
-        $edit->add('quantity', '可优惠的价格包', 'select')->options([0 => '所有'] + Platv4CustomerVipPackage::where('status', 1)->groupBy('quantity')->pluck('name', 'quantity')->toArray());
+        $edit->add('quantity', '可优惠的价格包', 'checkboxgroup')->options(Platv4CustomerVipPackage::where('status', 1)->groupBy('quantity')->pluck('name', 'quantity')->toArray());
 
         $edit->add('discount', '折扣', 'number')
             ->rule("min:1|max:10")
@@ -489,7 +487,7 @@ class CustomerVipController extends BaseController
             $rule = Input::all();
             foreach($rule AS $key => $item) {
                 if (!in_array($key, $fields)) unset($rule[$key]);
-                if (empty($item)) $rule[$key] = '';
+                if (is_null($item)) $rule[$key] = '';
             }
             if (!empty($rule)) {
                 $discount = Platv4CustomerVipDiscount::find($edit->model->id);
