@@ -4,7 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Models\Platv4CustomerVip;
 use App\Models\Platv4CustomerVipDiscount;
-use App\Models\Platv4CustomerVipDiscountGroup;
+use App\Models\Platv4CustomerVipDiscountType;
 use App\Models\Platv4CustomerVipPackage;
 use App\Models\Platv4Terminal;
 use Illuminate\Support\Facades\Input;
@@ -315,7 +315,7 @@ class CustomerVipController extends BaseController
         $grid->add('rule', '优惠细则', true);
         $grid->add('start_time', '开始时间', true);
         $grid->add('end_time', '结束时间', true);
-        $grid->add('group_name', '优惠类型', true);
+        $grid->add('type_name', '优惠类型', true);
         $grid->add('terminal', '终端', true);
         $grid->add('status', '状态', true);
         $grid->add('create_time', '创建时间', true);
@@ -407,7 +407,7 @@ class CustomerVipController extends BaseController
         $edit->add('start_time', '开始时间', 'date')->format('Y-m-d', 'zh-CN')->rule("required");
         $edit->add('end_time', '结束时间', 'date')->format('Y-m-d', 'zh-CN')->rule("required");
 
-        $edit->add('group', '优惠类型', 'select')->options(Platv4CustomerVipDiscountGroup::all()->pluck('description', 'name'));
+        $edit->add('type', '优惠类型', 'select')->options(Platv4CustomerVipDiscountType::all()->pluck('description', 'name'));
 
         $edit->add('terminal', '终端', 'checkboxgroup')->options(Platv4Terminal::all()->pluck('description', 'name')->toArray());
 
