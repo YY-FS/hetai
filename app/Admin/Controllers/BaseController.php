@@ -20,7 +20,11 @@ class BaseController extends Controller
                                                                                 area: ['860px', '640px'], 
                                                                                 shadeClose: true,
                                                                                 scrollbar: false,
-                                                                                content: '" . $link . "'
+                                                                                content: '" . $link . "',
+                                                                                end: function(index, layero){ 
+                                                                                  window.location.reload();
+                                                                                  return false; 
+                                                                                }  
                                                                             })\">编辑</button>";
 
             return $btn;
