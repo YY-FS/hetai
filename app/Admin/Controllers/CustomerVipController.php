@@ -297,7 +297,7 @@ class CustomerVipController extends BaseController
         $edit->add('status', '状态', 'select')->options(Platv4CustomerVipPackage::$commonStatusText);
 
         $edit->saved(function () use ($edit) {
-            $edit->message("修改成功");
+            return redirect($this->route . '/edit?show=' . $edit->model->id);
         });
 
         $edit->build();

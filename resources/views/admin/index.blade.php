@@ -34,7 +34,7 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
     <![endif]-->
 
-    <link rel="stylesheet" href="{{ asset("/css/admin.css") }}">
+    {{--<link rel="stylesheet" href="{{ asset("/css/admin.css") }}">--}}
 </head>
 
 <body class="hold-transition {{config('admin.skin')}} {{join(' ', config('admin.layout'))}}">
@@ -61,7 +61,7 @@
 <script src="{{ asset ("/packages/admin/toastr/build/toastr.min.js") }}"></script>
 <script src="{{ asset ("/packages/admin/bootstrap3-editable/js/bootstrap-editable.min.js") }}"></script>
 
-<script src="{{ asset ("/js/layer/layer.js") }}"></script>
+{{--<script src="{{ asset ("/js/layer/layer.js") }}"></script>--}}
 
 {!! Admin::js() !!}
 

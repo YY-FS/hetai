@@ -1,39 +1,39 @@
 .btn-export {
-    margin: 0 2px;
-    background: none;
-    border: 1px solid #3c8dbc;
-    color: #3c8dbc;
+    margin: 0 2px !important;
+    background: none !important;
+    border: 1px solid #3c8dbc !important;
+    color: #3c8dbc !important;
 }
 
 .btn-export:hover {
-    background: #3c8dbc;
-    color: #ffffff;
+    background: #3c8dbc !important;
+    color: #ffffff !important;
 }
 
 .btn-default {
-    margin: 0 2px;
-    background: #CECECE;
-    border: 1px solid #CECECE;
-    color: #ffffff;
+    margin: 0 2px !important;
+    background: #CECECE !important;
+    border: 1px solid #CECECE !important;
+    color: #ffffff !important;
 }
 
 .btn-default:hover {
-    background: #ffffff;
-    color: #CECECE;
+    background: #ffffff !important;
+    color: #CECECE !important;
 }
 
 .btn-primary {
-    margin: 0 2px;
-    background: #3c8dbc;
-    border: 1px solid #ffffff;
-    color: #ffffff;
+    margin: 0 2px !important;
+    background: #3c8dbc !important;
+    border: 1px solid #ffffff !important;
+    color: #ffffff !important;
 }
 
 .btn-primary:hover {
-    background: #3c8dbc;
-    border: 1px solid #ffffff;
-    color: #ffffff;
-    opacity: .7;
+    background: #3c8dbc !important;
+    border: 1px solid #ffffff !important;
+    color: #ffffff !important;
+    opacity: .7 !important;
 }
 
 .form-control {
