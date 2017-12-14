@@ -209,13 +209,14 @@ class CustomerVipController extends BaseController
         $grid->orderBy('customer_vip_id', 'asc');
 
         $url = new Url();
-        $grid->link($url->append('device', 'ios')->get(), "iOS价格表", "TR", ['class' => 'btn btn-export']);
-        $grid->link($url->append('device', 'Android')->get(), "Android价格表", "TR", ['class' => 'btn btn-export']);
-        $grid->link($url->append('device', 'PC')->get(), "PC价格表", "TR", ['class' => 'btn btn-export']);
+        $grid->link($url->append('device', 'ios')->get(), "iOS价格表", "TR", ['class' => 'btn btn-default']);
+        $grid->link($url->append('device', 'android')->get(), "Android价格表", "TR", ['class' => 'btn btn-default']);
+        $grid->link($url->append('device', 'pc')->get(), "PC价格表", "TR", ['class' => 'btn btn-default']);
+        $grid->link($url->append('device', 'wap')->get(), "WAP价格表", "TR", ['class' => 'btn btn-default']);
 
 
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.prefix') . $this->route . '/edit', '新增', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . $this->route . '/edit', '新增', 'TR', ['class' => 'btn btn-success']);
 
         $grid->row(function ($row) {
 
