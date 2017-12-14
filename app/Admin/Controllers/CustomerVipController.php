@@ -209,10 +209,10 @@ class CustomerVipController extends BaseController
         $grid->orderBy('customer_vip_id', 'asc');
 
         $url = new Url();
-        $grid->link($url->append('device', 'ios')->get(), "iOS价格表", "TR", ['class' => 'btn btn-default']);
-        $grid->link($url->append('device', 'android')->get(), "Android价格表", "TR", ['class' => 'btn btn-default']);
-        $grid->link($url->append('device', 'pc')->get(), "PC价格表", "TR", ['class' => 'btn btn-default']);
-        $grid->link($url->append('device', 'wap')->get(), "WAP价格表", "TR", ['class' => 'btn btn-default']);
+        $grid->link($url->append('search', '1')->append('device', 'ios')->get(), "iOS价格表", "TR", ['class' => 'btn btn-default']);
+        $grid->link($url->append('search', '1')->append('device', 'android')->get(), "Android价格表", "TR", ['class' => 'btn btn-default']);
+        $grid->link($url->append('search', '1')->append('device', 'pc')->get(), "PC价格表", "TR", ['class' => 'btn btn-default']);
+        $grid->link($url->append('search', '1')->append('device', 'wap')->get(), "WAP价格表", "TR", ['class' => 'btn btn-default']);
 
 
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
@@ -234,7 +234,7 @@ class CustomerVipController extends BaseController
                 $statusText = '上线';
             }
 
-            $row->cell('operation')->value = $this->getEditBtn($row->data->id) . $this->getStatusBtn($row->data->id, $status, $statusText);
+            $row->cell('operation')->value = $this->getEditBtn($row->data->id, true) . $this->getStatusBtn($row->data->id, $status, $statusText);
         });
 
         if (Input::get('export') == 1) {
@@ -298,7 +298,7 @@ class CustomerVipController extends BaseController
 
         $edit->build();
 
-        return $edit->view('rapyd.edit', compact('edit'));
+        return $edit->view('rapyd.frameEdit', compact('edit'));
     }
 
     public function discount()

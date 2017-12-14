@@ -10,9 +10,22 @@ class BaseController extends Controller
     protected $route;
     const DEFAULT_PER_PAGE = 30;
 
-    public function getEditBtn($id)
+    public function getEditBtn($id, $frame = false)
     {
-        return "<a class='btn btn-primary' href='" . config('admin.route.prefix') . $this->route . "/edit?modify=" . $id . "'>编辑</a>";
+        $link = config('admin.route.prefix') . $this->route . "/edit?modify=" . $id;
+        if ($frame === true) {
+            $btn = "<button class=\"btn btn-primary\" onclick=\"layer.open({
+                                                                                type: 2, 
+                                                                                title: ['编辑', false], 
+                                                                                area: ['860px', '640px'], 
+                                                                                shadeClose: true,
+                                                                                scrollbar: false,
+                                                                                content: '" . $link . "'
+                                                                            })\">编辑</button>";
+
+            return $btn;
+        }
+        else return "<a class='btn btn-primary' href='" . $link . "'>编辑</a>";
     }
 
     public function getStatusBtn($id, $changeStatus, $statusText)
