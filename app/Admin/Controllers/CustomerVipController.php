@@ -181,7 +181,8 @@ class CustomerVipController extends BaseController
         $filter = DataFilter::source(Platv4CustomerVipPackage::with('customerVip'));
 
         $filter->add('id', 'ID', 'text');
-        $filter->add('customer_vip_id', '用户会员', 'select')->options(['' => '全部'] + Platv4CustomerVip::all()->pluck('name', 'id')->toArray());
+        $filter->add('customer_vip_id', '用户会员', 'select')->options(['' => '全部会员'] + Platv4CustomerVip::all()->pluck('name', 'id')->toArray());
+        $filter->add('device', '终端', 'select')->options(['' => '全部设备'] + Platv4Terminal::all()->pluck('description', 'name')->toArray());
         $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4CustomerVipPackage::$commonStatusText);
 
         $filter->submit('筛选');
@@ -208,6 +209,11 @@ class CustomerVipController extends BaseController
         $grid->orderBy('customer_vip_id', 'asc');
 
         $url = new Url();
+        $grid->link($url->append('device', 'ios')->get(), "iOS价格表", "TR", ['class' => 'btn btn-export']);
+        $grid->link($url->append('device', 'Android')->get(), "Android价格表", "TR", ['class' => 'btn btn-export']);
+        $grid->link($url->append('device', 'PC')->get(), "PC价格表", "TR", ['class' => 'btn btn-export']);
+
+
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
         $grid->link(config('admin.route.prefix') . $this->route . '/edit', '新增', 'TR', ['class' => 'btn btn-default']);
 
