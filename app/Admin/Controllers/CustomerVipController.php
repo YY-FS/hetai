@@ -449,8 +449,10 @@ class CustomerVipController extends BaseController
         if (Input::get('show', 0)) {
             $discount = Platv4CustomerVipDiscount::find(Input::get('show'));
             $rule = json_decode($discount->rule, true);
-            foreach ($rule AS $k => $v) {
-                $edit->model->$k = $v;
+            if ($rule) {
+                foreach ($rule AS $k => $v) {
+                    $edit->model->$k = $v;
+                }
             }
         }
 
