@@ -162,13 +162,10 @@ class CustomerVipController extends BaseController
 
     public function cleanCache()
     {
-        Redis::del('CUSTOMER_VIP_LIST:DEVICE:ALL:MODULO:ALL');
-        Redis::del('CUSTOMER_VIP_LIST:DEVICE:ios:MODULO:ALL');
-        Redis::del('CUSTOMER_VIP_LIST:DEVICE:pc:MODULO:ALL');
-        Redis::del('CUSTOMER_VIP_LIST:DEVICE:wap:MODULO:ALL');
-        Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:0');
-        Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:1');
-        Redis::del('CUSTOMER_VIP_LIST:DEVICE:android:MODULO:2');
+        $list = Redis::keys('CUSTOMER_VIP_LIST:DEVICE:*');
+        foreach ($list AS $value) {
+            Redis::del($value);
+        }
         Redis::del('CUSTOMER_VIP_PACKAGE_LIST');
 
         return $this->respData();
