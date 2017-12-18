@@ -171,6 +171,16 @@ class CustomerVipController extends BaseController
         return $this->respData();
     }
 
+    public function cleanDiscountCache()
+    {
+        $list = Redis::keys('QS:CUSTOMER_VIP_DISCOUNT_RULE:DEVICE:*');
+        foreach ($list AS $value) {
+            Redis::del($value);
+        }
+
+        return $this->respData();
+    }
+
     public function package()
     {
         $this->route = '/customer_vips/packages';
@@ -338,6 +348,19 @@ class CustomerVipController extends BaseController
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
         $grid->link(config('admin.route.prefix') . $this->route . '/edit', '新增', 'TR', ['class' => 'btn btn-default']);
+
+        $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
+            $.get('"  . $this->route . "/cache',
+                function (data) {
+                    console.log(data);
+                    if(data.success === true) {
+                        layer.msg('清理成功');
+                    } else {
+                        layer.msg('清理失败');
+                    }
+                });
+            })";
+        $grid->button('清缓存', 'TR', ['class' => 'btn btn-warning', 'onclick' => $cleanCache]);
 
         $grid->row(function ($row) {
 
