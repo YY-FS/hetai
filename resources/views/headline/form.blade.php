@@ -1,6 +1,5 @@
 @extends('admin.index')
 @section('content')
-    {!! Rapyd::head() !!}
     <style>
         #div_style label{
             width: 100px;
