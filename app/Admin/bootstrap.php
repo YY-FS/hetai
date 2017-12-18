@@ -21,5 +21,3 @@
 Encore\Admin\Form::forget(['map', 'editor']);
 Admin::css('/css/admin.css');
 Admin::js('/js/layer/layer.js');
-
-Admin::js('/packages/zofe/rapyd/assets/lib/jquery/dist/jquery.js');
