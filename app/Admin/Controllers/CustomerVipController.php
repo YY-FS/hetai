@@ -462,7 +462,7 @@ class CustomerVipController extends BaseController
     public function discountRuleEdit()
     {
         $this->route = '/customer_vips/discounts';
-        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'content', 'policy', 'policy_text', 'deadline', 'image', 'package_corner'];
+        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'content', 'policy', 'policy_text', 'deadline', 'image', 'package_corner', 'origin_price', 'price'];
 //        tag
         $id = Input::get('modify', 0);
         if ($id) {
@@ -526,6 +526,12 @@ class CustomerVipController extends BaseController
         $edit->add('image', '背景图链接', 'text')
             ->rule("min:2")
             ->placeholder("请输入 背景图链接");
+
+        $edit->add('origin_price', '红包弹窗原价', 'number')
+            ->placeholder("请输入 红包弹窗原价");
+
+        $edit->add('price', '红包弹窗现价', 'number')
+            ->placeholder("请输入 红包弹窗现价");
 
         $edit->saved(function () use ($edit, $fields) {
             $rule = Input::all();
