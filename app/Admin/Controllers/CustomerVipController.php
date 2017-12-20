@@ -462,7 +462,7 @@ class CustomerVipController extends BaseController
     public function discountRuleEdit()
     {
         $this->route = '/customer_vips/discounts';
-        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'content', 'policy', 'deadline', 'image', 'package_corner'];
+        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'content', 'policy', 'policy_text', 'deadline', 'image', 'package_corner'];
 //        tag
         $id = Input::get('modify', 0);
         if ($id) {
@@ -510,7 +510,11 @@ class CustomerVipController extends BaseController
             ->rule("min:2")
             ->placeholder("请输入 APP弹窗文案");
 
-        $edit->add('policy', '用户规则', 'textarea')
+        $edit->add('policy', 'APP弹窗规则链接', 'text')
+            ->rule("min:2")
+            ->placeholder("请输入 APP弹窗规则链接");
+
+        $edit->add('policy_text', '用户规则', 'textarea')
             ->attributes(['rows' => 5])
             ->rule("min:2")
             ->placeholder("请输入 用户规则（链接或文案）");
