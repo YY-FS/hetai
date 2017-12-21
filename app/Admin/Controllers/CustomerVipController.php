@@ -39,6 +39,8 @@ class CustomerVipController extends BaseController
         $grid->add('alias', '版本', true);
         $grid->add('name', '名称', true);
         $grid->add('{!! $price/100 !!}', '基准单价', true);
+        $grid->add('corner', '角标', true);
+        $grid->add('corner_text', '角标文案', false);
         $grid->add('enable_maka', 'MAKA模板', true);
         $grid->add('enable_poster', '海报模板', true);
         $grid->add('enable_danye', '单页模板', true);
@@ -136,6 +138,10 @@ class CustomerVipController extends BaseController
 
         $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
 
+        $edit->add('corner_text', '角标文案', 'text')
+            ->rule("required|min:1")
+            ->placeholder("请输入 角标文案");
+
         $edit->add('enable_maka', 'MAKA模板', 'select')->options([0 => '不可用', 1 => '可租用']);
         $edit->add('enable_danye', '单页模板', 'select')->options([0 => '不可用', 1 => '可租用']);
         $edit->add('enable_poster', '海报模板', 'select')->options([0 => '不可用', 1 => '可租用']);
@@ -208,6 +214,7 @@ class CustomerVipController extends BaseController
         $grid->add('sort', '排序', true);
         $grid->add('status', '状态', true);
         $grid->add('corner', '角标', true);
+        $grid->add('corner_text', '角标文案', false);
         $grid->add('device', '终端', true);
         $grid->add('modulo', '灰度', true);
 
@@ -291,6 +298,10 @@ class CustomerVipController extends BaseController
             ->placeholder("请输入 价格（单位：分）");
 
         $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
+
+        $edit->add('corner_text', '角标文案', 'text')
+            ->rule("required|min:1")
+            ->placeholder("请输入 角标文案");
 
         $edit->add('auto_renewal', '自动续费', 'select')->options([0 => '否', 1 => '是']);
         $edit->add('device', '终端', 'select')->options(Platv4Terminal::all()->pluck('description', 'name')->toArray());
