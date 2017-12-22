@@ -139,7 +139,7 @@ class CustomerVipController extends BaseController
         $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
 
         $edit->add('corner_text', '角标文案', 'text')
-            ->rule("required|min:1")
+            // ->rule("required|min:1")
             ->placeholder("请输入 角标文案");
 
         $edit->add('enable_maka', 'MAKA模板', 'select')->options([0 => '不可用', 1 => '可租用']);
@@ -300,7 +300,7 @@ class CustomerVipController extends BaseController
         $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
 
         $edit->add('corner_text', '角标文案', 'text')
-            ->rule("required|min:1")
+            // ->rule("required|min:1")
             ->placeholder("请输入 角标文案");
 
         $edit->add('auto_renewal', '自动续费', 'select')->options([0 => '否', 1 => '是']);
