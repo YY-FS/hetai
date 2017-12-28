@@ -473,7 +473,7 @@ class CustomerVipController extends BaseController
     public function discountRuleEdit()
     {
         $this->route = '/customer_vips/discounts';
-        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 
+        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'give_quantity',
                     'content', 'policy', 'policy_text', 'deadline', 'image', 
                     'package_corner', 'package_corner_text', 'origin_price', 'price'
                     ];
