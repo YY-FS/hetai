@@ -525,6 +525,10 @@ class CustomerVipController extends BaseController
             ->rule("min:0")
             ->placeholder("赠送天数")->updateValue('0');
 
+        $edit->add('give_quantity', '赠送月份', 'number')
+            ->rule("min:0")
+            ->placeholder("赠送月份")->updateValue('0');
+
         $edit->add('content', 'APP弹窗文案', 'text')
             ->rule("min:2")
             ->placeholder("请输入 APP弹窗文案");
