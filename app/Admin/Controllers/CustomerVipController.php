@@ -473,7 +473,10 @@ class CustomerVipController extends BaseController
     public function discountRuleEdit()
     {
         $this->route = '/customer_vips/discounts';
-        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'content', 'policy', 'policy_text', 'deadline', 'image', 'package_corner', 'origin_price', 'price'];
+        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 
+                    'content', 'policy', 'policy_text', 'deadline', 'image', 
+                    'package_corner', 'package_corner_text', 'origin_price', 'price'
+                    ];
 //        tag
         $id = Input::get('modify', 0);
         if ($id) {
@@ -508,6 +511,11 @@ class CustomerVipController extends BaseController
         $edit->add('quantity', '可优惠的价格包', 'checkboxgroup')->options(Platv4CustomerVipPackage::where('status', 1)->groupBy('quantity')->pluck('name', 'quantity')->toArray());
 
         $edit->add('package_corner', '价格包角标', 'select')->options(['' => '无'] + Platv4Corner::where('type', 'customer_vip_package')->pluck('description', 'name')->toArray());
+
+        $edit->add('package_corner_text', '价格包角标文案', 'text')
+            ->rule("min:2")
+            ->placeholder("请输入 价格包角标文案");
+
 
         $edit->add('discount', '折扣', 'number')
             ->rule("min:1|max:10")
