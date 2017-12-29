@@ -136,7 +136,11 @@ class CustomerVipController extends BaseController
             ->rule("required")
             ->placeholder("请输入 基准单价（单位：分）");
 
-        $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
+        // $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
+
+        $edit->add('corner', '角标底色', 'text')
+            // ->rule("min:2")
+            ->placeholder("请输入 角标底色");
 
         $edit->add('corner_text', '角标文案', 'text')
             // ->rule("required|min:1")
@@ -297,7 +301,11 @@ class CustomerVipController extends BaseController
             ->rule("required")
             ->placeholder("请输入 价格（单位：分）");
 
-        $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
+        // $edit->add('corner', '角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
+
+        $edit->add('corner', '角标底色', 'text')
+            // ->rule("min:2")
+            ->placeholder("请输入 角标底色");
 
         $edit->add('corner_text', '角标文案', 'text')
             // ->rule("required|min:1")
@@ -448,7 +456,11 @@ class CustomerVipController extends BaseController
             ->rule("required|min:2")
             ->placeholder("请输入 活动名称");
 
-        $edit->add('corner', '活动角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
+        // $edit->add('corner', '活动角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
+
+        $edit->add('corner', '活动角标底色', 'text')
+            // ->rule("min:2")
+            ->placeholder("请输入 活动角标底色");
 
         $edit->add('start_time', '开始时间', 'date')->format('Y-m-d', 'zh-CN')->rule("required");
         $edit->add('end_time', '结束时间', 'date')->format('Y-m-d', 'zh-CN')->rule("required");
@@ -510,7 +522,11 @@ class CustomerVipController extends BaseController
 
         $edit->add('quantity', '可优惠的价格包', 'checkboxgroup')->options(Platv4CustomerVipPackage::where('status', 1)->groupBy('quantity')->pluck('name', 'quantity')->toArray());
 
-        $edit->add('package_corner', '价格包角标', 'select')->options(['' => '无'] + Platv4Corner::where('type', 'customer_vip_package')->pluck('description', 'name')->toArray());
+        // $edit->add('package_corner', '价格包角标', 'select')->options(['' => '无'] + Platv4Corner::where('type', 'customer_vip_package')->pluck('description', 'name')->toArray());
+
+        $edit->add('package_corner', '价格包角标底色', 'text')
+            // ->rule("min:2")
+            ->placeholder("请输入 价格包角标底色");
 
         $edit->add('package_corner_text', '价格包角标文案', 'text')
             ->rule("min:2")
