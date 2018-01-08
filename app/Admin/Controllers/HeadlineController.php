@@ -61,7 +61,7 @@ class HeadlineController extends BaseController
 
         $title = '头条文章';
         $tips = '筛选标签时，只显示筛选的标签';
-        $admin = ['administrator', 'operation-group', 'operation-admin', 'pm-admin'];
+        $admin = ['administrator', 'operation-group', 'operation-admin', 'pm-admin', 'pm'];
         $adminId = Admin::user()->id;
         (Admin::user()->inRoles($admin) == true) && $adminId = false;
 
