@@ -59,12 +59,13 @@ class UserGroupService
             }
         }
 
+        var_dump('group user done');
 //        存redis
         $cacheKey = self::CACHE_USER_GROUP . $userGroupId;
         Redis::del($cacheKey);
-        foreach ($groupUser as $uid) {
-            Redis::hset($cacheKey, $uid, 1);
-        }
+        Redis::sadd($cacheKey, ...$groupUser);
+
+        var_dump('redis done');
 
         $userGroup = Platv4UserGroup::find($userGroupId);
         $userGroup->user_total = count($groupUser);
