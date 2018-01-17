@@ -8,15 +8,8 @@ class Platv4UserFilterType extends BaseModel
     protected $table='platv4_user_filter_type';
     protected $connection = 'plat';
 
-    const GROUP_MODE_AUTO = 'auto';
-    const GROUP_MODE_HAND = 'manual';
 
-    public static $groupMode = [
-        self::GROUP_MODE_AUTO => '自动分群',
-        self::GROUP_MODE_HAND => '手动分群',
-    ];
-
-    public static function rapydEdit()
+    public static function rapydForm()
     {
         $result = DB::connection('plat')->table('platv4_user_filter_type as uft')
             ->leftJoin('platv4_user_filters as uf','uft.id','=','uf.user_filter_type_id')

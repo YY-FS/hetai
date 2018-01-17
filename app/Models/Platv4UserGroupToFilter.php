@@ -27,5 +27,5 @@ class Platv4UserGroupToFilter extends BaseModel
             ->get()
             ->toArray();
     }
-
 }
+

@@ -27,9 +27,16 @@ Route::group([
     $router->get('headline/tags', 'HeadlineTagController@index');
     $router->any('headline/tags/edit', 'HeadlineTagController@anyEdit');
 
-//    用户画像和头条标签关联
+//    用户画像、头条标签关联
     $router->get('industries', 'IndustryController@index');
     $router->any('industries/edit', 'IndustryController@anyEdit');
+
+//    用户分群
+    $router->get('groups','UserGroupController@index');
+    $router->any('groups/create','UserGroupController@anyForm');
+    $router->any('groups/edit', 'UserGroupController@anyEdit');
+
+
 
 //    设计师余额
     $router->get('designers/balance', 'DesignerBalanceController@index');
