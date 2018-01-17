@@ -34,7 +34,7 @@ class UserGroupService
         echo 'TOP2: ' . $top , PHP_EOL;
     }
 
-//    H5 会员-非兑换卡 + 非订阅   ∩   海报-非兑换卡   2，4 ∩ 27
+
     public function genGroupUser($userGroupId)
     {
         $groupFilters = Platv4UserGroupToFilter::getUserGroupFilter($userGroupId);
@@ -58,7 +58,6 @@ class UserGroupService
                 $groupUser = array_intersect($groupUser, $filterUser);
             }
         }
-        var_dump($groupUser);
 
 //        存redis
         $cacheKey = self::CACHE_USER_GROUP . $userGroupId;

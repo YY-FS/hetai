@@ -40,6 +40,8 @@ class GenerateUserFilter extends Command
     public function handle()
     {
         //
+        ini_set('memory_limit', '1024M');
+
         $filters = Platv4UserFilter::getUserFilters();
 
         $serviceUserFilter = new UserFilterService();
