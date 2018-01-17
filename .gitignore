@@ -12,3 +12,4 @@ yarn-error.log
 .env
 .env.test
 .env.prod
+dump.rdb

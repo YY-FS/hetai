@@ -45,10 +45,11 @@ class GenerateUserGroup extends Command
 //        return;
 
         $userGroups = Platv4UserGroup::where('mode', 'auto')->where('status', '!=', -1)->get()->toArray();
+        if (empty($userGroups)) return false;
         $serviceUserGroup = new UserGroupService();
 //        $serviceUserGroup->genGroupUser(1); // debug
         foreach ($userGroups as $userGroup) {
-            $serviceUserGroup->genGroupUser($userGroup->id);
+            $serviceUserGroup->genGroupUser($userGroup['id']);
         }
 
     }
