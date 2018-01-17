@@ -347,7 +347,6 @@ class UserFilterService
 
     private function _queryBuildCustomerVip($customerVipId, $filter, $file)
     {
-        return false; //debug delete todo
         switch ($filter->filter_alias) {
             case 'gift_code':
                 $queryBuild = DB::connection('plat')->table('platv4_user_to_customer_vip AS u2v')
