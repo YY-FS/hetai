@@ -24,8 +24,7 @@ class Platv4UserGroupToFilter extends BaseModel
             ->where('g2f.user_group_id', $userGroupId)
             ->groupBy('ft.alias')
             ->orderBy('total_users', 'ASC')
-            ->get()
-            ->toArray();
+            ->get();
     }
 }
 

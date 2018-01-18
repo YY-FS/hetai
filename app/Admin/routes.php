@@ -32,9 +32,9 @@ Route::group([
     $router->any('industries/edit', 'IndustryController@anyEdit');
 
 //    用户分群
-    $router->get('groups','UserGroupController@index');
-    $router->any('groups/create','UserGroupController@anyForm');
-    $router->any('groups/edit', 'UserGroupController@anyEdit');
+    $router->get('user/groups','UserGroupController@index');
+    $router->any('user/groups/create','UserGroupController@anyForm');
+    $router->any('user/groups/edit', 'UserGroupController@anyEdit');
 
 
 
