@@ -37,7 +37,7 @@ class UserGroupService
 
     public function genGroupUser($userGroupId)
     {
-        $groupFilters = Platv4UserGroupToFilter::getUserGroupFilter($userGroupId);
+        $groupFilters = Platv4UserGroupToFilter::getUserGroupFilter($userGroupId)->toArray();
         if (empty($groupFilters)) {
             // log todo
             return false;
