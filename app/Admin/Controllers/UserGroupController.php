@@ -22,7 +22,7 @@ class UserGroupController extends BaseController
     public function index()
     {
         $title = '用户分群';
-        $filter = DataFilter::source(Platv4UserGroup::where('status','<>',-1));
+        $filter = DataFilter::source(Platv4UserGroup::where('status','<>',-1)->orderBy('id','desc'));
         //渲染搜索框
         $filter->add('ID','ID','text');
         $filter->add('name','名称','text');
