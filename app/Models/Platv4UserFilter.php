@@ -23,7 +23,7 @@ class Platv4UserFilter extends BaseModel
                 'f.name AS filter_name',
                 'f.remark AS filter_remark',
             ])
-//            ->where('ft.id', '>', 7) // debug
+            ->where('ft.id', 12) // debug
             ->orderBy('ft.sort', 'ASC')
             ->get()
             ->toArray();

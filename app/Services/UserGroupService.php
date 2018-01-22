@@ -60,11 +60,11 @@ class UserGroupService
         }
 
         var_dump('group user done');
+        if (empty($groupUser)) $groupUser = [];
 //        存redis
         $cacheKey = self::CACHE_USER_GROUP . $userGroupId;
         Redis::del($cacheKey);
         Redis::sadd($cacheKey, ...$groupUser);
-
         var_dump('redis done');
 
         $userGroup = Platv4UserGroup::find($userGroupId);

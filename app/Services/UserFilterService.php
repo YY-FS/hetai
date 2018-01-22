@@ -190,7 +190,7 @@ class UserFilterService
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
         $queryBuild = DB::connection('plat')->table('platv4_user')
             ->select('id AS uid')
-            ->where(['industry' => $filter->filter_name]);
+            ->where(['industry' => $filter->filter_alias]);
 
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
@@ -210,17 +210,19 @@ class UserFilterService
         if (empty($filter->filter_remark)) return false;
         $total = explode(',', $filter->filter_remark);
         $min = $total[0];
-        $max = $total[1];
+        $max = ($total[1] === 'null') ? null : $total[1];
 
         $totalUser = 0;
         $duration = 0;
 
         for ($i = 0; $i <= 3; $i++) {
-            $queryBuild = DB::connection('plat')->table('platv4_event_' . $i)
-                ->select('uid')
-                ->groupBy('uid')
+            $queryBuild = DB::connection('plat')->table('platv4_user AS u')
+                ->leftJoin('platv4_event_' . $i . ' AS e', 'u.id', '=', 'e.uid')
+                ->select('u.id as uid')
+                ->where(DB::connection('plat')->raw('u.id % 4'), $i)
+                ->groupBy('u.id')
                 ->having(DB::connection('plat')->raw('COUNT(auto_id)'), '>=', $min);
-            if ($max !== 'null') $queryBuild->having(DB::connection('plat')->raw('COUNT(auto_id)'), '<=', $max);
+            if ($max !== null) $queryBuild->having(DB::connection('plat')->raw('COUNT(auto_id)'), '<=', $max);
 
             $result = $this->_putContents($queryBuild, $filter, $file);
 
@@ -245,12 +247,12 @@ class UserFilterService
         if (empty($filter->filter_remark)) return false;
         $times = explode(',', $filter->filter_remark);
         $startDate = date('Y-m-d', strtotime('-' . $times[0] . ' days'));
-        $endDate = date('Y-m-d', strtotime('-' . $times[1] . ' days'));
+        $endDate = ($times[1] === 'null') ? null : date('Y-m-d', strtotime('-' . $times[1] . ' days'));
 
         $queryBuild = DB::connection('plat')->table('platv4_user')
             ->select('id AS uid')
             ->where('date', '<=', $startDate);
-        if ($endDate !== 'null') $queryBuild->where('date', '>', $endDate);
+        if ($endDate !== null) $queryBuild->where('date', '>', $endDate);
 
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
@@ -270,12 +272,12 @@ class UserFilterService
         if (empty($filter->filter_remark)) return false;
         $times = explode(',', $filter->filter_remark);
         $startDate = date('Y-m-d', strtotime('-' . $times[0] . ' days'));
-        $endDate = date('Y-m-d', strtotime('-' . $times[1] . ' days'));
+        $endDate = ($times[1] === 'null') ? null : date('Y-m-d', strtotime('-' . $times[1] . ' days'));
 
         $queryBuild = DB::connection('plat')->table('platv4_user')
             ->select('id AS uid')
             ->where('login_time', '<=', $startDate);
-        if ($endDate !== 'null') $queryBuild->where('login_time', '>', $endDate);
+        if ($endDate !== null) $queryBuild->where('login_time', '>', $endDate);
 
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
@@ -296,7 +298,7 @@ class UserFilterService
         if (empty($filter->filter_remark)) return false;
         $times = explode(',', $filter->filter_remark);
         $startDate = date('Y-m-d', strtotime('-' . $times[0] . ' days'));
-        $endDate = date('Y-m-d', strtotime('-' . $times[1] . ' days'));
+        $endDate = ($times[1] === 'null') ? null : date('Y-m-d', strtotime('-' . $times[1] . ' days'));
 
         $queryBuild = DB::connection('plat')->table('platv4_user_payment')
             ->select('uid')
@@ -304,7 +306,8 @@ class UserFilterService
             ->where('pay_amount', '>', 0)
             ->groupBy('uid')
             ->having(DB::connection('plat')->raw('MAX(pay_date)'), '<=', $startDate);
-        if ($endDate !== 'null') $queryBuild->having(DB::connection('plat')->raw('MAX(pay_date)'), '>', $endDate);
+
+        if ($endDate !== null) $queryBuild->having(DB::connection('plat')->raw('MAX(up.pay_date)'), '>', $endDate);
 
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
@@ -325,15 +328,23 @@ class UserFilterService
         if (empty($filter->filter_remark)) return false;
         $total = explode(',', $filter->filter_remark);
         $min = $total[0] * 100;
-        $max = $total[1] * 100;
+        $max = ($total[1] === 'null') ? null : ($total[1] * 100);
 
-        $queryBuild = DB::connection('plat')->table('platv4_user_payment')
-            ->select('uid')
-            ->where('status', 1)
-            ->where('pay_amount', '>', 0)
-            ->groupBy('uid')
-            ->having(DB::connection('plat')->raw('SUM(pay_amount)'), '>=', $min);
-        if ($max !== 'null') $queryBuild->having(DB::connection('plat')->raw('SUM(pay_amount)'), '<', $max);
+        $queryBuild = DB::connection('plat')->table('platv4_user as u')
+            ->leftJoin('platv4_user_payment as up', function ($join) {
+                $join->on('up.uid', '=', 'u.id')
+                    ->where('up.status', '=', 1)
+                    ->where('up.pay_amount', '>', 0);
+            })
+            ->select('u.id as uid')
+            ->groupBy('u.id');
+        if ($min == 0) {
+            $queryBuild->havingRaw(DB::connection('plat')->raw('SUM(pay_amount) IS NULL'));
+        } else {
+            $queryBuild->having(DB::connection('plat')->raw('SUM(pay_amount)'), '>=', $min);
+            if ($max !== null) $queryBuild->having(DB::connection('plat')->raw('SUM(pay_amount)'), '<', $max);
+        }
+
 
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
@@ -380,12 +391,12 @@ class UserFilterService
                 if (empty($filter->filter_remark)) break;
                 $times = explode(',', $filter->filter_remark);
                 $startDate = date('Y-m-d', strtotime($times[0] . ' days'));
-                $endDate = date('Y-m-d', strtotime($times[1] . ' days'));
+                $endDate = ($times[1] === 'null') ? null : date('Y-m-d', strtotime($times[1] . ' days'));
                 $queryBuild = DB::connection('plat')->table('platv4_user_to_customer_vip')
                     ->select('uid')
                     ->where(['customer_vip_id' => $customerVipId, 'status' => 1])
                     ->where('end_date', '>=', $startDate);
-                if ($endDate !== 'null') $queryBuild->where('end_date', '<', $endDate);
+                if ($endDate !== null) $queryBuild->where('end_date', '<', $endDate);
 
                 $queryBuild->groupBy('uid');
                 break;
@@ -393,12 +404,12 @@ class UserFilterService
                 if (empty($filter->filter_remark)) break;
                 $times = explode(',', $filter->filter_remark);
                 $startDate = date('Y-m-d', strtotime('-' . $times[0] . ' days'));
-                $endDate = date('Y-m-d', strtotime('-' . $times[1] . ' days'));
+                $endDate = ($times[1] === 'null') ? null : date('Y-m-d', strtotime('-' . $times[1] . ' days'));
                 $queryBuild = DB::connection('plat')->table('platv4_user_to_customer_vip')
                     ->select('uid')
                     ->where(['customer_vip_id' => $customerVipId, 'status' => 0])
                     ->where('end_date', '<=', $startDate);
-                if ($endDate !== 'null') $queryBuild->where('end_date', '>', $endDate);
+                if ($endDate !== null) $queryBuild->where('end_date', '>', $endDate);
 
                 $queryBuild->groupBy('uid');
                 break;
