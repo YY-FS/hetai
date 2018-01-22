@@ -307,7 +307,7 @@ class UserFilterService
             ->groupBy('uid')
             ->having(DB::connection('plat')->raw('MAX(pay_date)'), '<=', $startDate);
 
-        if ($endDate !== null) $queryBuild->having(DB::connection('plat')->raw('MAX(up.pay_date)'), '>', $endDate);
+        if ($endDate !== null) $queryBuild->having(DB::connection('plat')->raw('MAX(pay_date)'), '>', $endDate);
 
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
