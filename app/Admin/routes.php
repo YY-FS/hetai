@@ -57,7 +57,7 @@ Route::group([
     // 会员优惠
     $router->get('customer_vips/discounts', 'CustomerVipController@discount');
     $router->any('customer_vips/discounts/edit', 'CustomerVipController@discountEdit');
-    $router->any('customer_vips/discounts/rule', 'CustomerVipController@discountRuleEdit');
+//    $router->any('customer_vips/discounts/rule', 'CustomerVipController@discountRuleEdit');
     $router->get('customer_vips/discounts/cache', 'CustomerVipController@cleanDiscountCache');
 
 });

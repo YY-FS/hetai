@@ -5,9 +5,12 @@ namespace App\Admin\Controllers;
 use App\Models\Platv4Corner;
 use App\Models\Platv4CustomerVip;
 use App\Models\Platv4CustomerVipDiscount;
+use App\Models\Platv4CustomerVipDiscountToTerminal;
 use App\Models\Platv4CustomerVipDiscountType;
 use App\Models\Platv4CustomerVipPackage;
+use App\Models\Platv4ItemToUserGroup;
 use App\Models\Platv4Terminal;
+use App\Models\Platv4UserGroup;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redis;
 use Zofe\Rapyd\DataEdit\DataEdit;
@@ -349,14 +352,18 @@ class CustomerVipController extends BaseController
 
         $grid->attributes(array("class" => "table table-bordered table-striped table-hover"));
         $grid->add('id', 'ID', true);
-        $grid->add('name', '优惠名称', true);
-        $grid->add('corner', '活动角标', true);
-        $grid->add('rule', '优惠细则', true);
+        $grid->add('sort', '排序', true);
+        $grid->add('name', '活动名称', false);
+        $grid->add('corner', '活动角标', false);
+        //$grid->add('rule', '优惠细则', true);
         $grid->add('start_time', '开始时间', true);
         $grid->add('end_time', '结束时间', true);
-        $grid->add('type_name', '优惠类型', true);
-        $grid->add('terminal', '终端', true);
-        $grid->add('status', '状态', true);
+        $grid->add('type_name', '活动类型', false);
+        $grid->add('user_groups', '用户分群', true);
+        $grid->add('target_count', '命中人数', true);
+        $grid->add('terminals', '终端', false);
+        $grid->add('status', '状态', false);
+        $grid->add('comment','活动备注','textarea');
         $grid->add('create_time', '创建时间', true);
         $grid->add('update_time', '更新时间', true);
 
@@ -398,17 +405,20 @@ class CustomerVipController extends BaseController
             }
 
             $row->cell('operation')->value = $this->getEditBtn($row->data->id) . $this->getStatusBtn($row->data->id, $status, $statusText);
+            if($status == Platv4CustomerVipDiscount::COMMON_STATUS_NORMAL){
+                $row->cell('operation')->value.= $this->getDeleteBtn($row->data->id);
+            }
 
-            $link = config('admin.route.prefix') . $this->route . "/rule?show=" . $row->data->id;
-            $btnRule = "<button class=\"btn btn-success\" onclick=\"layer.open({
-                                                                                type: 2, 
-                                                                                title: ['" . $row->data->name . "', false], 
-                                                                                area: ['860px', '640px'], 
-                                                                                shadeClose: true,
-                                                                                scrollbar: false,
-                                                                                content: '" . $link . "'
-                                                                            })\">查看规则</button>";
-            $row->cell('rule')->value = $btnRule;
+//            $link = config('admin.route.prefix') . $this->route . "/rule?show=" . $row->data->id;
+//            $btnRule = "<button class=\"btn btn-success\" onclick=\"layer.open({
+//                                                                                type: 2,
+//                                                                                title: ['" . $row->data->name . "', false],
+//                                                                                area: ['860px', '640px'],
+//                                                                                shadeClose: true,
+//                                                                                scrollbar: false,
+//                                                                                content: '" . $link . "'
+//                                                                            })\">查看规则</button>";
+//            $row->cell('rule')->value = $btnRule;
 
         });
 
@@ -426,6 +436,10 @@ class CustomerVipController extends BaseController
     public function discountEdit()
     {
         $this->route = '/customer_vips/discounts';
+        $fields = ['alias', 'icon', 'quantity', 'discount', 'trial_days', 'give_quantity',
+            'content', 'policy', 'policy_text', 'deadline', 'image',
+            'package_corner', 'package_corner_text', 'origin_price', 'price'
+        ];
 //        软删除
         $deleteId = Input::get('delete', null);
         if ($deleteId) {
@@ -442,9 +456,19 @@ class CustomerVipController extends BaseController
 //        tag
         $id = Input::get('modify', 0);
         if ($id) {
-            $list = Platv4Terminal::where('customer_vip_discount_id', $id)->get()->toArray();
-            $data = array_column($list, 'name');
-            Input::offsetSet('terminal', array_values($data));   // 选中t
+            $activity = Platv4CustomerVipDiscount::rapydGrid($id)->first();
+            $groupOption = explode(',',$activity->user_group_ids);
+            $terminalOption = explode(',',$activity->terminals);
+
+            // 选中t
+            Input::offsetSet('terminals',$terminalOption);
+            Input::offsetSet('user_groups',$groupOption);
+            $rule = json_decode($activity->rule, true);
+            if (!empty($rule)) {
+                foreach ($rule AS $k => $v) {
+                    Input::offsetSet($k, $v);
+                }
+            }
         }
 
         $edit = DataEdit::source(new Platv4CustomerVipDiscount());
@@ -456,6 +480,26 @@ class CustomerVipController extends BaseController
             ->rule("required|min:2")
             ->placeholder("请输入 活动名称");
 
+        $edit->add('type', '活动类型', 'select')->options(Platv4CustomerVipDiscountType::all()->pluck('description', 'name'));
+
+        $edit->add('alias', '会员品类', 'checkboxgroup')->options(Platv4CustomerVip::all()->pluck('name', 'alias')->toArray());
+
+        $edit->add('quantity', '可优惠的价格包', 'checkboxgroup')->options(Platv4CustomerVipPackage::where('status', 1)->groupBy('quantity')->pluck('name', 'quantity')->toArray());
+
+        $edit->add('user_groups','用户分群','checkboxgroup')->options(Platv4UserGroup::all()->pluck('name','id')->toArray());
+
+        $edit->add('sort','活动排序','number')->placeholder('当用户命中两个活动时，排序靠前的活动有效，1为最靠前活动');
+
+        $edit->add('rate','折扣比例','number')->placeholder('请输入比例');
+
+        $edit->add('package_corner', '价格包角标底色', 'text')
+            // ->rule("min:2")
+            ->placeholder("请输入 价格包角标底色");
+
+        $edit->add('package_corner_text', '价格包角标文案', 'text')
+            ->rule("min:2")
+            ->placeholder("请输入 价格包角标文案");
+
         // $edit->add('corner', '活动角标', 'select')->options(Platv4Corner::where('type', 'customer_vip')->pluck('description', 'name'));
 
         $edit->add('corner', '活动角标底色', 'text')
@@ -465,18 +509,58 @@ class CustomerVipController extends BaseController
         $edit->add('start_time', '开始时间', 'date')->format('Y-m-d', 'zh-CN')->rule("required");
         $edit->add('end_time', '结束时间', 'date')->format('Y-m-d', 'zh-CN')->rule("required");
 
-        $edit->add('type', '优惠类型', 'select')->options(Platv4CustomerVipDiscountType::all()->pluck('description', 'name'));
+        $edit->add('terminals', '终端', 'checkboxgroup')->options(Platv4Terminal::all()->pluck('description', 'name')->toArray());
 
-        $edit->add('terminal', '终端', 'checkboxgroup')->options(Platv4Terminal::all()->pluck('description', 'name')->toArray());
+        $edit->add('comment','活动备注','textarea');
 
-        $edit->saved(function () use ($edit) {
-            $terminals = Input::get('terminal', null);
+        $edit->saved(function () use ($edit,$fields) {
+
+            //记录用户分群
+            $userGroups = Input::post('user_groups',null);
+            $itemGroups = [];
+            if(!empty($userGroups)){
+                foreach($userGroups as $v){
+                    $row = ['user_group_id'=>$v,'item_id'=>$edit->model->id,'item_table'=>'platv4_customer_vip_discounts'];
+                    $itemGroups[] = $row;
+                }
+                $items = Platv4ItemToUserGroup::where('item_id',$edit->model->id)->where('item_table','platv4_customer_vip_discounts');
+                if(!empty($items->get())){
+                    $items->delete();
+                }
+                Platv4ItemToUserGroup::insert($itemGroups);
+            }
+
+            //记录终端
+            $terminals = Input::post('terminals', null);
+            $discountTerminals = [];
             if (!empty($terminals)) {
-                Platv4Terminal::whereIn('name', $terminals)->update(['customer_vip_discount_id' => $edit->model->id]);
+                foreach ($terminals as $t){
+                    $row = ['terminal'=>$t,'customer_vip_discount_id'=>$edit->model->id];
+                    $discountTerminals[] = $row;
+                }
+                $terminal = Platv4CustomerVipDiscountToTerminal::where('customer_vip_discount_id',$edit->model->id);
+                if(!empty($terminal->get())){
+                    $terminal->delete();
+                }
+                Platv4CustomerVipDiscountToTerminal::insert($discountTerminals);
+            }
+
+            //记录规则
+            $rule = Input::all();
+            foreach($rule AS $key => $item) {
+                if (!in_array($key, $fields)) unset($rule[$key]);
+                if (is_null($item)) $rule[$key] = '';
+            }
+            if (!empty($rule)) {
+                $discount = Platv4CustomerVipDiscount::find($edit->model->id);
+                $discount->rule = json_encode($rule);
+                $discount->save();
             }
         });
 
         $edit->build();
+
+        \Admin::script(Platv4CustomerVipDiscount::SCRIPT);
 
         return $edit->view('rapyd.edit', compact('edit'));
     }
@@ -545,32 +629,6 @@ class CustomerVipController extends BaseController
             ->rule("min:0")
             ->placeholder("赠送月份")->updateValue('0');
 
-        $edit->add('content', 'APP弹窗文案', 'text')
-            ->rule("min:2")
-            ->placeholder("请输入 APP弹窗文案");
-
-        $edit->add('policy', 'APP弹窗规则链接', 'text')
-            ->rule("min:2")
-            ->placeholder("请输入 APP弹窗规则链接");
-
-        $edit->add('policy_text', '用户规则', 'textarea')
-            ->attributes(['rows' => 5])
-            ->rule("min:2")
-            ->placeholder("请输入 用户规则（链接或文案）");
-
-        $edit->add('deadline', '显示倒计时（小时）', 'number')
-            ->rule("min:0")
-            ->placeholder("显示倒计时")->insertValue('0');
-
-        $edit->add('image', '背景图链接', 'text')
-            ->rule("min:2")
-            ->placeholder("请输入 背景图链接");
-
-        $edit->add('origin_price', '红包弹窗原价', 'number')
-            ->placeholder("请输入 红包弹窗原价");
-
-        $edit->add('price', '红包弹窗现价', 'number')
-            ->placeholder("请输入 红包弹窗现价");
 
         $edit->saved(function () use ($edit, $fields) {
             $rule = Input::all();
