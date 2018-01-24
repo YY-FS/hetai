@@ -88,4 +88,44 @@ EOT;
 
         return $result;
     }
+
+    public static function getData($id = null)
+    {
+        $result =$result = DB::connection('plat')->table('platv4_customer_vip_discounts AS cvd')
+            ->leftJoin('platv4_user_payment AS up','up.coupon_id','=','cvd.id')
+            ->leftJoin('platv4_order_product AS op','op.order_id','=','up.order_id')
+            ->leftJoin('platv4_customer_vips AS cv','op.product_id','=','cv.id')
+            ->select([
+                'cvd.name',
+                'cvd.start_time',
+                'cvd.end_time',
+                DB::connection('plat')->raw('date(up.date_paid) as date'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'maka\' then 1 else 0 end) as maka_sale'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'maka\' then `op`.`total` else 0 end) as maka_price'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'poster\' then 1 else 0 end) as poster_sale'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'poster\' then `op`.`total` else 0 end) as poster_price'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'video\' then 1 else 0 end) as video_sale'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'video\' then `op`.`total` else 0 end) as video_price'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'senior\' then 1 else 0 end) as senior_sale'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'senior\' then `op`.`total` else 0 end) as senior_price'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'super\' then 1 else 0 end) as super_sale'),
+                DB::connection('plat')->raw('sum(case `cv`.`alias` when \'super\' then `op`.`total` else 0 end) as super_price'),
+                DB::connection('plat')->raw('count(`op`.`id`) as all_sale'),
+                DB::connection('plat')->raw('sum(`op`.`total`) as all_price'),
+            ])
+            ->where('op.pay_purpose','=',"customer_vip")
+            ->where('up.status', 1)
+            ->where('cvd.id',$id);
+
+        return $result;
+    }
+
+    public static function getDetail($id = null)
+    {
+        $result = self::getData($id)
+            ->groupBy(DB::connection('plat')->raw('date(up.date_paid)'))
+            ->orderBy('date','desc');
+
+            return $result;
+    }
 }

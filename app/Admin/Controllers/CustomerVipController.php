@@ -404,7 +404,17 @@ class CustomerVipController extends BaseController
                 $statusText = '上线';
             }
 
-            $row->cell('operation')->value = $this->getEditBtn($row->data->id) . $this->getStatusBtn($row->data->id, $status, $statusText);
+            $link = config('admin.route.prefix') . $this->route . "/data?show=" . $row->data->id;
+            $btnData = $btn = "<button class=\"btn btn-primary\" onclick=\"layer.open({
+                                                                                type: 2, 
+                                                                                title: ['活动数据统计', false], 
+                                                                                area: ['860px', '640px'], 
+                                                                                shadeClose: true,
+                                                                                scrollbar: false,
+                                                                                content: '" . $link . "'
+                                                                            })\">数据统计</button>";
+
+            $row->cell('operation')->value = $btnData . $this->getEditBtn($row->data->id) . $this->getStatusBtn($row->data->id, $status, $statusText);
             if($status == Platv4CustomerVipDiscount::COMMON_STATUS_NORMAL){
                 $row->cell('operation')->value.= $this->getDeleteBtn($row->data->id);
             }
@@ -563,6 +573,90 @@ class CustomerVipController extends BaseController
         \Admin::script(Platv4CustomerVipDiscount::SCRIPT);
 
         return $edit->view('rapyd.edit', compact('edit'));
+    }
+
+    public function dataShow()
+    {
+        $modify = Input::get('modify',null);
+        if(isset($modify)){
+            return redirect()->back();
+        }
+
+        $this->route = '/customer_vips/discounts/data_detail';
+        $id = Input::get('show',null);
+        $edit = DataEdit::source(new Platv4CustomerVipDiscount());
+        $edit->label('活动数据统计');
+
+        if($id){
+            $discount = Platv4CustomerVipDiscount::getData($id)->first();
+            foreach ($discount as $k=>$v){
+                $edit->model->$k = $v;
+            }
+
+            $edit->link(config('admin.route.prefix') . $this->route .'?discount=' . $id , '查看详细数据', 'TR', ['class' => 'btn btn-primary detail','target'=>'_parent']);
+            $edit->add('name','活动名称','text');
+            $edit->add('start_time','活动开始时间','text');
+            $edit->add('end_time','活动结束时间','text');
+            $edit->add('maka_sale','H5会员销量','text');
+            $edit->add('maka_price','H5会员金额','text');
+            $edit->add('poster_sale','海报会员销量','text');
+            $edit->add('poster_price','海报会员金额','text');
+            $edit->add('video_sale','视频会员销量','text');
+            $edit->add('video_price','视频会员金额','text');
+            $edit->add('senior_sale','高级会员销量','text');
+            $edit->add('senior_price','高级会员金额','text');
+            $edit->add('super_sale','超级会员销量','text');
+            $edit->add('super_price','超级会员金额','text');
+            $edit->add('all_sale','会员销量','text');
+            $edit->add('all_price','会员金额','text');
+
+            $edit->build();
+
+            return $edit->view('rapyd.frameEdit', compact('edit'));
+        }
+
+
+    }
+
+    public function dataDetail()
+    {
+        $id = Input::get('discount',null);
+        $this->route = '/customer_vips/discounts';
+        if($id){
+            $vipDiscount = Platv4CustomerVipDiscount::find($id)->first();
+            $title = $vipDiscount->name.'活动数据详情';
+            //dd(Platv4CustomerVipDiscount::getDetail($id)->get());
+            $filter = DataFilter::source(Platv4CustomerVipDiscount::getDetail($id));
+            $grid = DataGrid::source($filter);
+
+            $grid->attributes(array("class" => "table table-bordered table-striped table-hover"));
+            $grid->add('date','日期',true);
+            $grid->add('maka_sale','H5会员销量',true);
+            $grid->add('{{ $maka_price/100}}','H5会员金额',true);
+            $grid->add('poster_sale','海报会员销量',true);
+            $grid->add('{{ "￥".($poster_price/100) }}','海报会员金额',true);
+            $grid->add('video_sale','视频会员销量',true);
+            $grid->add('{{ "￥".($video_price/100) }}','视频会员金额',true);
+            $grid->add('senior_sale','高级会员销量',true);
+            $grid->add('{{ "￥".($senior_price/100) }}','高级会员金额',true);
+            $grid->add('super_sale','超级会员销量',true);
+            $grid->add('{{ "￥".($super_price/100) }}','超级会员金额',true);
+            $grid->add('all_sale','会员总销量',true);
+            $grid->add('{{ "￥".($all_price/100) }}','会员总金额',true);
+
+            $url = new Url();
+            $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
+            $grid->link(config('admin.route.prefix') . $this->route, "活动列表", "TR", ['class' => 'btn btn-primary']);
+            if (Input::get('export') == 1) {
+                $grid->build();
+                return $grid->buildCSV($title,'Ymd');
+            } else {
+                $grid->paginate(self::DEFAULT_PER_PAGE);
+                $grid->build();
+                return view('rapyd.filtergrid', compact( 'filter','grid', 'title'));
+            }
+        }
+
     }
 
 
