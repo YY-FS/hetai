@@ -31,6 +31,8 @@ class HeadlineController extends BaseController
     public $ossAppSecret;
     public $ossEndpoint;
     public $ossViewDomain;
+    public $ossIntranetDomain = 'oss-cn-beijing-internal.aliyuncs.com';  // 内网域名
+
     public $htmlHeader;
     public $htmlFooter;
 
@@ -413,7 +415,7 @@ class HeadlineController extends BaseController
 
         $result = $this->uploadJsonToOSS($htmlObject, $description);
 
-        $link = 'http://' . $this->ossViewDomain . '/' . $htmlObject;
+        $link = 'http://' . $this->ossIntranetDomain . '/' . $htmlObject;
 
         return $link;
     }
