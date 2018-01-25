@@ -59,5 +59,7 @@ Route::group([
     $router->any('customer_vips/discounts/edit', 'CustomerVipController@discountEdit');
 //    $router->any('customer_vips/discounts/rule', 'CustomerVipController@discountRuleEdit');
     $router->get('customer_vips/discounts/cache', 'CustomerVipController@cleanDiscountCache');
+    $router->get('customer_vips/discounts/data', 'CustomerVipController@dataShow');
+    $router->get('customer_vips/discounts/data_detail', 'CustomerVipController@dataDetail');
 
 });
