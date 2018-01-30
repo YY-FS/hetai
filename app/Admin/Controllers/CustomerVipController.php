@@ -590,6 +590,9 @@ class CustomerVipController extends BaseController
         if($id){
             $discount = Platv4CustomerVipDiscount::getData($id)->first();
             foreach ($discount as $k=>$v){
+                if(strpos($k,'_price')!==false){
+                    $v = '￥'.((int)$v/100);
+                }
                 $edit->model->$k = $v;
             }
 
