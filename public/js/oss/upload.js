@@ -10,7 +10,11 @@ key = ''
 expire = 0
 g_object_name = ''
 g_object_name_type = ''
-now = timestamp = Date.parse(new Date()) / 1000; 
+now = timestamp = Date.parse(new Date()) / 1000;
+
+// /* add start */
+// flag = location.href.indexOf('modal/oss')>=0?false:true;
+// /* add end */
 
 function send_request(dir)
 {
@@ -144,11 +148,11 @@ function set_upload_param(up, filename, ret, dir)
     up.start();
     // location.reload(true)
 }
-
+console.log(single);
 var uploader = new plupload.Uploader({
 	runtimes : 'html5,flash,silverlight,html4',
 	browse_button : 'selectfiles', 
-    //multi_selection: false,
+    multi_selection: !single,
 	container: document.getElementById('container'),
 	flash_swf_url : 'lib/plupload-2.1.2/js/Moxie.swf',
 	silverlight_xap_url : 'lib/plupload-2.1.2/js/Moxie.xap',
@@ -173,7 +177,14 @@ var uploader = new plupload.Uploader({
 		},
 
 		FilesAdded: function(up, files) {
-			plupload.each(files, function(file) {
+		    /* add start */
+            if(up.files.length > 1 && single){
+                up.removeFile(up.files[0]);
+                up.files[0] = files[0];
+                $('#ossfile>div').remove();
+            }
+		    /* add end */
+			plupload.each(up.files, function(file) {
 				document.getElementById('ossfile').innerHTML += '<div id="' + file.id + '">' + file.name + ' (' + plupload.formatSize(file.size) + ')<b></b>'
 				+'<div class="progress"><div class="progress-bar" style="width: 0%"></div></div>'
 				+'</div>';

@@ -34,7 +34,7 @@ class BaseController extends Controller
 
     public function getStatusBtn($id, $changeStatus, $statusText)
     {
-        return '<button class="btn btn-default" onclick="layer.confirm( \'确定' . $statusText . '吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . $this->route . "/edit?status=" . $changeStatus . "&id=" . $id . '\'})">' . $statusText . '</button>';
+        return '<button class="btn btn-default" onclick="layer.confirm( \'确定将状态改为' . $statusText . '吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . $this->route . "/edit?status=" . $changeStatus . "&id=" . $id . '\'})">' . $statusText . '</button>';
     }
 
     public function getDeleteBtn($id)

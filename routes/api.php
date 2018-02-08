@@ -26,3 +26,8 @@ Route::get('districts', function (Request $request) {
     $cityId = $request->get('city_id', 0);
     return \App\Models\Platv4District::where('city_id', $cityId)->get(['district_id', 'name']);
 });
+
+Route::get('discount_time',function(Request $request){
+    $discountId = $request->get('discount_id', 0);
+    return \App\Models\Platv4CustomerVipDiscount::where('id', $discountId)->select(['start_time', 'end_time'])->first();
+});

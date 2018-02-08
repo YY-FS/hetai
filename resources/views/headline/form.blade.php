@@ -102,7 +102,7 @@
                 shadeClose: true,
                 scrollbar: false,
                 area: ['1024px', '640px'],
-                content: '/headlines/oss/{!! $imageDir !!}'
+                content: '/headlines/oss?dir=HEADLINE/IMAGES/{!! $imageDir !!}/&single=false'
             });
         }
 
