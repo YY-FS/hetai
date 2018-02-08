@@ -126,6 +126,13 @@ class ModalController extends BaseController
             Input::offsetSet('way',$way);
         }
 
+        //检查是否从活动页进入
+        $bindId = Input::get('bind',0);
+        if($bindId){
+            Input::offsetSet('way','discount');
+            Input::offsetSet('customer_vip_discount_id',$bindId);
+        }
+
         $edit->label('弹窗信息');
         $edit->link(config('admin.route.prefix') . "/modal", "列表", "TR")->back();
         $edit->add('name','弹窗名称','text')

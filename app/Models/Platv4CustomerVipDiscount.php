@@ -71,13 +71,16 @@ EOT;
             ->leftJoin('platv4_user_group_v2 AS ug','ug.id','=','itug.user_group_id')
             ->leftJoin('platv4_customer_vip_discount_types AS cvdt','cvd.type','=','cvdt.name')
             ->leftJoin('platv4_customer_vip_discount_to_terminal AS cvdtt','cvd.id','=','cvdtt.customer_vip_discount_id')
+            ->leftJoin('platv4_modal as m','cvd.id','=','m.customer_vip_discount_id')
             ->select([
                 'cvd.*',
                 'cvdt.description AS type_name',
+                'm.id AS modal_id',
                 DB::connection('plat')->raw('GROUP_CONCAT(cvdtt.terminal) AS terminals'),
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct ug.name) AS user_groups'),
                 DB::connection('plat')->raw('GROUP_CONCAT(ug.id) AS user_group_ids'),
-                DB::connection('plat')->raw('SUM(distinct ug.user_total) AS target_count')
+                DB::connection('plat')->raw('SUM(distinct ug.user_total) AS target_count'),
+               // DB::connection('plat')->raw('COUNT(m.customer_vip_discount_id) as modal')
             ])
             ->where('cvd.status','>=',0)
             ->groupBy('cvd.id');

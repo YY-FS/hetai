@@ -366,6 +366,7 @@ class CustomerVipController extends BaseController
         $grid->add('comment','活动备注','textarea');
         $grid->add('create_time', '创建时间', true);
         $grid->add('update_time', '更新时间', true);
+        $grid->add('modal','模态窗',false);
 
         $grid->add('operation','操作', false);
 
@@ -429,9 +430,13 @@ class CustomerVipController extends BaseController
 //                                                                                content: '" . $link . "'
 //                                                                            })\">查看规则</button>";
 //            $row->cell('rule')->value = $btnRule;
-
+            if($row->data->modal_id == null){
+                $row->cell('modal')->value = "<a href='/modal/edit?bind={$row->data->id}' style='color:#DC143C'>未绑定</a>";
+            }else{
+                $row->cell('modal')->value = "<a href='/modal?id={$row->data->modal_id}&search=1' style='color:#4169E1'>已绑定</a>";
+            }
         });
-
+        
         if (Input::get('export') == 1) {
             $grid->build();
             return $grid->buildCSV($title, 'Ymd');

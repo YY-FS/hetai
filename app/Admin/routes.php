@@ -63,7 +63,6 @@ Route::group([
     //模态窗
     $router->get('modal','ModalController@index');
     $router->any('modal/edit','ModalController@anyEdit');
-    //$router->get('modal/create','ModalController@anyForm');
     $router->get('modal/oss','OssController@showObject');
 
 });

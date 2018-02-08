@@ -27,7 +27,7 @@
             groupStartTime = $('#fg_start_time input').val();
             groupEndTime = $('#fg_end_time input').val();
             selectGroup();
-        }else if($('input[value=customer_vip_discount_id]').is(':checked')){
+        }else if($('input[value=discount]').is(':checked')){
             selectDiscount();
         }else{
             $('#fg_customer_vip_discount_id').hide();

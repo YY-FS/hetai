@@ -68,19 +68,12 @@ function selectPhoto(url, photoId,single){
             'onclick="delPhoto(\'' + url + '\', \'' + photoId + '\')" ' +
             'style="border: 1px solid #3c8dbc; border-radius: 5px;padding: 2px; height: 50px;width: auto;margin-right: 3px; max-width: 300px" ' +
             'src="' + url + '">';
-//        if(single){
-//            parent.$('#photo-preview').html(img);
-//        }else{
-//            parent.$('#photo-preview').append(img);
-//        }
 
-
-        insert = true;
-        var prevImgs = parent.$('#photo-preview img').last().prevAll();
-        if(prevImgs){
-            $.each(prevImgs,function(i,prevImg){
-                if($(prevImg).attr('id') == photoId){
-                    parent.$('#photo-preview img').last().remove();
+        var insert = true; //是否可插入图片和图片路径
+        var imgs = parent.$('#photo-preview img');
+        if(imgs){
+            $.each(imgs,function(i,image){
+                if($(image).attr('id') == photoId){
                     insert = false;
                 }
             });
@@ -103,9 +96,6 @@ function selectPhoto(url, photoId,single){
 
         }
 
-
-
-//        parent.layer.close(index);
     }
 </script>
 <script type="text/javascript" src="{{ asset ("/js/oss/lib/plupload-2.1.2/js/plupload.full.min.js") }}"></script>
