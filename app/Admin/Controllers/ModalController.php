@@ -123,7 +123,7 @@ class ModalController extends BaseController
             $terminal = Platv4ModalToTerminal::where('modal_id',$edit->model->id)->pluck('terminal')->toArray();
             Input::offsetSet('terminal',$terminal);
             $group = Platv4ItemToUserGroup::where('item_id',$edit->model->id)->where('item_table','platv4_modal')->pluck('user_group_id')->toArray();
-            empty($group) && Input::offsetSet('group',$group);
+            !empty($group) && Input::offsetSet('group',$group);
             $way = $edit->model->customer_vip_discount_id > 0?'discount':'group';
             Input::offsetSet('way',$way);
             //比较重要的字段拉出来在saved中更新
@@ -195,10 +195,11 @@ class ModalController extends BaseController
                             $row['item_id'] = $edit->model->id;
                             $groupData[] = $row;
                         }
+                        Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_modal')->delete();
+                        Platv4ItemToUserGroup::insert($groupData);
                     }
 
-                    Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_modal')->delete();
-                    Platv4ItemToUserGroup::insert($groupData);
+
                     $edit->model->customer_vip_discount_id = 0;
                 }
 
