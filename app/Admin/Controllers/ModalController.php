@@ -115,7 +115,6 @@ class ModalController extends BaseController
         }
 
         $edit = DataEdit::source(new Platv4Modal());
-        //$modal = Platv4Modal::find($edit->model->id);
 
         //检查是否是修改页面
         $modifyId = Input::get('modify',0);
@@ -124,9 +123,10 @@ class ModalController extends BaseController
             $terminal = Platv4ModalToTerminal::where('modal_id',$edit->model->id)->pluck('terminal')->toArray();
             Input::offsetSet('terminal',$terminal);
             $group = Platv4ItemToUserGroup::where('item_id',$edit->model->id)->where('item_table','platv4_modal')->pluck('user_group_id')->toArray();
-            Input::offsetSet('group',$group);
+            empty($group) && Input::offsetSet('group',$group);
             $way = $edit->model->customer_vip_discount_id > 0?'discount':'group';
             Input::offsetSet('way',$way);
+            //比较重要的字段拉出来在saved中更新
             Input::offsetSet('begin_time',$edit->model->start_time);
             Input::offsetSet('over_time',$edit->model->end_time);
             Input::offsetSet('discount_id',$edit->model->customer_vip_discount_id);
@@ -172,13 +172,11 @@ class ModalController extends BaseController
 
         $edit->saved(function() use ($edit){
 
-            //更新平台
-
             try {
                 DB::connection('plat')->beginTransaction();
 
                 $way = request('way', null);
-                $discountID = Input::post('customer_vip_discount_id', null);
+                $discountID = Input::post('discount_id', null);
                 //如果绑定的是活动
                 if ($way == 'discount' && $discountID > 0 && $edit->model->customer_vip_discount_id != $discountID) {
                     $edit->model->customer_vip_discount_id = $discountID;
@@ -224,6 +222,7 @@ class ModalController extends BaseController
                 Platv4ModalToTerminal::insert($terminalData);
 
                 DB::connection('plat')->commit();
+
             }catch(\Exception $e){
                 \Log::error('出现错误：'.$e->getMessage());
                 DB::connection('plat')->rollback();
@@ -232,7 +231,6 @@ class ModalController extends BaseController
                     'msg'=>'模态窗属性保存失败:'.$e->getMessage()
                 ]);
             }
-
         });
 
         $edit->build();
@@ -241,11 +239,4 @@ class ModalController extends BaseController
         return $edit->view('modal.form',compact('edit','imageDir'));
     }
 
-    public function anyForm()
-    {
-        $form = DataForm::source(new Platv4Modal());
-        $form->message('** <h3>【ERROR】</h3>模态窗属性保存失败 **：');
-        $form->link(config('admin.route.prefix') . '/modal',"返回列表");
-        return $form->view('rapyd.form',compact('form'));
-    }
 }
