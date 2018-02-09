@@ -36,6 +36,7 @@
         </tr>
         </thead>
         <tbody>
+
         @foreach($list as $item)
             <tr>
                 <td>
@@ -43,7 +44,7 @@
                 </td>
                 <td class="small">{!! $item['size'] !!}</td>
                 <td class="small">
-                    <button onclick="selectPhoto('{!! $item['url'] !!}', 'photo-{!! $item['auto_id'] !!}')" class="btn btn-primary">选取</button>
+                    <button onclick="selectPhoto('{!! $item['url'] !!}', 'photo-{!! $item['auto_id'] !!}',{{ $single }})" class="btn btn-primary">选取</button>
                 </td>
             </tr>
 
@@ -51,26 +52,50 @@
         </tbody>
     </table>
 </div>
+
 <script>
-    function selectPhoto(url, photoId){
+
+/*配置是否为单文件选择，勿删*/
+single = {{ $single }};
+
+function selectPhoto(url, photoId,single){
+        single = single || false;
         var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
-
-//        计算选的封面图数量
-        parent.$('#count-photo').text(parseInt(parent.$('#count-photo').text()) + 1);
-
-//        入库数据
-        var thumb = parent.$('#thumb').val();
-        if (thumb == '') parent.$('#thumb').val(url);
-        else parent.$('#thumb').val(thumb + ',' + url);
 
 //        预览
         var img = '<img ' +
-                    'id="' + photoId + '" ' +
-                    'onclick="delPhoto(\'' + url + '\', \'' + photoId + '\')" ' +
-                    'style="border: 1px solid #3c8dbc; border-radius: 5px;padding: 2px; height: 50px;width: auto;margin-right: 3px; max-width: 300px" ' +
-                    'src="' + url + '">';
-        parent.$('#photo-preview').append(img);
-//        parent.layer.close(index);
+            'id="' + photoId + '" ' +
+            'onclick="delPhoto(\'' + url + '\', \'' + photoId + '\')" ' +
+            'style="border: 1px solid #3c8dbc; border-radius: 5px;padding: 2px; height: 50px;width: auto;margin-right: 3px; max-width: 300px" ' +
+            'src="' + url + '">';
+
+        var insert = true; //是否可插入图片和图片路径
+        var imgs = parent.$('#photo-preview img');
+        if(imgs){
+            $.each(imgs,function(i,image){
+                if($(image).attr('id') == photoId){
+                    insert = false;
+                }
+            });
+        }
+
+        if(insert){
+            if(single){
+                parent.$('#photo-preview').html(img);
+                parent.$('#count-photo').text(1);
+                parent.$('#thumb').val(url);
+            }else{
+                parent.$('#photo-preview').append(img);
+                //        计算选的封面图数量
+                parent.$('#count-photo').text(parseInt(parent.$('#count-photo').text()) + 1);
+                //        入库数据
+                var thumb = parent.$('#thumb').val();
+                if (thumb == '') parent.$('#thumb').val(url);
+                else parent.$('#thumb').val(thumb + ',' + url);
+            }
+
+        }
+
     }
 </script>
 <script type="text/javascript" src="{{ asset ("/js/oss/lib/plupload-2.1.2/js/plupload.full.min.js") }}"></script>

@@ -30,13 +30,23 @@ class OssController extends Controller
         $this->ossViewDomain = env('ALI_OSS_PLAT_VIEW_DOMAIN');
     }
 
-    public function headlineObject($imageDir)
+    public function showObject()
     {
         $nextMarker = '';
         $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
         $list = [];
         $sort = [];
-        $prefix = 'HEADLINE/IMAGES/' . $imageDir . '/';
+//        $url = url()->current();
+        $prefix = Input::get('dir','');
+        $single = Input::get('single',false);  //配置是否限制为单文件上传
+//        if(strpos($url,'modal') !== false){
+//            $prefix = 'MODAL/IMAGES/' . $imageDir . '/';
+//            $single = true;
+//        }else{
+//            $prefix = 'HEADLINE/IMAGES/' . $imageDir . '/';
+//            $single = false;
+//        }
+
         while (true) {
             $options = [
                 'prefix' => $prefix,
@@ -80,7 +90,7 @@ class OssController extends Controller
         array_multisort($sort, SORT_DESC, $list);
 
         $dir = $prefix;
-        return view('oss.list', compact('list', 'dir'));
+        return view('oss.list', compact('list', 'dir','single'));
     }
 
     /**

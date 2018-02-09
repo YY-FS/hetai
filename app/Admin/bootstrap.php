@@ -21,3 +21,5 @@
 Encore\Admin\Form::forget(['map', 'editor']);
 Admin::css('/css/admin.css');
 Admin::js('/js/layer/layer.js');
+//Admin::js('/js/oss/lib/plupload-2.1.2/js/plupload.full.min.js');
+//Admin::js('/js/oss/upload.js');

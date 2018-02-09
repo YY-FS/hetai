@@ -20,7 +20,7 @@ Route::group([
     $router->post('headlines/html', 'HeadlineController@updateHtml');
 
 //    OSS
-    $router->get('headlines/oss/{imageDir}', 'OssController@headlineObject');
+    $router->get('headlines/oss', 'OssController@showObject');
     $router->get('oss/auth', 'OssController@auth');
 
 //    头条标签
@@ -35,8 +35,6 @@ Route::group([
     $router->get('user/groups','UserGroupController@index');
     $router->any('user/groups/create','UserGroupController@anyForm');
     $router->any('user/groups/edit', 'UserGroupController@anyEdit');
-
-
 
 //    设计师余额
     $router->get('designers/balance', 'DesignerBalanceController@index');
@@ -61,5 +59,12 @@ Route::group([
     $router->get('customer_vips/discounts/cache', 'CustomerVipController@cleanDiscountCache');
     $router->get('customer_vips/discounts/data', 'CustomerVipController@dataShow');
     $router->get('customer_vips/discounts/data_detail', 'CustomerVipController@dataDetail');
+
+    //模态窗
+    $router->get('modal','ModalController@index');
+    $router->any('modal/edit','ModalController@anyEdit');
+    $router->get('modal/oss','OssController@showObject');
+
+    $router->get('error','BaseController@error');
 
 });
