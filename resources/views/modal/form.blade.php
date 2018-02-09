@@ -24,37 +24,37 @@
         groupStartTime = '';
         groupEndTime = '';
         if($('input[value=group]').is(':checked')){
-            groupStartTime = $('#fg_start_time input').val();
-            groupEndTime = $('#fg_end_time input').val();
+            groupStartTime = $('#fg_begin_time input').val();
+            groupEndTime = $('#fg_over_time input').val();
             selectGroup();
         }else if($('input[value=discount]').is(':checked')){
             selectDiscount();
         }else{
-            $('#fg_customer_vip_discount_id').hide();
+            $('#fg_discount_id').hide();
             $('#fg_group').hide();
         }
 
         function selectGroup(){
-            $('#fg_start_time input').val(groupStartTime);
-            $('#fg_end_time input').val(groupEndTime);
+            $('#fg_begin_time input').val(groupStartTime);
+            $('#fg_over_time input').val(groupEndTime);
             $('#fg_group').show();
-            $('#fg_customer_vip_discount_id').hide();
-            $('#fg_start_time input').attr('readonly',false);
-            $('#fg_end_time input').attr('readonly',false);
+            $('#fg_discount_id').hide();
+            $('#fg_begin_time input').attr('readonly',false);
+            $('#fg_over_time input').attr('readonly',false);
         }
 
         function selectDiscount(){
-            groupStartTime = $('#fg_start_time input').val();
-            groupEndTime = $('#fg_end_time input').val();
+            groupStartTime = $('#fg_begin_time input').val();
+            groupEndTime = $('#fg_over_time input').val();
             discountChange();
             $('#fg_group').hide();
-            $('#fg_start_time input').attr('readonly',true);
-            $('#fg_end_time input').attr('readonly',true);
-            $('#fg_customer_vip_discount_id').show();
+            $('#fg_begin_time input').attr('readonly',true);
+            $('#fg_over_time input').attr('readonly',true);
+            $('#fg_discount_id').show();
         }
 
         function discountChange(){
-            var discountID = $('#div_customer_vip_discount_id select').val();
+            var discountID = $('#div_discount_id select').val();
             if(discountID>0){
                 $.ajax({
                     url:'/api/discount_time?discount_id='+discountID,
@@ -62,20 +62,20 @@
                     dataType:'json',
                     success:function(data){
                         if(data) {
-                            $('#fg_start_time input').val(data.start_time);
-                            $('#fg_end_time input').val(data.end_time);
+                            $('#fg_begin_time input').val(data.start_time);
+                            $('#fg_over_time input').val(data.end_time);
                         }
                     }
                 });
             }else{
-                $('#fg_start_time input').val('');
-                $('#fg_end_time input').val('');
+                $('#fg_begin_time input').val('');
+                $('#fg_over_time input').val('');
             }
         }
 
         $('input[value=group]').change(selectGroup);
         $('input[value=discount]').change(selectDiscount);
-        $('#div_customer_vip_discount_id select').change(discountChange);
+        $('#div_discount_id select').change(discountChange);
 
 //        ---------------- 弹窗图处理 ---------------------
         var btnOss = '<br>' +
@@ -122,6 +122,7 @@
         $('#count-photo').text({!! count(explode(',', $edit->model->thumb)) !!});
 
         //        预览
+        @if(!empty($edit->model->thumb))
         @foreach(explode(',', $edit->model->thumb) as $key => $item)
         var img = '<img ' +
             'id="photo-{!! $key !!}" ' +
@@ -130,5 +131,6 @@
             'src="{!! $item !!}">';
         $('#photo-preview').append(img);
         @endforeach
+        @endif
     </script>
 @endsection

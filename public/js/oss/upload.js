@@ -148,7 +148,6 @@ function set_upload_param(up, filename, ret, dir)
     up.start();
     // location.reload(true)
 }
-console.log(single);
 var uploader = new plupload.Uploader({
 	runtimes : 'html5,flash,silverlight,html4',
 	browse_button : 'selectfiles', 

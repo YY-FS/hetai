@@ -3,6 +3,8 @@
 namespace App\Admin\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Platv4Modal;
+use Zofe\Rapyd\DataForm\DataForm;
 
 
 class BaseController extends Controller
@@ -40,5 +42,11 @@ class BaseController extends Controller
     public function getDeleteBtn($id)
     {
         return '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . $this->route . "/edit?delete=" . $id . '\'})">删除</button>';
+    }
+
+    public function error()
+    {
+        //需要使用 redirect()->with(['to'=>link,'msg'=>'xxxx']);调用该页面
+        return view('error');
     }
 }

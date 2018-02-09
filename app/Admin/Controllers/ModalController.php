@@ -9,6 +9,7 @@ use App\Models\Platv4Terminal;
 use App\Models\Platv4UserGroup;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
+use Mockery\Exception;
 use Zofe\Rapyd\DataEdit\DataEdit;
 use Zofe\Rapyd\DataGrid\DataGrid;
 use Zofe\Rapyd\DataFilter\DataFilter;
@@ -114,16 +115,21 @@ class ModalController extends BaseController
         }
 
         $edit = DataEdit::source(new Platv4Modal());
-        $modal = Platv4Modal::find($edit->model->id);
-        //选中选项
-        $id = Input::get('modify',0);
-        if($id){
+        //$modal = Platv4Modal::find($edit->model->id);
+
+        //检查是否是修改页面
+        $modifyId = Input::get('modify',0);
+        if($modifyId){
+            //选中选项
             $terminal = Platv4ModalToTerminal::where('modal_id',$edit->model->id)->pluck('terminal')->toArray();
             Input::offsetSet('terminal',$terminal);
             $group = Platv4ItemToUserGroup::where('item_id',$edit->model->id)->where('item_table','platv4_modal')->pluck('user_group_id')->toArray();
             Input::offsetSet('group',$group);
-            $way = $modal->customer_vip_discount_id > 0?'discount':'group';
+            $way = $edit->model->customer_vip_discount_id > 0?'discount':'group';
             Input::offsetSet('way',$way);
+            Input::offsetSet('begin_time',$edit->model->start_time);
+            Input::offsetSet('over_time',$edit->model->end_time);
+            Input::offsetSet('discount_id',$edit->model->customer_vip_discount_id);
         }
 
         //检查是否从活动页进入
@@ -147,61 +153,84 @@ class ModalController extends BaseController
             ->options(['group'=>'用户分群','discount'=>'绑定活动']);
         $edit->add('group','用户分群','checkboxgroup')
             ->options(Platv4UserGroup::where('status','<>',-1)->get()->pluck('name','id')->toArray());
-        $edit->add('customer_vip_discount_id','活动列表','select')
+        $edit->add('discount_id','活动列表','select')
             ->options(['请选择活动']+Platv4CustomerVipDiscount::all()->pluck('name','id')->toArray());
-
-        $edit->add('start_time','开始时间','date')->format('Y-m-d', 'zh-CN')->rule("required");
-        $edit->add('end_time','结束时间','date')->format('Y-m-d', 'zh-CN')->rule("required");
+/*
+    采用下面注释中的写法时，用 date 类型会加载不出日期选择组件(cant know why)，
+    而且接收数据时为两个值会为null，暂时先用text类型代替
+*/
+//        $edit->add('start_time','开始时间','datetime')->format('Y-m-d', 'zh-CN')->rule("required");
+//        $edit->add('end_time','结束时间','datetime')->format('Y-m-d', 'zh-CN')->rule("required");
+        $edit->add('begin_time','开始时间','text')->rule("required")->placeholder('输入格式如：2018-01-31');
+        $edit->add('over_time','结束时间','text')->rule("required")->placeholder('输入格式如：2018-01-31');
 
         $edit->add('weight','权重','number');
         $edit->add('type','弹出策略','radiogroup')->rule('required')
-            ->options(['every_time'=>'每次打开App弹出','daily'=>'每天弹出一次','once'=>'活动期间金弹出一次']);
+            ->options(['every_time'=>'每次打开App弹出','daily'=>'每天弹出一次','once'=>'活动期间仅弹出一次']);
         $edit->add('sort','排序','number');
         $edit->add('comment','弹窗备注','textarea');
 
-        $edit->saved(function() use ($edit,$modal){
-            //dd(Input::all());
+        $edit->saved(function() use ($edit){
+
             //更新平台
-            $terminals = Input::post('terminal',null);
-            if($terminals){
-                $row = [];
-                foreach($terminals as $t){
-                    $row['modal_id'] = $edit->model->id;
-                    $row['terminal'] = $t;
-                    $terminalData[] = $row;
+
+            try {
+                DB::connection('plat')->beginTransaction();
+
+                $way = request('way', null);
+                $discountID = Input::post('customer_vip_discount_id', null);
+                //如果绑定的是活动
+                if ($way == 'discount' && $discountID > 0 && $edit->model->customer_vip_discount_id != $discountID) {
+                    $edit->model->customer_vip_discount_id = $discountID;
+
+                    Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_modal')->delete();
                 }
-            }
-            Platv4ModalToTerminal::where('modal_id',$edit->model->id)->delete();
-            Platv4ModalToTerminal::insert($terminalData);
 
-            $way = request('way',null);
-            $discountID = Input::post('customer_vip_discount_id',null);
-            //如果绑定的是活动
-            if($way == 'discount' && $discountID > 0 && $modal->customer_vip_discount_id != $discountID){
-                $modal->customer_vip_discount_id = $discountID;
-                $modal->save();
+                //如果绑定的是分群
+                if ($way == 'group') {
+                    $groups = Input::post('group', null);
+                    if ($groups) {
+                        $row = [];
+                        foreach ($groups as $g) {
+                            $row['user_group_id'] = $g;
+                            $row['item_table'] = 'platv4_modal';
+                            $row['item_id'] = $edit->model->id;
+                            $groupData[] = $row;
+                        }
+                    }
 
-                Platv4ItemToUserGroup::where('item_id',$edit->model->id)->where('item_table','platv4_modal')->delete();
-            }
+                    Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_modal')->delete();
+                    Platv4ItemToUserGroup::insert($groupData);
+                    $edit->model->customer_vip_discount_id = 0;
+                }
 
-            //如果绑定的是分群
-            if($way == 'group'){
-                $groups = Input::post('group',null);
-                if($groups){
+                //更新时间
+                $edit->model->start_time = Input::post('begin_time', null);
+                $edit->model->end_time = Input::post('over_time', null);
+
+                $edit->model->save();
+
+                //更新平台
+                $terminals = Input::post('terminal',null);
+                if($terminals){
                     $row = [];
-                    foreach($groups as $g){
-                        $row['user_group_id'] = $g;
-                        $row['item_table'] = 'platv4_modal';
-                        $row['item_id'] = $edit->model->id;
-                        $groupData[] = $row;
+                    foreach($terminals as $t){
+                        $row['modal_id'] = $edit->model->id;
+                        $row['terminal'] = $t;
+                        $terminalData[] = $row;
                     }
                 }
+                Platv4ModalToTerminal::where('modal_id', $edit->model->id)->delete();
+                Platv4ModalToTerminal::insert($terminalData);
 
-                Platv4ItemToUserGroup::where('item_id',$edit->model->id)->where('item_table','platv4_modal')->delete();
-                Platv4ItemToUserGroup::insert($groupData);
-
-                $modal->customer_vip_discount_id = 0;
-                $modal->save();
+                DB::connection('plat')->commit();
+            }catch(\Exception $e){
+                \Log::error('出现错误：'.$e->getMessage());
+                DB::connection('plat')->rollback();
+                return redirect('error')->with([
+                    'to'=>config('admin.route.prefix') . '/modal',
+                    'msg'=>'模态窗属性保存失败:'.$e->getMessage()
+                ]);
             }
 
         });
@@ -210,5 +239,13 @@ class ModalController extends BaseController
 
         $imageDir ='U' . \Admin::user()->id;
         return $edit->view('modal.form',compact('edit','imageDir'));
+    }
+
+    public function anyForm()
+    {
+        $form = DataForm::source(new Platv4Modal());
+        $form->message('** <h3>【ERROR】</h3>模态窗属性保存失败 **：');
+        $form->link(config('admin.route.prefix') . '/modal',"返回列表");
+        return $form->view('rapyd.form',compact('form'));
     }
 }

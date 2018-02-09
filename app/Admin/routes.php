@@ -65,4 +65,6 @@ Route::group([
     $router->any('modal/edit','ModalController@anyEdit');
     $router->get('modal/oss','OssController@showObject');
 
+    $router->get('error','BaseController@error');
+
 });
