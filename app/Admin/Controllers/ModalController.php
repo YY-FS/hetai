@@ -67,7 +67,7 @@ class ModalController extends BaseController
         $grid->add('created_at','创建时间',false);
         $grid->add('operation','操作',false);
 
-        $grid->orderBy('sort', 'asc');
+        $grid->orderBy('id', 'asc');
 
         $grid->link(config('admin.route.prefix') . '/modal/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
 
