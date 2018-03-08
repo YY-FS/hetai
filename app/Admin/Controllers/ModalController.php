@@ -60,7 +60,7 @@ class ModalController extends BaseController
         $grid->add('sort','排序',true);
         $grid->add('status','状态',false);
         $grid->add('name','弹窗名称',false);
-        $grid->add('{{ $discount_group or $modal_group }}','用户分群',false);
+        $grid->add('user_group','用户分群',false);
         $grid->add('comment','备注',false);
         $grid->add('start_time','弹窗开始时间',false);
         $grid->add('end_time','弹窗结束时间',false);
@@ -90,7 +90,10 @@ class ModalController extends BaseController
                     $row->cell('operation')->value.= $this->getDeleteBtn($row->data->id);
                 }
             }
-
+            $group = '全量';
+            if($row->data->discount_group) $group = $row->data->discount_group;
+            if($row->data->modal_group) $group = $row->data->modal_group;
+            $row->cell('user_group')->value = $group;
         });
 
         $grid->paginate(self::DEFAULT_PER_PAGE);
@@ -123,8 +126,12 @@ class ModalController extends BaseController
             $terminal = Platv4ModalToTerminal::where('modal_id',$edit->model->id)->pluck('terminal')->toArray();
             Input::offsetSet('terminal',$terminal);
             $group = Platv4ItemToUserGroup::where('item_id',$edit->model->id)->where('item_table','platv4_modal')->pluck('user_group_id')->toArray();
-            !empty($group) && Input::offsetSet('group',$group);
-            $way = $edit->model->customer_vip_discount_id > 0?'discount':'group';
+            if(!empty($group)){
+                Input::offsetSet('group',$group);
+                $way = 'group';
+            }else{
+                $way = $edit->model->customer_vip_discount_id > 0?'discount':'all';
+            }
             Input::offsetSet('way',$way);
             //比较重要的字段拉出来在saved中更新
             Input::offsetSet('begin_time',$edit->model->start_time);
@@ -145,12 +152,12 @@ class ModalController extends BaseController
             ->rule('required')
             ->placeholder('请输入弹窗名称');
         $edit->add('thumb', '弹窗图片', 'text')
-            ->attributes(['readOnly' => true]);
+            ->attributes(['readOnly' => true])->rule('required');
         $edit->add('terminal','平台','checkboxgroup')->rule('required')
             ->options(Platv4Terminal::all()->pluck('description','name')->toArray());
         $edit->add('url','跳转链接','text')->rule('required');
         $edit->add('way','弹窗策略','radiogroup')->rule('required')
-            ->options(['group'=>'用户分群','discount'=>'绑定活动']);
+            ->options(['group'=>'用户分群','discount'=>'绑定活动','all'=>'全量']);
         $edit->add('group','用户分群','checkboxgroup')
             ->options(Platv4UserGroup::where('status','<>',-1)->get()->pluck('name','id')->toArray());
         $edit->add('discount_id','活动列表','select')
@@ -168,7 +175,7 @@ class ModalController extends BaseController
         $edit->add('type','弹出策略','radiogroup')->rule('required')
             ->options(['every_time'=>'每次打开App弹出','daily'=>'每天弹出一次','once'=>'活动期间仅弹出一次']);
         $edit->add('sort','排序','number');
-        $edit->add('comment','弹窗备注','textarea');
+        $edit->add('comment','弹窗备注','textarea')->rule('required');
 
         $edit->saved(function() use ($edit){
 
