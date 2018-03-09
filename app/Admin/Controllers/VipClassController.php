@@ -42,7 +42,6 @@ class VipClassController extends BaseController
         $grid->add('status', '状态', true);
 
         $grid->add('operation','操作', false);
-
         $grid->orderBy('id', 'asc');
 
         $url = new Url();
