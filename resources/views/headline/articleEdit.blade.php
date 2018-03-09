@@ -72,7 +72,7 @@
             });
             var data = {
                 'image_dir': '{!! $imageDir !!}',
-                'content': $('#link').val(),
+                'content': ue.getContent(),
                 'ajax': 1 // 标识是ajax请求，服务端才不会redirect
             };
             $.ajax({
