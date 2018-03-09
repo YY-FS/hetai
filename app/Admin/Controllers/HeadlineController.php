@@ -536,6 +536,7 @@ class HeadlineController extends BaseController
 
     public function updateHtml()
     {
+        \Log::info(Input::all());
         $id = Input::get('id', null);
         $imageDir = Input::get('image_dir', null);
         $content = Input::get('content', null);
