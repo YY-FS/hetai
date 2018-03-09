@@ -16,8 +16,8 @@ class Platv4UserPayment extends BaseModel
 
     //0一般状态，1成功提交订单，－1取消订单
     public static $statusText = [
-        self::COMMON_STATUS_OFFLINE => "一般状态",
-        self::COMMON_STATUS_NORMAL => "成功提交订单",
+        self::COMMON_STATUS_OFFLINE => "未支付",
+        self::COMMON_STATUS_NORMAL => "已支付",
         self::COMMON_STATUS_DELETE => "取消订单",
     ];
 

@@ -33,7 +33,7 @@ class UserPaymentController extends BaseController
         // Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->pluck('name', 'id')->toArray())
         $filter->add('order_type', '支付类型', 'select')->options(['' => '全部类型'] + Platv4PayPlatform::pluck('name', 'alias')->toArray())
             ->scope(function ($query, $value) {
-                return $value ? $query->where('pp.alias', $value) : $query;
+                return $value ? $query->where('up.order_type', $value) : $query;
             });
         $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4UserPayment::$statusText)
             ->scope(function ($query, $value) {
@@ -41,7 +41,7 @@ class UserPaymentController extends BaseController
             });
         $filter->add('pay_source', '设备', 'select')->options(['' => '全部设备'] + Platv4Terminal::pluck('description', 'name')->toArray())
             ->scope(function ($query, $value) {
-                return $value ? $query->where('t.name', $value) : $query;
+                return $value ? $query->where('up.pay_source', $value) : $query;
             });
         $filter->add('bundle_id', '包Id', 'text')
             ->scope(function ($query, $value) {

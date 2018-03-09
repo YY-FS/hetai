@@ -105,8 +105,6 @@ class ModalController extends BaseController
     public function anyEdit()
     {
         //        软删除
-
-        
         $deleteId = Input::get('delete', null);
         if ($deleteId) {
             Platv4Modal::where('id', $deleteId)->update(['status' => Platv4Modal::STATUS_DELETE]);
