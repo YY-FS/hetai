@@ -12,14 +12,14 @@
 
 .btn-default {
     margin: 0 2px !important;
-    background: #CECECE !important;
-    border: 1px solid #CECECE !important;
+    background: #606266 !important;
+    border: 1px solid #606266 !important;
     color: #ffffff !important;
 }
 
 .btn-default:hover {
     background: #ffffff !important;
-    color: #CECECE !important;
+    color: #606266 !important;
 }
 
 .btn-primary {
