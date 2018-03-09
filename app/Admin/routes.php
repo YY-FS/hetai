@@ -66,5 +66,7 @@ Route::group([
     $router->get('modal/oss','OssController@showObject');
 
     $router->get('error','BaseController@error');
+    //用户支付
+    $router->get('payment','UserPaymentController@index');
 
 });
