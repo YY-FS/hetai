@@ -1157,11 +1157,11 @@
         },
         {
             "name": "lvsongdong/rapyd",
-            "version": "v1.0.1",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "git@git.maka.mobi:lvsongdong/rapyd-laravel.git",
-                "reference": "80a09a64a837b70b41fdb8cbab21a53192d0e2d4"
+                "reference": "d65772371f9bbdaa196e7a9399293728ae4e548c"
             },
             "require": {
                 "illuminate/support": "~5.0",
@@ -1200,7 +1200,7 @@
                 "laravel",
                 "rapyd"
             ],
-            "time": "2017-10-27T06:53:19+00:00"
+            "time": "2018-02-02T06:24:05+00:00"
         },
         {
             "name": "monolog/monolog",

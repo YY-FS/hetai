@@ -3,11 +3,10 @@
     {!! Rapyd::head() !!}
     <style>
         #div_style label{
-            width: 100px;
+            min-width: 100px;
         }
         #fg_tags label{
-            margin-left: 30px;
-            width: 120px;
+            min-width: 120px;
         }
         input[type=checkbox] {
             margin-right: 5px;

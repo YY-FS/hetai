@@ -13,3 +13,4 @@ yarn-error.log
 .env.test
 .env.prod
 dump.rdb
+public/ueditor/php/upload/image/*

@@ -31,6 +31,8 @@ class HeadlineController extends BaseController
     public $ossAppSecret;
     public $ossEndpoint;
     public $ossViewDomain;
+    public $ossIntranetDomain = 'oss-cn-beijing-internal.aliyuncs.com';  // 内网域名
+
     public $htmlHeader;
     public $htmlFooter;
 
@@ -139,23 +141,39 @@ class HeadlineController extends BaseController
 
 //            skin: 'layui-layer-rim', //加上边框
 //            shadeClose: true,   //点击遮罩关闭
-            if ($row->data->link) $link = $row->data->link;
-            else $link = '(空)';
 
             $btnEditHtml = ''; // 视频无法编辑
-            $contentType = 1;
+            $contentType = 2;
             if ($row->data->type == Platv4Headline::TYPE_ARTICLE) {
                 $btnEditHtml = "btn: ['编辑'],btn1: function(index, layero){
                                     //按钮【按钮一】的回调
-                                    window.location.href = '" . config('admin.route.prefix') . "/headlines/html?id=" . $row->data->id . "&link=" . $row->data->link . "';
+                                    window.location.href = '" . config('admin.route.prefix') . "/headlines/html?modify=" . $row->data->id . "&link=" . $row->data->link . "';
                                     //return false; //开启该代码可禁止点击该按钮关闭
                                  },";
-                $link .= '?new=' . date('YmdHis');
-                $contentType = 2; //layer content类型
+
+                $content = '';
+                $object = str_replace('http://' . $this->ossBucket . '.' . $this->ossIntranetDomain . '/', '', $row->data->link);
+                $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
+                if (!empty($row->data->link) && $oss->doesObjectExist($this->ossBucket, $object))
+                    $content = $oss->getObject($this->ossBucket, $object);
+
+                if ($content) {
+                    $html = new Document($content);
+                    $content = $html->find('body');
+                    $content = $content[0]->html();
+
+                    $content = str_replace('<body>', '', $content);
+                    $content = str_replace('</body>', '', $content);
+
+                    $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+                }
+                $content .= '<style>img {width: 100%}</style>';
+                $contentType = 1;
             } else {
-                $link = '<style>iframe {width: 100%}</style>' . $link;
-                $link = htmlentities($link);
+                $content = '<style>iframe {width: 100%}</style>' . $row->data->link;
             }
+
+            $content = htmlentities($content);
 
             $btnPreview = "<button class=\"btn btn-primary\" onclick=\"layer.open({
                                                                                 type: " . $contentType . ", 
@@ -164,7 +182,7 @@ class HeadlineController extends BaseController
                                                                                 " . $btnEditHtml . "
                                                                                 shadeClose: true,
                                                                                 scrollbar: false,
-                                                                                content: '" . $link . "'
+                                                                                content: '" . $content . "'
                                                                             })\">查看内容</button>";
             $btnEdit = "<a class='btn btn-default' href='" . config('admin.route.prefix') . "/headlines/edit?modify=" . $row->data->id . "'>编辑</a>";
             $btnDelete = '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . "/headlines/edit?delete=" . $row->data->id . '\'})">删除</button>';
@@ -203,6 +221,7 @@ class HeadlineController extends BaseController
         ]);
         $type = Input::get('type', Platv4Headline::TYPE_ARTICLE);
 
+
         $form = DataForm::source(new Platv4Headline());
 
         $form->label('头条信息');
@@ -221,16 +240,16 @@ class HeadlineController extends BaseController
         $form->add('style', '样式', 'radiogroup')->options(Platv4Headline::$styleText)->rule("required");
 
         if ($type == Platv4Headline::TYPE_ARTICLE) {
-            $form->add('link','内容','textarea')->rule("required")->attributes(['rows' => 15]);
+//            $form->add('link','内容','textarea')->rule("required")->attributes(['rows' => 15]);
             $form->link(config('admin.route.prefix') . "/headlines/create?type=" . Platv4Headline::TYPE_VIDEO, "新建视频", "TR");
         }
         else {
             $form->add('link','视频链接','text')->rule("required")->placeholder("请输入 视频链接");
             $form->link(config('admin.route.prefix') . "/headlines/create?type=" . Platv4Headline::TYPE_ARTICLE, "新建文章", "TR");
+            $form->add('thumb', '封面图', 'text')
+                ->attributes(['readOnly' => true]);
         }
 
-        $form->add('thumb', '封面图', 'text')
-            ->attributes(['readOnly' => true]);
 
         $form->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->orderBy('sort', 'asc')->pluck('name', 'id'));
 
@@ -243,13 +262,15 @@ class HeadlineController extends BaseController
                 $this->saveHeadlineTag($form->model->id, Input::get('tags'));
 
                 if ($type == Platv4Headline::TYPE_ARTICLE) {
-                    $imageDir = date('Ymd') . 'U' . Admin::user()->id;
-                    $link = $this->dealWeChatImage($imageDir, $form->model->link, false, $form->model->id);
-                    $data = Platv4Headline::find($form->model->id);
-                    if ($data) {
-                        $data->link = $link;
-                        $data->save();
-                    }
+                    \Log::info('----- in -----');
+                    return redirect('/headlines/html?modify=' . $form->model->id);
+//                    $imageDir = $form->model->id;
+//                    $link = $this->dealWeChatImage($imageDir, $form->model->link, false, $form->model->id);
+//                    $data = Platv4Headline::find($form->model->id);
+//                    if ($data) {
+//                        $data->link = $link;
+//                        $data->save();
+//                    }
                 }
 
                 $form->message("新建头条成功");
@@ -259,14 +280,28 @@ class HeadlineController extends BaseController
                 $data->link = '';
                 $data->save();
                 $form->message('** <h3>【ERROR】</h3>下载外链图片错误 **：' . $exception->getMessage());
-                $form->link(config('admin.route.prefix') . '/headlines/html?id=' . $form->model->id . '&link=' . $form->model->link,"编辑HTML");
+                $form->link(config('admin.route.prefix') . '/headlines/html?modify=' . $form->model->id . '&link=' . $form->model->link,"编辑HTML");
             }
         });
 
         $form->submit('保存');
 
-        $imageDir = date('Ymd') . 'U' . Admin::user()->id;
-        return $form->view('headline.form', compact('form', 'imageDir', 'type'));
+        Rapyd::style('
+            #div_style label{
+                min-width: 100px;
+            }
+            #fg_tags label{
+                /*margin-left: 30px;*/
+                min-width: 100px;
+            }
+            input[type=checkbox] {
+                margin-right: 5px;
+            }
+        ');
+
+        $form->build();
+
+        return $form->view('rapyd.form', compact('form'));
     }
 
 
@@ -413,7 +448,7 @@ class HeadlineController extends BaseController
 
         $result = $this->uploadJsonToOSS($htmlObject, $description);
 
-        $link = 'http://' . $this->ossViewDomain . '/' . $htmlObject;
+        $link = 'http://' . $this->ossBucket . '.' . $this->ossIntranetDomain . '/' . $htmlObject;
 
         return $link;
     }
@@ -444,23 +479,59 @@ class HeadlineController extends BaseController
 
     public function editHtml()
     {
-        $id = Input::get('id', null);
-        $link = Input::get('link', null);
+        $id = Input::get('modify', null);
 
+
+        $edit = DataEdit::source(new Platv4Headline());
+        $edit->link(config('admin.route.prefix') . "/headlines", "列表", "TR")->back();
+        $edit->add('title', '标题', 'text')
+            ->attributes(['readOnly' => true]);
+
+        $edit->add('author', '来源', 'text')
+            ->attributes(['readOnly' => true]);
+
+        $edit->add('style', '样式', 'text')
+            ->attributes(['readOnly' => true]);
+
+        $edit->add('link','内容','textarea')->rule("required")->attributes(['rows' => 15]);
+        $edit->add('thumb', '封面图', 'text')
+            ->attributes(['readOnly' => true]);
+
+        $edit->saved(function () use ($edit) {
+            $imageDir = $edit->model->id;
+            $link = $this->dealWeChatImage($imageDir, $edit->model->link, false, $edit->model->id);
+            $data = Platv4Headline::find($edit->model->id);
+            if ($data) {
+                $data->link = $link;
+                $data->save();
+            }
+        });
+
+        $content = '';
+
+        $link = $edit->model->link;
         if ($link && strpos($link, 'http') !== false) {
-            $html = new Document($link, true);
+            $object = str_replace('http://' . $this->ossBucket . '.' . $this->ossIntranetDomain . '/', '', $link);
+            $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
+            if ($oss->doesObjectExist($this->ossBucket, $object))
+                $content = $oss->getObject($this->ossBucket, $object);
+        }
+        if ($content) {
+            $html = new Document($content);
             $content = $html->find('body');
             $content = $content[0]->html();
-        } else $content = '';
 
-        $content = str_replace('<body>', '', $content);
-        $content = str_replace('</body>', '', $content);
+            $content = str_replace('<body>', '', $content);
+            $content = str_replace('</body>', '', $content);
 
-        $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+            $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+        }
 
-        $imageDir = date('Ymd') . 'U' . Admin::user()->id;
+        $edit->build();
 
-        return view('headline.article', compact('content', 'id', 'imageDir'));
+        $imageDir = $id;
+
+        return $edit->view('headline.articleEdit', compact('edit', 'content', 'id', 'imageDir'));
     }
 
     public function updateHtml()
