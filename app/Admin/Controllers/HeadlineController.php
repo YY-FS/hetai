@@ -151,16 +151,29 @@ class HeadlineController extends BaseController
                                     //return false; //开启该代码可禁止点击该按钮关闭
                                  },";
 
-                $content = '...';
+                $content = '';
                 $object = str_replace('http://' . $this->ossBucket . '.' . $this->ossIntranetDomain . '/', '', $row->data->link);
                 $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
                 if (!empty($row->data->link) && $oss->doesObjectExist($this->ossBucket, $object))
                     $content = $oss->getObject($this->ossBucket, $object);
-                $contentType = 2; //layer content类型
+
+                if ($content) {
+                    $html = new Document($content);
+                    $content = $html->find('body');
+                    $content = $content[0]->html();
+
+                    $content = str_replace('<body>', '', $content);
+                    $content = str_replace('</body>', '', $content);
+
+                    $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+                }
+                $content .= '<style>img {width: 100%}</style>';
+                $contentType = 1;
             } else {
                 $content = '<style>iframe {width: 100%}</style>' . $row->data->link;
-                $content = htmlentities($content);
             }
+
+            $content = htmlentities($content);
 
             $btnPreview = "<button class=\"btn btn-primary\" onclick=\"layer.open({
                                                                                 type: " . $contentType . ", 
@@ -470,6 +483,16 @@ class HeadlineController extends BaseController
 
 
         $edit = DataEdit::source(new Platv4Headline());
+        $edit->link(config('admin.route.prefix') . "/headlines", "列表", "TR")->back();
+        $edit->add('title', '标题', 'text')
+            ->attributes(['readOnly' => true]);
+
+        $edit->add('author', '来源', 'text')
+            ->attributes(['readOnly' => true]);
+
+        $edit->add('style', '样式', 'text')
+            ->attributes(['readOnly' => true]);
+
         $edit->add('link','内容','textarea')->rule("required")->attributes(['rows' => 15]);
         $edit->add('thumb', '封面图', 'text')
             ->attributes(['readOnly' => true]);
