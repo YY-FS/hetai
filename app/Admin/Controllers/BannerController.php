@@ -113,7 +113,7 @@ class BannerController extends BaseController
             })";
 
         foreach($layouts as $l){
-            $grid->link(config('admin.route.prefix').$this->route.'/cache?layout='.$l->id,'清【'.$l->name.'】缓存','TR',['class'=>'btn btn-small btn-warning','onclick'=>$cleanCache]);
+            $grid->button('清【'.$l->name.'】缓存','TR',['class'=>'btn btn-small btn-warning','onclick'=>$cleanCache]);
         }
         $grid->link('/banners/create','添加','TR',['class'=>'btn btn-success']);
         $url = new Url();

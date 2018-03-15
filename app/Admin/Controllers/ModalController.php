@@ -10,11 +10,9 @@ use App\Models\Platv4UserGroup;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Redis;
-use Mockery\Exception;
 use Zofe\Rapyd\DataEdit\DataEdit;
 use Zofe\Rapyd\DataGrid\DataGrid;
 use Zofe\Rapyd\DataFilter\DataFilter;
-use Zofe\Rapyd\DataForm\DataForm;
 use Zofe\Rapyd\Url;
 
 class ModalController extends BaseController
@@ -221,7 +219,6 @@ class ModalController extends BaseController
                         Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_modal')->delete();
                         Platv4ItemToUserGroup::insert($groupData);
                     }
-
 
                     $edit->model->customer_vip_discount_id = 0;
                 }
