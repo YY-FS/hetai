@@ -143,7 +143,7 @@ class HeadlineController extends BaseController
 //            shadeClose: true,   //点击遮罩关闭
 
             $btnEditHtml = ''; // 视频无法编辑
-            $contentType = 2;
+            $contentType = 1;
             if ($row->data->type == Platv4Headline::TYPE_ARTICLE) {
                 $btnEditHtml = "btn: ['编辑'],btn1: function(index, layero){
                                     //按钮【按钮一】的回调
@@ -160,15 +160,16 @@ class HeadlineController extends BaseController
                 if ($content) {
                     $html = new Document($content);
                     $content = $html->find('body');
-                    $content = $content[0]->html();
+                    if (isset($content[0])) {
+                        $content = $content[0]->html();
 
-                    $content = str_replace('<body>', '', $content);
-                    $content = str_replace('</body>', '', $content);
+                        $content = str_replace('<body>', '', $content);
+                        $content = str_replace('</body>', '', $content);
 
-                    $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+                        $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+                    } else $content = '';
                 }
                 $content .= '<style>img {width: 100%}</style>';
-                $contentType = 1;
             } else {
                 $content = '<style>iframe {width: 100%}</style>' . $row->data->link;
             }
@@ -519,12 +520,14 @@ class HeadlineController extends BaseController
         if ($content) {
             $html = new Document($content);
             $content = $html->find('body');
-            $content = $content[0]->html();
+            if (isset($content[0])) {
+                $content = $content[0]->html();
 
-            $content = str_replace('<body>', '', $content);
-            $content = str_replace('</body>', '', $content);
+                $content = str_replace('<body>', '', $content);
+                $content = str_replace('</body>', '', $content);
 
-            $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+                $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+            } else $content = '';
         }
 
         $edit->build();
