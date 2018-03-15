@@ -9,6 +9,7 @@ use App\Models\Platv4Terminal;
 use App\Models\Platv4UserGroup;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redis;
 use Mockery\Exception;
 use Zofe\Rapyd\DataEdit\DataEdit;
 use Zofe\Rapyd\DataGrid\DataGrid;
@@ -24,27 +25,27 @@ class ModalController extends BaseController
 
         $title = '模态窗管理';
         $filter = DataFilter::source(Platv4Modal::rapydGrid());
-        $filter->add('id','ID','text')
-            ->scope(function($query,$value){
-                if($value){
-                    return $query->where('m.id',$value);
-                }else{
+        $filter->add('id', 'ID', 'text')
+            ->scope(function ($query, $value) {
+                if ($value) {
+                    return $query->where('m.id', $value);
+                } else {
                     return $query;
                 }
             });
-        $filter->add('name','弹窗名称','text')
-            ->scope(function($query,$value){
-                if($value){
-                    return $query->where('m.name','like','%'.$value.'%');
-                }else{
+        $filter->add('name', '弹窗名称', 'text')
+            ->scope(function ($query, $value) {
+                if ($value) {
+                    return $query->where('m.name', 'like', '%' . $value . '%');
+                } else {
                     return $query;
                 }
             });
         $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4Modal::$statusText)
-            ->scope(function($query,$value){
-                if((int)$value !== ''){
-                    return $query->where('m.status',$value);
-                }else{
+            ->scope(function ($query, $value) {
+                if ((int)$value !== '') {
+                    return $query->where('m.status', $value);
+                } else {
                     return $query;
                 }
             });
@@ -56,29 +57,43 @@ class ModalController extends BaseController
         $grid = DataGrid::source($filter);
 
         $grid->attributes(array("class" => "table table-bordered table-striped table-hover"));
-        $grid->add('id','ID',false);
-        $grid->add('sort','排序',true);
-        $grid->add('status','状态',false);
-        $grid->add('name','弹窗名称',false);
-        $grid->add('user_group','用户分群',false);
-        $grid->add('comment','备注',false);
-        $grid->add('start_time','弹窗开始时间',true);
-        $grid->add('end_time','弹窗结束时间',true);
-        $grid->add('created_at','创建时间',true);
-        $grid->add('operation','操作',false);
+        $grid->add('id', 'ID', false);
+        $grid->add('sort', '排序', true);
+        $grid->add('status', '状态', false);
+        $grid->add('name', '弹窗名称', false);
+        $grid->add('user_group', '用户分群', false);
+        $grid->add('comment', '备注', false);
+        $grid->add('start_time', '弹窗开始时间', true);
+        $grid->add('end_time', '弹窗结束时间', true);
+        $grid->add('created_at', '创建时间', true);
+        $grid->add('operation', '操作', false);
 
         $grid->orderBy('id', 'asc');
-
+        $url = new Url();
         $grid->link(config('admin.route.prefix') . '/modal/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
+        $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
+        $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
+            $.get('" . $this->route . "/cache',
+                function (data) {
+                    console.log(data);
+                    if(data.success === true) {
+                        layer.msg('清理成功');
+                    } else {
+                        layer.msg('清理失败');
+                    }
+                });
+            })";
 
-        $grid->row(function($row) use (&$title){
+        $grid->button('清缓存', 'TR', ['class' => 'btn btn-warning', 'onclick' => $cleanCache]);
+
+        $grid->row(function ($row) use (&$title) {
 
             $result = Platv4Modal::checkStatus($row);
-            if(empty($result)){
+            if (empty($result)) {
                 $row->cell('status')->value = '发生错误，请检查各时间是否正确!!!';
                 $row->cell('status')->style("color:red;");
                 $row->cell('operation')->value = $this->getEditBtn($row->data->id);
-            }else{
+            } else {
                 $row->cell('status')->value = Platv4Modal::$statusText[$result['status']];
                 $toStatus = $result['toStatus'];
 
@@ -86,21 +101,26 @@ class ModalController extends BaseController
                 $statusText = $result['toStatusText'];
 
                 $row->cell('operation')->value = $this->getEditBtn($row->data->id) . $this->getStatusBtn($row->data->id, $toStatus, $statusText);
-                if($toStatus == Platv4Modal::STATUS_READY){
-                    $row->cell('operation')->value.= $this->getDeleteBtn($row->data->id);
+                if ($toStatus == Platv4Modal::STATUS_READY) {
+                    $row->cell('operation')->value .= $this->getDeleteBtn($row->data->id);
                 }
             }
             $group = '全量';
-            if($row->data->discount_group) $group = $row->data->discount_group;
-            if($row->data->modal_group) $group = $row->data->modal_group;
+            if ($row->data->discount_group) $group = $row->data->discount_group;
+            if ($row->data->modal_group) $group = $row->data->modal_group;
             $row->cell('user_group')->value = $group;
         });
 
-        $grid->orderBy('created_at','desc');
-        $grid->paginate(self::DEFAULT_PER_PAGE);
-        $grid->build();
+        $grid->orderBy('created_at', 'desc');
 
-        return view('rapyd.filtergrid', compact('filter', 'grid', 'title','tips'));
+        if (Input::get('export') == 1) {
+            $grid->build();
+            return $grid->buildCSV($title, 'Ymd');
+        } else {
+            $grid->paginate(self::DEFAULT_PER_PAGE);
+            $grid->build();
+            return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
+        }
     }
 
     public function anyEdit()
@@ -249,5 +269,15 @@ class ModalController extends BaseController
         $imageDir ='U' . \Admin::user()->id;
         return $edit->view('modal.form',compact('edit','imageDir'));
     }
+
+    public function cleanCache()
+    {
+        $list = Redis::keys('QS:MODAL:DEVICE:*');
+        foreach ($list AS $value) {
+            Redis::del($value);
+        }
+        return $this->respData();
+    }
+
 
 }

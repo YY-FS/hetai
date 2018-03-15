@@ -64,6 +64,8 @@ Route::group([
     $router->get('modal','ModalController@index');
     $router->any('modal/edit','ModalController@anyEdit');
     $router->get('modal/oss','OssController@showObject');
+    $router->get('modal/cache', 'ModalController@cleanCache');
+
 
     $router->get('error','BaseController@error');
 
@@ -74,7 +76,10 @@ Route::group([
     $router->get('banners/list','BannerController@index');
     $router->any('banners/edit','BannerController@anyEdit');
     $router->any('banners/create','BannerController@anyEdit');
+    $router->get('banners/cache','BannerController@cleanCache');
     $router->get('banners/layouts/list','LayoutController@index');
+    $router->any('banners/layouts/edit','LayoutController@anyEdit');
+    $router->any('banners/layouts/create','LayoutController@anyEdit');
     $router->get('banners/oss','OssController@showObject');
 
 });

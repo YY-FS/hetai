@@ -10,9 +10,11 @@ use App\Models\Platv4Terminal;
 use App\Models\Platv4UserGroup;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redis;
 use Zofe\Rapyd\DataEdit\DataEdit;
 use Zofe\Rapyd\DataFilter\DataFilter;
 use Zofe\Rapyd\DataGrid\DataGrid;
+use Zofe\Rapyd\Url;
 
 class BannerController extends BaseController
 {
@@ -64,7 +66,7 @@ class BannerController extends BaseController
         $grid->add('created_at','创建时间',true);
         $grid->add('operation','操作',false);
 
-        $grid->row(function($row){
+        $grid->row(function($row) use ($grid){
             $result = Platv4Banner::checkStatus($row);
             if(empty($result)){
                 $row->cell('status')->value = '发生错误，请检查各时间是否正确!!!';
@@ -94,15 +96,37 @@ class BannerController extends BaseController
             if($row->data->discount_group) $group = $row->data->discount_group;
             if($row->data->banner_group) $group = $row->data->banner_group;
             $row->cell('user_group')->value = $group;
+
         });
 
-        $grid->link('/banners/create','添加','TR',['class'=>'btn btn-default']);
+        $layouts = Platv4Layout::all();
+        $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
+            $.get('"  . $this->route . "/cache',
+                function (data) {
+                    console.log(data);
+                    if(data.success === true) {
+                        layer.msg('清理成功');
+                    } else {
+                        layer.msg('清理失败');
+                    }
+                });
+            })";
 
+        foreach($layouts as $l){
+            $grid->link(config('admin.route.prefix').$this->route.'/cache?layout='.$l->id,'清【'.$l->name.'】缓存','TR',['class'=>'btn btn-small btn-warning','onclick'=>$cleanCache]);
+        }
+        $grid->link('/banners/create','添加','TR',['class'=>'btn btn-success']);
+        $url = new Url();
+        $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
         $grid->orderBy('created_at','desc');
-        $grid->paginate(self::DEFAULT_PER_PAGE);
-        $grid->build();
-
-        return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
+        if (Input::get('export') == 1) {
+            $grid->build();
+            return $grid->buildCSV($title, 'Ymd');
+        } else {
+            $grid->paginate(self::DEFAULT_PER_PAGE);
+            $grid->build();
+            return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
+        }
     }
 
     public function anyEdit()
@@ -227,6 +251,15 @@ class BannerController extends BaseController
 
         $imageDir ='U' . \Admin::user()->id;
         return $edit->view('banner.edit',compact('edit','imageDir'));
+    }
 
+    public function cleanCache()
+    {
+        $layout = Input::get('layout','*');
+        $list = Redis::keys("QS:DEVICE:*:Layout:{$layout}:BANNER");
+        foreach ($list AS $value) {
+            Redis::del($value);
+        }
+        return $this->respData();
     }
 }
