@@ -66,7 +66,15 @@ Route::group([
     $router->get('modal/oss','OssController@showObject');
 
     $router->get('error','BaseController@error');
+
     //用户支付
     $router->get('payment','UserPaymentController@index');
+
+    //banner相关
+    $router->get('banners/list','BannerController@index');
+    $router->any('banners/edit','BannerController@anyEdit');
+    $router->any('banners/create','BannerController@anyEdit');
+    $router->get('banners/layouts/list','LayoutController@index');
+    $router->get('banners/oss','OssController@showObject');
 
 });

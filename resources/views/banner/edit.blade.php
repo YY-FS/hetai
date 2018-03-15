@@ -24,15 +24,17 @@
 
             groupStartTime = '';
             groupEndTime = '';
+            allStartTime = '';
+            allEndTime = '';
             if($('input[value=group]').is(':checked')){
-                groupStartTime = $('#fg_begin_time input').val();
-                groupEndTime = $('#fg_over_time input').val();
+                groupStartTime = $('#fg_start_time input').val();
+                groupEndTime = $('#fg_end_time input').val();
                 selectGroup();
             }else if($('input[value=discount]').is(':checked')){
                 selectDiscount();
             }else if($('input[value=all]').is(':checked')){
-                allStartTime = $('#fg_begin_time input').val();
-                allEndTime = $('#fg_over_time input').val();
+                allStartTime = $('#fg_start_time input').val();
+                allEndTime = $('#fg_end_time input').val();
                 selectAll();
             }else{
                 $('#fg_discount_id').hide();
@@ -40,21 +42,21 @@
             }
 
             function selectGroup(){
-                $('#fg_begin_time input').val(groupStartTime);
-                $('#fg_over_time input').val(groupEndTime);
+                $('#fg_start_time input').val(groupStartTime);
+                $('#fg_end_time input').val(groupEndTime);
                 $('#fg_group').show();
                 $('#fg_discount_id').hide();
-                $('#fg_begin_time input').attr('readonly',false);
-                $('#fg_over_time input').attr('readonly',false);
+                $('#fg_start_time input').attr('readonly',false);
+                $('#fg_end_time input').attr('readonly',false);
             }
-//
+
             function selectDiscount(){
-                groupStartTime = $('#fg_begin_time input').val();
-                groupEndTime = $('#fg_over_time input').val();
+                groupStartTime = $('#fg_start_time input').val();
+                groupEndTime = $('#fg_end_time input').val();
                 discountChange();
                 $('#fg_group').hide();
-                $('#fg_begin_time input').attr('readonly',true);
-                $('#fg_over_time input').attr('readonly',true);
+                $('#fg_start_time input').attr('readonly',true);
+                $('#fg_end_time input').attr('readonly',true);
                 $('#fg_discount_id').show();
             }
 
@@ -63,8 +65,8 @@
                 $('#fg_group').hide();
                 $('#fg_start_time input').val(allStartTime);
                 $('#fg_end_time input').val(allEndTime);
-                $('#fg_begin_time input').attr('readonly',false);
-                $('#fg_over_time input').attr('readonly',false);
+                $('#fg_start_time input').attr('readonly',false);
+                $('#fg_end_time input').attr('readonly',false);
             }
 
             function discountChange(){
@@ -76,14 +78,14 @@
                         dataType:'json',
                         success:function(data){
                             if(data) {
-                                $('#fg_begin_time input').val(data.start_time);
-                                $('#fg_over_time input').val(data.end_time);
+                                $('#fg_start_time input').val(data.start_time);
+                                $('#fg_end_time input').val(data.end_time);
                             }
                         }
                     });
                 }else{
-                    $('#fg_begin_time input').val('');
-                    $('#fg_over_time input').val('');
+                    $('#fg_start_time input').val('');
+                    $('#fg_end_time input').val('');
                 }
             }
 
@@ -108,7 +110,7 @@
                     shadeClose: true,
                     scrollbar: false,
                     area: ['1024px', '640px'],
-                    content: '/modal/oss?dir=MODAL/IMAGES/{!! $imageDir !!}/&single=true'
+                    content: '/banners/oss?dir=BANNER/IMAGES/{!! $imageDir !!}/&single=true'
                 });
             }
 

@@ -42,7 +42,7 @@ class ModalController extends BaseController
             });
         $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4Modal::$statusText)
             ->scope(function($query,$value){
-                if($value){
+                if((int)$value !== ''){
                     return $query->where('m.status',$value);
                 }else{
                     return $query;
@@ -62,9 +62,9 @@ class ModalController extends BaseController
         $grid->add('name','弹窗名称',false);
         $grid->add('user_group','用户分群',false);
         $grid->add('comment','备注',false);
-        $grid->add('start_time','弹窗开始时间',false);
-        $grid->add('end_time','弹窗结束时间',false);
-        $grid->add('created_at','创建时间',false);
+        $grid->add('start_time','弹窗开始时间',true);
+        $grid->add('end_time','弹窗结束时间',true);
+        $grid->add('created_at','创建时间',true);
         $grid->add('operation','操作',false);
 
         $grid->orderBy('id', 'asc');
@@ -96,6 +96,7 @@ class ModalController extends BaseController
             $row->cell('user_group')->value = $group;
         });
 
+        $grid->orderBy('created_at','desc');
         $grid->paginate(self::DEFAULT_PER_PAGE);
         $grid->build();
 
@@ -162,14 +163,9 @@ class ModalController extends BaseController
             ->options(Platv4UserGroup::where('status','<>',-1)->get()->pluck('name','id')->toArray());
         $edit->add('discount_id','活动列表','select')
             ->options(['请选择活动']+Platv4CustomerVipDiscount::all()->pluck('name','id')->toArray());
-/*
-    采用下面注释中的写法时，用 date 类型会加载不出日期选择组件(cant know why)，
-    而且接收数据时为两个值会为null，暂时先用text类型代替
-*/
-//        $edit->add('start_time','开始时间','datetime')->format('Y-m-d', 'zh-CN')->rule("required");
-//        $edit->add('end_time','结束时间','datetime')->format('Y-m-d', 'zh-CN')->rule("required");
-        $edit->add('begin_time','开始时间','text')->rule("required")->placeholder('输入格式如：2018-01-31');
-        $edit->add('over_time','结束时间','text')->rule("required")->placeholder('输入格式如：2018-01-31');
+
+        $edit->add('begin_time','开始时间','date')->format('Y-m-d', 'zh-CN')->rule("required");
+        $edit->add('over_time','结束时间','date')->format('Y-m-d', 'zh-CN')->rule("required");
 
         $edit->add('weight','权重','number');
         $edit->add('type','弹出策略','radiogroup')->rule('required')
@@ -208,6 +204,13 @@ class ModalController extends BaseController
 
 
                     $edit->model->customer_vip_discount_id = 0;
+                }
+
+                //绑定的是全量
+                if($way == 'all'){
+                    $edit->model->customer_vip_discount_id = 0;
+
+                    Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_modal')->delete();
                 }
 
                 //更新时间
