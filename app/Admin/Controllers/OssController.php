@@ -90,7 +90,8 @@ class OssController extends Controller
         array_multisort($sort, SORT_DESC, $list);
 
         $dir = $prefix;
-        return view('oss.list', compact('list', 'dir','single'));
+        $ossViewDomain = $this->ossViewDomain;
+        return view('oss.list', compact('list', 'dir','single','ossViewDomain'));
     }
 
     /**

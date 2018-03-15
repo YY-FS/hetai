@@ -44,7 +44,7 @@
                 </td>
                 <td class="small">{!! $item['size'] !!}</td>
                 <td class="small">
-                    <button onclick="selectPhoto('{!! $item['url'] !!}', 'photo-{!! $item['auto_id'] !!}',{{ $single }})" class="btn btn-primary">选取</button>
+                    <button onclick="selectPhoto('{!! $item['key'] !!}', 'photo-{!! $item['auto_id'] !!}',{{ $single }})" class="btn btn-primary">选取</button>
                 </td>
             </tr>
 
@@ -60,6 +60,7 @@ single = {{ $single }};
 
 function selectPhoto(url, photoId,single){
         single = single || false;
+
         var index = parent.layer.getFrameIndex(window.name); //获取窗口索引
 
 //        预览
@@ -67,7 +68,7 @@ function selectPhoto(url, photoId,single){
             'id="' + photoId + '" ' +
             'onclick="delPhoto(\'' + url + '\', \'' + photoId + '\')" ' +
             'style="border: 1px solid #3c8dbc; border-radius: 5px;padding: 2px; height: 50px;width: auto;margin-right: 3px; max-width: 300px" ' +
-            'src="' + url + '">';
+            'src="' + 'http://'+'{!! $ossViewDomain !!}/' + url + '">';
 
         var insert = true; //是否可插入图片和图片路径
         var imgs = parent.$('#photo-preview img');
