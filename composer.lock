@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "22673b8f4b9ab35881cfb6f31c034b57",
+    "content-hash": "77fe932f4a2d54ad86b4c7e9a7c3071c",
     "packages": [
         {
             "name": "aliyuncs/oss-sdk-php",
@@ -607,6 +607,66 @@
                 "url"
             ],
             "time": "2017-03-20T17:10:46+00:00"
+        },
+        {
+            "name": "hhxsv5/laravel-s",
+            "version": "v1.10.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hhxsv5/laravel-s.git",
+                "reference": "ecbe3f8e46a525b527119cfabfa544c78fc3fd38"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://files.phpcomposer.com/files/hhxsv5/laravel-s/ecbe3f8e46a525b527119cfabfa544c78fc3fd38.zip",
+                "reference": "ecbe3f8e46a525b527119cfabfa544c78fc3fd38",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5.9"
+            },
+            "suggest": {
+                "ext-inotify": "Inotify, used to reload all worker processes when your code is modified.",
+                "ext-swoole": "Event-driven asynchronous & concurrent & coroutine networking engine with high performance for PHP, require >= 1.7.19."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Hhxsv5\\LaravelS\\Illuminate\\LaravelSServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hhxsv5\\LaravelS\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Xie Biao",
+                    "email": "hhxsv5@sina.com"
+                }
+            ],
+            "description": "🚀 LaravelS: Speed up Laravel/Lumen by Swoole, 'S' means Swoole, Speed, High performance.",
+            "homepage": "https://github.com/hhxsv5/laravel-s",
+            "keywords": [
+                "High Performance",
+                "LaravelS",
+                "async event",
+                "async task",
+                "coroutine",
+                "http server",
+                "inotify reload",
+                "memory resident",
+                "swoole",
+                "websocket server"
+            ],
+            "time": "2018-03-08T06:40:36+00:00"
         },
         {
             "name": "imangazaliev/didom",
