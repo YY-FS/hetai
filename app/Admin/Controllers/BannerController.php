@@ -167,7 +167,7 @@ class BannerController extends BaseController
         $edit->link(config('admin.route.prefix') . "/banners/list", "列表", "TR");
         $edit->add('title','banner标题','text')->rule('required');
         $edit->add('thumb','banner图片','text')->attributes(['readOnly' => true])->rule('required');
-        $edit->add('terminal','平台','select')
+        $edit->add('terminal','平台','select')->rule('required')
             ->options([''=>'请选择终端']+Platv4Terminal::pluck('description','name')->toArray());
         $edit->add('layout_id','位置','select')->options(['请选择位置']+Platv4Layout::pluck('name','id')->toArray());
         $edit->add('url','跳转链接','text');
@@ -226,14 +226,14 @@ class BannerController extends BaseController
 
                 //更新平台
                 $terminal = Input::post('terminal',null);
-                if($terminal){
+                if($terminal&&$terminal!=$edit->model->terminal){
                     $row = [];
                     $row['banner_id'] = $edit->model->id;
                     $row['terminal'] = $terminal;
+                    Platv4BannerToTerminal::where('banner_id', $edit->model->id)->delete();
+                    Platv4BannerToTerminal::insert($row);
                 }
-                Platv4BannerToTerminal::where('banner_id', $edit->model->id)->delete();
-                Platv4BannerToTerminal::insert($row);
-
+                
                 DB::connection('plat')->commit();
                 return redirect('/banners/list');
             }catch(\Exception $e){
