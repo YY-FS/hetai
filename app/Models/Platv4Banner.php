@@ -66,10 +66,10 @@ class Platv4Banner extends BaseModel
     {
         $now = time();
         $start = strtotime($row->data->start_time);
-        $end = strtotime($row->data->end_time)?strtotime($row->data->end_time):(int)$now+(int)$start+3600;
+        $end = strtotime($row->data->end_time);
 
         $toStatus = self::STATUS_READY;
-        if((!$row->data->start_time || !$row->data->end_time) && !((int)$start > $now || (int)$end < $now)){
+        if(!$row->data->start_time || !$row->data->end_time){
             $start = $now - 3600;
             $end = $now + 3600;
             $toStatus = self::STATUS_PROGRESS;
