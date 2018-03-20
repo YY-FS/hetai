@@ -67,10 +67,9 @@ class Platv4Banner extends BaseModel
         $now = time();
         $start = strtotime($row->data->start_time);
         $end = strtotime($row->data->end_time)?strtotime($row->data->end_time):(int)$now+(int)$start+3600;
-         //dd($row->data->start_time,$row->data->end_time,(int)$start,(int)$end,$now);
+
         $toStatus = self::STATUS_READY;
         if((!$row->data->start_time || !$row->data->end_time) && !((int)$start > $now || (int)$end < $now)){
-            
             $start = $now - 3600;
             $end = $now + 3600;
             $toStatus = self::STATUS_PROGRESS;
@@ -81,8 +80,7 @@ class Platv4Banner extends BaseModel
             $style = 'color:#CECECE;';
             $status = self::STATUS_OFFLINE;
         }else{
-            if($start >= $end && $start && $end) 
-                dd($end);                //return [];
+            if($start >= $end && $start && $end) return [];
 
             if($now > $end){
                 $style = 'color:#FF3300;';
