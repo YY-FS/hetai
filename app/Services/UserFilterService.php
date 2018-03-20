@@ -72,6 +72,7 @@ class UserFilterService
         $userFilter = Platv4UserFilter::find($filter->filter_id);
         $userFilter->total_user = $totalUser;
         $userFilter->duration = $endTime - $startTime;
+        $userFilter->rise_time = date('Y-m-d H:i:s');
         $userFilter->save();
 
         return $userFilter;

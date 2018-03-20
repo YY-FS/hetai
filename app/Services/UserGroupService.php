@@ -37,6 +37,7 @@ class UserGroupService
 
     public function genGroupUser($userGroupId)
     {
+        $startTime = microtime(true);
         $groupFilters = Platv4UserGroupToFilter::getUserGroupFilter($userGroupId)->toArray();
         if (empty($groupFilters)) {
             // log todo
@@ -60,17 +61,23 @@ class UserGroupService
         }
 
         var_dump('group user done');
-        if (empty($groupUser)) $groupUser = [];
-//        存redis
-        $cacheKey = self::CACHE_USER_GROUP . $userGroupId;
-        Redis::del($cacheKey);
-        Redis::sadd($cacheKey, ...$groupUser);
-        var_dump('redis done');
+        if (empty($groupUser)) {
+            $groupUser = [];
+            var_dump('---- group empty ----');
+        } else {
+//            存redis
+            $cacheKey = self::CACHE_USER_GROUP . $userGroupId;
+            Redis::del($cacheKey);
+            Redis::sadd($cacheKey, ...$groupUser);
+            var_dump('redis done');
+        }
 
+        $endTime = microtime(true);
         $userGroup = Platv4UserGroup::find($userGroupId);
         $userGroup->user_total = count($groupUser);
         $userGroup->status = Platv4UserGroup::STATUS_NORMAL;
         $userGroup->rise_time = date('Y-m-d H:i:s');
+        $userGroup->duration = $endTime - $startTime;
         $userGroup->save();
 
     }
