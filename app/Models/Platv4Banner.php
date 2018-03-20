@@ -75,12 +75,12 @@ class Platv4Banner extends BaseModel
             $toStatus = self::STATUS_PROGRESS;
         }
 
+        $toStatusText = '上线';
         if($row->data->status == self::STATUS_OFFLINE){
             $style = 'color:#CECECE;';
             $status = self::STATUS_OFFLINE;
-            $toStatusText = '上线';
         }else{
-            if($start >= $end) return [];
+            if($start >= $end && $start && $end) return [];
 
             if($now > $end){
                 $style = 'color:#FF3300;';

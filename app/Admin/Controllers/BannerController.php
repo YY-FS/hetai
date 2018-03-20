@@ -167,9 +167,9 @@ class BannerController extends BaseController
         $edit->link(config('admin.route.prefix') . "/banners/list", "列表", "TR");
         $edit->add('title','banner标题','text')->rule('required');
         $edit->add('thumb','banner图片','text')->attributes(['readOnly' => true])->rule('required');
-        $edit->add('terminal','平台','select')
-            ->options([''=>'请选择终端']+Platv4Terminal::pluck('description','name')->toArray());
-        $edit->add('layout_id','位置','select')->options(['请选择位置']+Platv4Layout::pluck('name','id')->toArray());
+        $edit->add('terminal','平台','checkboxgroup')->rule('required')
+            ->options(Platv4Terminal::pluck('description','name')->toArray());
+        $edit->add('layout_id','位置','select')->options(['请选择位置']+Platv4Layout::pluck('name','id')->toArray())->rule('required');
         $edit->add('url','跳转链接','text');
         $edit->add('way','banner策略','radiogroup')->rule('required')
             ->options(['group'=>'用户分群','discount'=>'绑定活动','all'=>'全量']);
@@ -178,8 +178,9 @@ class BannerController extends BaseController
         $edit->add('discount_id','活动列表','select')
             ->options(['请选择活动']+Platv4CustomerVipDiscount::all()->pluck('name','id')->toArray());
 
-        $edit->add('start_time','开始时间','date')->format('Y-m-d', 'zh-CN');
-        $edit->add('end_time','结束时间','date')->format('Y-m-d', 'zh-CN');
+        $edit->add('start_time','开始时间','date')->format('Y-m-d', 'zh-CN')->rule('required');
+        $edit->add('end_time','结束时间','date')->format('Y-m-d', 'zh-CN')->rule('required')
+            ->insertValue('Y-m-d H:i:s',date(strtotime('+1 year')));
 
         $edit->add('sort','排序','number')->placeholder('数值越小排序越靠前');
         $edit->add('comment','备注','textarea')->rule('required');
@@ -225,14 +226,17 @@ class BannerController extends BaseController
                 $edit->model->save();
 
                 //更新平台
-                $terminal = Input::post('terminal',null);
-                if($terminal){
-                    $row = [];
-                    $row['banner_id'] = $edit->model->id;
-                    $row['terminal'] = $terminal;
+                $terminals = Input::post('terminal',null);
+                if($terminals){
+                    $ter = [];
+                    foreach($terminals as $t){
+                        $ter['banner_id'] = $edit->model->id;
+                        $ter['terminal'] = $t;
+                        $terminalData[] = $ter;
+                    }
+                    Platv4BannerToTerminal::where('banner_id', $edit->model->id)->delete();
+                    Platv4BannerToTerminal::insert($terminalData);
                 }
-                Platv4BannerToTerminal::where('banner_id', $edit->model->id)->delete();
-                Platv4BannerToTerminal::insert($row);
 
                 DB::connection('plat')->commit();
                 return redirect('/banners/list');
