@@ -86,4 +86,7 @@ Route::group([
     $router->get('mina/version','PublicController@minaVersion');
     $router->post('mina/jx_version','PublicController@editMinaVersion');
 
+    //会员用户
+    $router->get('user/vip','UserVipController@index');
+    $router->any('user/vip/edit','UserVipController@anyEdit');
 });

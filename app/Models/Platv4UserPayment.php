@@ -50,6 +50,5 @@ class Platv4UserPayment extends BaseModel
             ])
             ->groupBy('op.order_id');
         return $result;
-        //separator \n
     }
 }
