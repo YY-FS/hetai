@@ -82,4 +82,8 @@ Route::group([
     $router->any('banners/layouts/create','LayoutController@anyEdit');
     $router->get('banners/oss','OssController@showObject');
 
+    //用户支付
+    $router->get('mina/version','PublicController@minaVersion');
+    $router->post('mina/jx_version','PublicController@editMinaVersion');
+
 });
