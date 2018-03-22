@@ -61,7 +61,16 @@ class UserPaymentController extends BaseController
             ->scope(function ($query, $value) {
                 return $value ? $query->where('up.app_version', $value) : $query;
             });
-        $filter->add('date_paid', '支付时间', 'daterange')->format('Y-m-d', 'zh-CN');
+        $filter->add('date_paid', '支付时间', 'daterange')
+            ->scope(function ($query, $value) {
+                $value = explode('|', $value);
+                $value[1] = date('Y-m-d',strtotime($value[1])+24*60*60);//增加一天，date_paid比后一天的00:00:00小就好
+                if (!empty($value[0]))
+                    $query = $query->where('up.date_paid', '>=', $value[0]);
+                if (!empty($value[1]))
+                    $query = $query->where('up.date_paid', '<=', $value[1]);
+                return $query;
+            })->format('Y-m-d', 'zh-CN');
         $filter->add('product_id', '商品Id', 'text')
             ->scope(function ($query, $value) {
                 return $value ? $query->where('up.product_id', $value) : $query;
