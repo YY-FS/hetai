@@ -367,6 +367,7 @@ class CustomerVipController extends BaseController
         $grid->add('create_time', '创建时间', true);
         $grid->add('update_time', '更新时间', true);
         $grid->add('modal','模态窗',false);
+        $grid->add('banner','Banner',false);
 
         $grid->add('operation','操作', false);
 
@@ -430,10 +431,17 @@ class CustomerVipController extends BaseController
 //                                                                                content: '" . $link . "'
 //                                                                            })\">查看规则</button>";
 //            $row->cell('rule')->value = $btnRule;
+            //绑定modal
             if($row->data->modal_id == null){
                 $row->cell('modal')->value = "<a href='/modal/edit?bind={$row->data->id}' style='color:#DC143C'>未绑定</a>";
             }else{
                 $row->cell('modal')->value = "<a href='/modal?id={$row->data->modal_id}&search=1' style='color:#4169E1'>已绑定</a>";
+            }
+            //绑定banner
+            if($row->data->banner_id == null){
+                $row->cell('banner')->value = "<a href='/banners/edit?bind={$row->data->id}' style='color:#DC143C'>未绑定</a>";
+            }else{
+                $row->cell('banner')->value = "<a href='/banners/list?id={$row->data->banner_id}&search=1' style='color:#4169E1'>已绑定</a>";
             }
         });
         
@@ -505,7 +513,7 @@ class CustomerVipController extends BaseController
 
         $edit->add('sort','活动排序','number')->placeholder('当用户命中两个活动时，排序靠前的活动有效，1为最靠前活动');
 
-        $edit->add('rate','折扣比例','number')->placeholder('请输入比例');
+        $edit->add('rate','折扣比例','number')->placeholder('此处根据需要填写赠送时长比例或价格折扣比例，如：100');
 
         $edit->add('package_corner', '价格包角标底色', 'text')
             // ->rule("min:2")

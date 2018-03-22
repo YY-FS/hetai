@@ -31,3 +31,8 @@ Route::get('discount_time',function(Request $request){
     $discountId = $request->get('discount_id', 0);
     return \App\Models\Platv4CustomerVipDiscount::where('id', $discountId)->select(['start_time', 'end_time'])->first();
 });
+
+Route::get('banners/cover',function(Request $request){
+    $bannerId = $request->get('banner_id', 0);
+    return \App\Models\Platv4Banner::getUserGroupCover($bannerId);
+});

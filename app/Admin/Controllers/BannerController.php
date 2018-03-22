@@ -31,7 +31,7 @@ class BannerController extends BaseController
         $filter->add('status','Banner状态','select')
             ->options(['' => '全部状态'] + Platv4Banner::$statusText)
             ->scope(function($query,$value){
-                return (int)$value!==''?$query->where('b.status',$value):$query;
+                return $value !== null?$query->where('b.status',$value):$query;
         });
         $filter->add('terminal','平台','select')
             ->options([''=>'全部终端']+Platv4Terminal::pluck('description','name')->toArray())
@@ -59,7 +59,7 @@ class BannerController extends BaseController
         $grid->add('title','标题',false);
         $grid->add('url','url',false);
         $grid->add('user_group','用户分群',false);
-        $grid->add('cover','覆盖人数',false);
+//        $grid->add('cover','覆盖人数',false);
         $grid->add('comment','备注',false);
         $grid->add('start_time','开始时间',true);
         $grid->add('end_time','结束时间',true);
@@ -87,21 +87,20 @@ class BannerController extends BaseController
 
             $row->cell('thumb')->value = "<img src='http://".env('ALI_OSS_PLAT_VIEW_DOMAIN').'/'.$row->data->thumb."' height=40 width=auto>";
 
-            $sum = 0;
-            $sum += array_sum(explode(',',$row->data->discount_group_total));
-            $sum += array_sum(explode(',',$row->data->banner_group_total));
-            $row->cell('cover')->value = $sum;
-
             $group = '全量';
             if($row->data->discount_group) $group = $row->data->discount_group;
             if($row->data->banner_group) $group = $row->data->banner_group;
-            $row->cell('user_group')->value = $group;
+            $row->cell('user_group')->value = "<a href='/api/banners/cover?banner_id={$row->data->id}' class='user-group'>$group</a>";
 
         });
 
+        \Admin::script(Platv4Banner::SCRIPT);
+
         $layouts = Platv4Layout::all();
-        $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
-            $.get('"  . $this->route . "/cache',
+
+        foreach($layouts as $l){
+            $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
+            $.get('"  . $this->route . "/cache?layout=".$l->alias."',
                 function (data) {
                     console.log(data);
                     if(data.success === true) {
@@ -111,8 +110,6 @@ class BannerController extends BaseController
                     }
                 });
             })";
-
-        foreach($layouts as $l){
             $grid->button('清【'.$l->name.'】缓存','TR',['class'=>'btn btn-small btn-warning','onclick'=>$cleanCache]);
         }
         $grid->link('/banners/create','添加','TR',['class'=>'btn btn-success']);
@@ -161,6 +158,13 @@ class BannerController extends BaseController
             Input::offsetSet('way',$way);
 
             Input::offsetSet('discount_id',$edit->model->customer_vip_discount_id);
+        }
+
+        //检查是否从活动页进入
+        $bindId = Input::get('bind',0);
+        if($bindId){
+            Input::offsetSet('way','discount');
+            Input::offsetSet('discount_id',$bindId);
         }
 
         $edit->label('banner信息');
@@ -260,7 +264,8 @@ class BannerController extends BaseController
     public function cleanCache()
     {
         $layout = Input::get('layout','*');
-        $list = Redis::keys("QS:DEVICE:*:Layout:{$layout}:BANNER");
+        $list = Redis::keys("MN:BANNER:LAYOUT:{$layout}:DEVICE:*");
+
         foreach ($list AS $value) {
             Redis::del($value);
         }
