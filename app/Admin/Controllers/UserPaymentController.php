@@ -19,18 +19,17 @@ class UserPaymentController extends BaseController
 {
     public function index()
     {
-        if (!Input::get('date_paid', null)) {
-            $date = date('Y-m-d', strtotime('+1 day'));
-            $date14ago = date('Y-m-d', strtotime('-2 week'));
-            $datetime = [
-                'from' => $date14ago,
-                'to' => $date,
+        $where = [];
+        if (!Input::get('search', null)) {
+            $date = date('Y-m-d', time());
+            //默认取出当天的订单
+            $where = [
+                ['pay_date', '=', $date]
             ];
-            //默认取出明天到前两个星期的订单
-            Input::offsetSet('date_paid', $datetime);
         }
+
         $title = "用户支付管理";
-        $filter = DataFilter::source(Platv4UserPayment::rapydGrid());
+        $filter = DataFilter::source(Platv4UserPayment::rapydGrid($where));
 
         $filter->add('order_id', '订单Id', 'text')
             ->scope(function ($query, $value) {
