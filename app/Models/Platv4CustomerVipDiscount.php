@@ -25,36 +25,25 @@ class Platv4CustomerVipDiscount extends BaseModel
         function changeRateField(){
             var rateLabel = $('#fg_rate>label');
             var option = $('#type').val();
+            $('#rate').val('100');
             switch(option){
                 case 'REGISTER:EXPIRED':
                     rateLabel.text('折扣比例');
-                    $('#fg_rate').show();
-                    $('#rate').val('');
                     break;
                 case 'GIVE:TIME':
                     rateLabel.text('赠送时长比例');
-                    $('#rate').val('100');
-                    $('#fg_rate').hide();
                     break;
                 case 'PRICE:DISCOUNT':
                     rateLabel.text('折扣比例');
-                    $('#fg_rate').show();
-                    $('#rate').val('');
                     break;
                 case 'CHARGE:BACK':
                     rateLabel.text('返送余额比例');
-                    $('#fg_rate').show();
-                    $('#rate').val('');
                     break;
                 case 'FIRST:CAHRGE':
-                    rateLabel.text('赠送时长比例');
-                    $('#rate').val('100');
-                    $('#fg_rate').hide();
+                    rateLabel.text('首充赠送时长比例');
                     break;
                 default:
                     rateLabel.text('折扣比例');
-                    $('#fg_rate').show();
-                    $('#rate').val('');
                     break;
             }
         }
@@ -72,10 +61,12 @@ EOT;
             ->leftJoin('platv4_customer_vip_discount_types AS cvdt','cvd.type','=','cvdt.name')
             ->leftJoin('platv4_customer_vip_discount_to_terminal AS cvdtt','cvd.id','=','cvdtt.customer_vip_discount_id')
             ->leftJoin('platv4_modal as m','cvd.id','=','m.customer_vip_discount_id')
+            ->leftJoin('platv4_banners_v2 as b','cvd.id','=','b.customer_vip_discount_id')
             ->select([
                 'cvd.*',
                 'cvdt.description AS type_name',
                 'm.id AS modal_id',
+                'b.id AS banner_id',
                 DB::connection('plat')->raw('GROUP_CONCAT(cvdtt.terminal) AS terminals'),
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct ug.name) AS user_groups'),
                 DB::connection('plat')->raw('GROUP_CONCAT(ug.id) AS user_group_ids'),

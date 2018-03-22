@@ -27,12 +27,12 @@ class Platv4Modal extends BaseModel
         $result = DB::connection('plat')->table('platv4_modal as m')
             ->leftJoin('platv4_item_to_user_group AS i',function($join){
                 $join->on('m.id','=','i.item_id')
-                    ->where('i.item_table','=','platv4_modal');
+                    ->where('i.item_table','=','\'platv4_modal\'');
             })
             ->leftJoin('platv4_user_group_v2 AS g','i.user_group_id','=','g.id')
             ->leftJoin('platv4_item_to_user_group AS itug',function($join){
                 $join->on('m.customer_vip_discount_id','=','itug.item_id')
-                    ->where('itug.item_table','=','platv4_customer_vip_discounts');
+                    ->where('itug.item_table','=','\'platv4_customer_vip_discounts\'');
             })
             ->leftJoin('platv4_user_group_v2 AS ug','itug.user_group_id','=','ug.id')
             ->select([
@@ -40,8 +40,8 @@ class Platv4Modal extends BaseModel
                 'm.sort',
                 'm.status',
                 'm.name',
-                DB::connection('plat')->raw('GROUP_CONCAT( g.`name` ) as modal_group'),
-                DB::connection('plat')->raw('GROUP_CONCAT( ug.`name` ) as discount_group'),
+                DB::connection('plat')->raw('GROUP_CONCAT(distinct g.`name` ) as modal_group'),
+                DB::connection('plat')->raw('GROUP_CONCAT(distinct ug.`name` ) as discount_group'),
                 'm.comment',
                 'm.start_time',
                 'm.end_time',

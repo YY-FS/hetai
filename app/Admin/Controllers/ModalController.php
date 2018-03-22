@@ -41,7 +41,7 @@ class ModalController extends BaseController
             });
         $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4Modal::$statusText)
             ->scope(function ($query, $value) {
-                if ((int)$value !== '') {
+                if ($value !== null) {
                     return $query->where('m.status', $value);
                 } else {
                     return $query;
@@ -162,7 +162,7 @@ class ModalController extends BaseController
         $bindId = Input::get('bind',0);
         if($bindId){
             Input::offsetSet('way','discount');
-            Input::offsetSet('customer_vip_discount_id',$bindId);
+            Input::offsetSet('discount_id',$bindId);
         }
 
         $edit->label('弹窗信息');
