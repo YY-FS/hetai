@@ -29,7 +29,7 @@ class UserVipController extends BaseController
         $filter = DataFilter::source(Platv4UserToCustomerVip::rapdyGrid());
         $filter->add('uid', '用户ID', 'number')
             ->scope(function ($query, $value) {
-                return $value ? $query->orWhere('u.id', $value) : $query;
+                return $value ? $query->where('u.id', $value) : $query;
             });
         $filter->submit('筛选');
         $filter->reset('重置');
@@ -42,8 +42,8 @@ class UserVipController extends BaseController
         $grid->add('status', '会员状态', false);
         $grid->add('customer_vip_name', '会员版本', false);
         $grid->add('create_time', '开通时间', true);
-        $grid->add('start_date', '生效时间', false);
-        $grid->add('end_date', '到期时间', false);
+        $grid->add('start_date', '生效时间', true);
+        $grid->add('end_date', '到期时间', true);
         $grid->add('operation', '操作', false);
         $grid->orderBy('start_date', 'asc');
 
@@ -52,24 +52,19 @@ class UserVipController extends BaseController
         $grid->link(config('admin.route.perfix') . '/user/vip/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
 
         $grid->row(function ($row) use (&$title) {
-            $result = Platv4UserToCustomerVip::checkStatus($row);
-            if (empty($result)) {
-                $row->cell('status')->value = '发生错误，请检查各时间是否正确!!!';
+            $row->cell('status')->value = Platv4UserToCustomerVip::$statusText[$row->data->status];
+            if ($row->data->status == -1 || $row->data->status == 0)
                 $row->cell('status')->style('color:red;');
-            } else {
-                if ($result['status'] != 1) {
-                    $row->cell('status')->style('color:red;');
-                }
-                $row->cell('status')->value = Platv4UserToCustomerVip::$statusText[$result['status']];
-            }
             $row->cell('operation')->value = $this->getEditBtn($row->data->id);
         });
-
-        $grid->build();
         if (Input::get('export') == 1) {
+            $grid->build();
             return $grid->buildCSV($title, 'Ymd');
+        } else {
+            $grid->paginate(self::DEFAULT_PER_PAGE);
+            $grid->build();
+            return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
         }
-        return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
     }
 
     public function anyEdit()
@@ -89,8 +84,9 @@ class UserVipController extends BaseController
         }
 
         $edit->label('会员用户');
-        $edit->link(config('admin.route.perfix') . '/user/vip', '列表', 'TR')->back();
-        $edit->add('customer_vip_id', '会员类型', 'select')->rule('required')->options(['' => '全部类型'] + Platv4CustomerVip::pluck('name', 'id')->toArray());
+        //返回查出来的结果的地址
+        $edit->link(url()->previous(), '列表', 'TR')->back();
+        $edit->add('customer_vip_id', '会员类型', 'select')->rule('required|unique:plat.platv4_user_to_customer_vip,customer_vip_id,' . $edit->model->customer_vip_id . ',customer_vip_id,uid,' . $edit->model->uid)->options(['' => '全部类型'] + Platv4CustomerVip::pluck('name', 'id')->toArray());
         $edit->add('start_date', '开始时间', 'text')->rule('required')->placeholder('输入格式如：2018-03-15');
         $edit->add('end_date', '结束时间', 'text')->rule('required')->placeholder('输入格式如：2018-03-15');
         $edit->add('status', '状态', 'select')->rule('required')->options([Platv4UserToCustomerVip::$statusText]);
@@ -100,13 +96,14 @@ class UserVipController extends BaseController
                 //清除redis缓存
                 Redis::del('QUERYSERVICE:TYPE:VIP:CONFIG:{$edit->model->uid}');
                 Redis::hdel('CUSTOMER_VIP_USER_LEASE_TYPE', $edit->model->uid);
-                
+
                 DB::connection('plat')->beginTransaction();
                 $vipId = Input::post('customer_vip_id');
                 $vipName = Platv4CustomerVip::find($vipId)->toArray();
                 $edit->model->customer_vip_name = $vipName['name'];
                 $edit->model->save();
                 DB::connection('plat')->commit();
+                return redirect(config('admin.route.prefix') . '/user/vip?uid=' . $edit->model->uid . '&search=1');//提交完后返回上一个界面
             } catch (\Exception $e) {
                 \Log::error('出现错误:' . $e->getMessage());
                 DB::connection('plat')->rollback();

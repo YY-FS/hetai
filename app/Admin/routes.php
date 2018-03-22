@@ -70,7 +70,7 @@ Route::group([
     $router->get('error','BaseController@error');
 
     //用户支付
-    $router->get('payment','UserPaymentController@index');
+    $router->get("payment",'UserPaymentController@index');
 
     //banner相关
     $router->get('banners/list','BannerController@index');

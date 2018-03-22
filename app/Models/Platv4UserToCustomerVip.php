@@ -29,10 +29,10 @@ class Platv4UserToCustomerVip extends BaseModel
 
     public static function rapdyGrid()
     {
-        $result = DB::connection('plat')->table('platv4_user AS u')
-            ->leftJoin('platv4_user_to_customer_vip AS v', 'u.id', '=', 'v.uid')
+        $result = DB::connection('plat')->table('platv4_user_to_customer_vip AS v')
+            ->leftJoin('platv4_user AS u', 'u.id', '=', 'v.uid')
             ->select([
-                'u.id AS uid',
+                'v.uid',
                 'u.username',
                 'v.id',
                 'v.customer_vip_id',
@@ -41,38 +41,7 @@ class Platv4UserToCustomerVip extends BaseModel
                 'v.start_date',
                 'v.end_date',
                 'v.status'
-            ])
-            ->where([
-                ['v.status', '<>', -1],
-                ['u.id', '=', 0],
             ]);
-        return $result;
-    }
-
-    public static function checkStatus($row)
-    {
-        $now = time();
-        $start = strtotime($row->data->start_date);
-        $end = strtotime($row->data->end_date);
-
-        $status = self::STATUS_OFFLINE;//默认有效
-        $dbStatus = Platv4UserToCustomerVip::find($row->data->id, ['status']);
-        if ($start > $end) return [];//时间错误
-
-        if ($now > $end)//失效
-            $status = self::STATUS_END;
-        if ($dbStatus->status !== 1)//失效
-            $status = self::STATUS_END;
-
-
-        if ($row->data->status != $status) {
-            DB::connection('plat')->table('platv4_user_to_customer_vip')
-                ->where('id', $row->data->id)
-                ->update(['status' => $status]);
-        }
-        $result = [];
-        $result['status'] = $status;
-
         return $result;
     }
 }
