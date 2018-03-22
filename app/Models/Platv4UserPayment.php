@@ -21,7 +21,7 @@ class Platv4UserPayment extends BaseModel
         self::COMMON_STATUS_DELETE => "取消订单",
     ];
 
-    public static function rapydGrid()
+    public static function rapydGrid($where)
     {
         $result = DB::connection('plat')->table('platv4_user_payment as up')
             ->leftJoin('platv4_order_product AS op', 'up.order_id', '=', 'op.order_id')
@@ -48,7 +48,7 @@ class Platv4UserPayment extends BaseModel
                 DB::connection('plat')->raw('GROUP_CONCAT( op.`total` ORDER BY op.`product_id` SEPARATOR "\n") as product_total'),
                 DB::connection('plat')->raw('GROUP_CONCAT( op.`pay_purpose` ORDER BY op.`product_id` SEPARATOR "\n") as product_purpose'),
             ])
-            ->where('up.create_time', '>', '2018-03-01')
+            ->where($where)
             ->groupBy('op.order_id');
         return $result;
     }
