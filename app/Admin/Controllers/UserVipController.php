@@ -80,15 +80,15 @@ class UserVipController extends BaseController
             $edit->add('uid', '用户UID', 'text')->attributes(['readOnly' => true])->rule('required')->insertValue($edit->model->uid);
             $edit->add('username', '账户', 'text')->attributes(['readOnly' => true])->rule('required')->insertValue($edit->model->username);
         } else {
-            $edit->add('uid', '用户UID', 'number')->rule('required');
+            $edit->add('uid', '用户UID', 'number')->rule('required|exists:plat.platv4_user,id');
         }
 
         $edit->label('会员用户');
         //返回查出来的结果的地址
         $edit->link(url()->previous(), '列表', 'TR')->back();
         $edit->add('customer_vip_id', '会员类型', 'select')->rule('required|unique:plat.platv4_user_to_customer_vip,customer_vip_id,' . $edit->model->customer_vip_id . ',customer_vip_id,uid,' . $edit->model->uid)->options(['' => '全部类型'] + Platv4CustomerVip::pluck('name', 'id')->toArray());
-        $edit->add('start_date', '开始时间', 'text')->rule('required')->placeholder('输入格式如：2018-03-15');
-        $edit->add('end_date', '结束时间', 'text')->rule('required')->placeholder('输入格式如：2018-03-15');
+        $edit->add('start_date', '开始时间', 'date')->rule('required')->placeholder('输入格式如：2018-03-15');
+        $edit->add('end_date', '结束时间', 'date')->rule('required')->placeholder('输入格式如：2018-03-15');
         $edit->add('status', '状态', 'select')->rule('required')->options([Platv4UserToCustomerVip::$statusText]);
 
         $edit->saved(function () use ($edit) {
