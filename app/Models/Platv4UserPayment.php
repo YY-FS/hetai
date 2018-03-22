@@ -48,8 +48,8 @@ class Platv4UserPayment extends BaseModel
                 DB::connection('plat')->raw('GROUP_CONCAT( op.`total` ORDER BY op.`product_id` SEPARATOR "\n") as product_total'),
                 DB::connection('plat')->raw('GROUP_CONCAT( op.`pay_purpose` ORDER BY op.`product_id` SEPARATOR "\n") as product_purpose'),
             ])
+            ->where('up.create_time', '>', '2018-03-01')
             ->groupBy('op.order_id');
         return $result;
-        //separator \n
     }
 }

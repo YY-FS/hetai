@@ -113,7 +113,7 @@ return [
      */
     'operation_log'   => [
 
-        'enable' => ENV('OPERATION_LOG',true),
+        'enable' => env('OPERATION_LOG',true),
 
         /*
          * Routes that will not log to database.
