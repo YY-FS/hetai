@@ -61,12 +61,12 @@ class UserGroupService
         }
 
         var_dump('group user done');
+        $cacheKey = self::CACHE_USER_GROUP . $userGroupId;
         if (empty($groupUser)) {
             $groupUser = [];
             var_dump('---- group empty ----');
         } else {
 //            存redis
-            $cacheKey = self::CACHE_USER_GROUP . $userGroupId;
             Redis::del($cacheKey);
             Redis::sadd($cacheKey, ...$groupUser);
             var_dump('redis done');
