@@ -74,7 +74,7 @@ class UserGroupService
 
         $endTime = microtime(true);
         $userGroup = Platv4UserGroup::find($userGroupId);
-        $userGroup->user_total = count($groupUser);
+        $userGroup->user_total = Redis::scard($cacheKey);
         $userGroup->status = Platv4UserGroup::STATUS_NORMAL;
         $userGroup->rise_time = date('Y-m-d H:i:s');
         $userGroup->duration = $endTime - $startTime;
