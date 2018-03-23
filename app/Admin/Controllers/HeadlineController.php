@@ -20,7 +20,7 @@ use DiDom\Document;
 use GuzzleHttp\Client;
 
 if (!defined('LIBXML_HTML_NODEFDTD')) {
-    define ('LIBXML_HTML_NODEFDTD', 4); // libxml 低版本缺少的常量，兼容服务器低版本
+    define('LIBXML_HTML_NODEFDTD', 4); // libxml 低版本缺少的常量，兼容服务器低版本
 }
 
 class HeadlineController extends BaseController
@@ -122,7 +122,7 @@ class HeadlineController extends BaseController
         $grid->add('status', '状态', true);
         $grid->add('admin_user', '创建人', 'admin_user_id');
 
-        $grid->add('operation','操作', false);
+        $grid->add('operation', '操作', false);
 
         $grid->orderBy('created_at', 'desc');
 
@@ -243,9 +243,8 @@ class HeadlineController extends BaseController
         if ($type == Platv4Headline::TYPE_ARTICLE) {
 //            $form->add('link','内容','textarea')->rule("required")->attributes(['rows' => 15]);
             $form->link(config('admin.route.prefix') . "/headlines/create?type=" . Platv4Headline::TYPE_VIDEO, "新建视频", "TR");
-        }
-        else {
-            $form->add('link','视频链接','text')->rule("required")->placeholder("请输入 视频链接");
+        } else {
+            $form->add('link', '视频链接', 'text')->rule("required")->placeholder("请输入 视频链接");
             $form->link(config('admin.route.prefix') . "/headlines/create?type=" . Platv4Headline::TYPE_ARTICLE, "新建文章", "TR");
             $form->add('thumb', '封面图', 'text')
                 ->attributes(['readOnly' => true]);
@@ -259,7 +258,7 @@ class HeadlineController extends BaseController
         $form->add('admin_user_id', '检录员', 'hidden')->insertValue(Admin::user()->id);
 
         $form->saved(function () use ($form, $type) {
-            try{
+            try {
                 $this->saveHeadlineTag($form->model->id, Input::get('tags'));
 
                 if ($type == Platv4Headline::TYPE_ARTICLE) {
@@ -275,13 +274,13 @@ class HeadlineController extends BaseController
                 }
 
                 $form->message("新建头条成功");
-                $form->link(config('admin.route.prefix') . '/headlines',"返回");
+                $form->link(config('admin.route.prefix') . '/headlines', "返回");
             } catch (\Exception $exception) {
                 $data = Platv4Headline::find($form->model->id);
                 $data->link = '';
                 $data->save();
                 $form->message('** <h3>【ERROR】</h3>下载外链图片错误 **：' . $exception->getMessage());
-                $form->link(config('admin.route.prefix') . '/headlines/html?modify=' . $form->model->id . '&link=' . $form->model->link,"编辑HTML");
+                $form->link(config('admin.route.prefix') . '/headlines/html?modify=' . $form->model->id . '&link=' . $form->model->link, "编辑HTML");
             }
         });
 
@@ -336,7 +335,7 @@ class HeadlineController extends BaseController
 
         $edit->add('style', '样式', 'radiogroup')->options(Platv4Headline::$styleText);
 
-        $edit->add('link','链接','text')->rule("required")->placeholder("请输入 链接");
+        $edit->add('link', '链接', 'text')->rule("required")->placeholder("请输入 链接");
 
         $edit->add('thumb', '封面图', 'text')
             ->attributes(["readOnly" => true]);
@@ -346,20 +345,29 @@ class HeadlineController extends BaseController
         $edit->add('status', '状态', 'select')->options(Platv4Headline::$statusText);
 
         $edit->saved(function () use ($edit) {
+            $data = Platv4Headline::find($edit->model->id);
+            $data->thumb = '';
+            $thumbs = explode(',', $edit->model->thumb);
+            $tmpThumb = [];
+            foreach ($thumbs as $thumb) {
+                $tmpThumb[] = strpos($thumb, 'http') !== false ? $thumb : 'http://' . $this->ossViewDomain . '/' . $thumb;
+            }
+            $data->thumb = implode(',', $tmpThumb);
+            $data->save();
             $this->saveHeadlineTag($edit->model->id, Input::get('tags'));
         });
 
         $edit->build();
 
-        $imageDir = date('Ymd') . 'U' . Admin::user()->id;
+        $imageDir = $id;
         return $edit->view('headline.edit', compact('edit', 'id', 'imageDir'));
     }
 
 
     private function saveHeadlineTag($headlineId, $tags)
     {
-        if(empty($headlineId)) return false;
-        if(empty($tags)) return true;
+        if (empty($headlineId)) return false;
+        if (empty($tags)) return true;
 
         Platv4HeadlineToTag::where('headline_id', $headlineId)->delete();
         $insertData = [];
@@ -374,15 +382,15 @@ class HeadlineController extends BaseController
 
     private function saveHeadlineTagBak($headlineId, $tags)
     {
-        if(empty($headlineId)) return false;
-        if(empty($tags)) return true;
+        if (empty($headlineId)) return false;
+        if (empty($tags)) return true;
 
         Platv4HeadlineToTag::where('headline_id', $headlineId)->update(['status' => Platv4HeadlineToTag::COMMON_STATUS_DELETE]);
         $initSql = 'INSERT INTO `platv4_headline_to_tag` (`headline_id`, `headline_tag_id`, `status`)
                       VALUES ';
         $sql = '';
         foreach ($tags as $tag) {
-            $sql .=  '(' . intval($headlineId) . ', ' . intval($tag) . ', ' . Platv4HeadlineToTag::COMMON_STATUS_NORMAL . '),';
+            $sql .= '(' . intval($headlineId) . ', ' . intval($tag) . ', ' . Platv4HeadlineToTag::COMMON_STATUS_NORMAL . '),';
         }
         $sql = substr($sql, 0, -1) . ' ON DUPLICATE KEY UPDATE `status` = VALUES(status);';
         DB::insert(DB::raw($initSql . $sql));
@@ -494,7 +502,7 @@ class HeadlineController extends BaseController
         $edit->add('style', '样式', 'text')
             ->attributes(['readOnly' => true]);
 
-        $edit->add('link','内容','textarea')->rule("required")->attributes(['rows' => 15]);
+        $edit->add('link', '内容', 'textarea')->rule("required")->attributes(['rows' => 15]);
         $edit->add('thumb', '封面图', 'text')
             ->attributes(['readOnly' => true]);
 
@@ -503,6 +511,13 @@ class HeadlineController extends BaseController
             $link = $this->dealWeChatImage($imageDir, $edit->model->link, false, $edit->model->id);
             $data = Platv4Headline::find($edit->model->id);
             if ($data) {
+                $data->thumb = '';
+                $thumbs = explode(',', $edit->model->thumb);
+                $tmpThumb = [];
+                foreach ($thumbs as $thumb) {
+                    $tmpThumb[] = strpos($thumb, 'http') !== false ? $thumb : 'http://' . $this->ossViewDomain . '/' . $thumb;
+                }
+                $data->thumb = implode(',', $tmpThumb);
                 $data->link = $link;
                 $data->save();
             }
