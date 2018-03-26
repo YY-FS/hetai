@@ -114,7 +114,7 @@ class SigninImageController extends BaseController
                     $edit->model->status = Platv4SigninImage::COMMON_STATUS_OFFLINE;
                 $edit->model->save();
                 DB::connection('plat')->commit();
-                return redirect('/signinimage');
+                return redirect('/user/sign_image');
             } catch (\Exception $e) {
                 \Log::error('出现错误：' . $e->getMessage());
                 DB::connection('plat')->rollback();

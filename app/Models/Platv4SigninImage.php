@@ -27,6 +27,7 @@ class Platv4SigninImage extends BaseModel
                 'title',
                 'status',
                 'created_at',
-            ]);
+            ])
+            ->orderBy('date','desc');
     }
 }
