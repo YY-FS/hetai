@@ -639,9 +639,8 @@ class CustomerVipController extends BaseController
         $id = Input::get('discount',null);
         $this->route = '/customer_vips/discounts';
         if($id){
-            $vipDiscount = Platv4CustomerVipDiscount::find($id)->first();
+            $vipDiscount = Platv4CustomerVipDiscount::find($id);
             $title = $vipDiscount->name.'活动数据详情';
-            //dd(Platv4CustomerVipDiscount::getDetail($id)->get());
             $filter = DataFilter::source(Platv4CustomerVipDiscount::getDetail($id));
             $grid = DataGrid::source($filter);
 
