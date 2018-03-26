@@ -25,12 +25,12 @@ class LayoutController extends BaseController
         $title = '展示位列表';
         $filter = DataFilter::source(Platv4Layout::rapydGrid());
         $filter->add('id', '展示位id', 'text')->scope(function($query,$value){
-             $q =  $value?$query->where('l.id',$value):$query;
+             $q =  $value?$query->where('id',$value):$query;
              return $q;
         });
 
         $filter->add('name', '展示位名称', 'text')->scope(function($query,$value){
-            return $value?$query->where('l.name',$value):$query;
+            return $value?$query->where('name','like','%'.$value.'%'):$query;
         });
         $filter->add('style', '展示策略', 'select')->options([''=>'请选择'] + Platv4Layout::getStyle());
 
