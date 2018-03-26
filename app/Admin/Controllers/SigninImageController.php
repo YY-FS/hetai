@@ -10,6 +10,7 @@ namespace App\Admin\Controllers;
 use App\Models\Platv4SigninImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redis;
 use Zofe\Rapyd\DataEdit\DataEdit;
 use Zofe\Rapyd\DataFilter\DataFilter;
 use Zofe\Rapyd\DataGrid\DataGrid;
@@ -65,6 +66,18 @@ class SigninImageController extends BaseController
         });
 
         $grid->link(config('admin.route.perfix') . '/user/sign_image/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
+        $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
+            $.get('" . $this->route . "/cache',
+                function (data) {
+                    console.log(data);
+                    if(data.success === true) {
+                        layer.msg('清理成功');
+                    } else {
+                        layer.msg('清理失败');
+                    }
+                });
+            })";
+        $grid->button('清缓存', 'TR', ['class' => 'btn btn-warning', 'onclick' => $cleanCache]);
         $grid->paginate(self::DEFAULT_PER_PAGE);
         $grid->build();
         return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
@@ -95,7 +108,7 @@ class SigninImageController extends BaseController
                 DB::connection('plat')->beginTransaction();
                 //保存后进行status状态检测
                 $date = Platv4SigninImage::find($edit->model->id);
-                if (time()<strtotime($date->date))
+                if (time() <= strtotime($date->date))
                     $edit->model->status = Platv4SigninImage::COMMON_STATUS_NORMAL;
                 else
                     $edit->model->status = Platv4SigninImage::COMMON_STATUS_OFFLINE;
@@ -115,5 +128,12 @@ class SigninImageController extends BaseController
         //图片存储位置
         $imageDir = 'U' . \Admin::user()->id;
         return $edit->view('signinimage.edit', compact('edit', 'imageDir'));
+    }
+
+    public function cleanCache()
+    {
+        $date = date('Y-m-d',time());
+        Redis::del('MN:SIGN_IN_MATERIAL:DATE:'.$date);
+        return $this->respData();
     }
 }

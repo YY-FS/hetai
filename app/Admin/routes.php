@@ -94,5 +94,6 @@ Route::group([
     //日签图片管理
     $router->any('user/sign_image/edit','SigninImageController@anyEdit');
     $router->get('user/sign_image','SigninImageController@index');
+    $router->get('user/sign_image/cache','SigninImageController@cleanCache');
     $router->get('user/sign_image/oss','OssController@showObject');
 });
