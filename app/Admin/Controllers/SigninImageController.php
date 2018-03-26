@@ -18,7 +18,7 @@ class SigninImageController extends BaseController
 {
     public function index()
     {
-        $this->route = '/signinimage';
+        $this->route = '/user/sign_image';
         $title = '日签图片管理';
         $filter = DataFilter::source(Platv4SigninImage::rapydGrid());
         $filter->add('id', '图片ID', 'text');
@@ -64,7 +64,7 @@ class SigninImageController extends BaseController
             $row->cell('thumb')->value = "<img src='http://" . env('ALI_OSS_PLAT_VIEW_DOMAIN') . '/' . $row->data->thumb . "' height=40 width=auto>";
         });
 
-        $grid->link(config('admin.route.perfix') . '/signinimage/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
+        $grid->link(config('admin.route.perfix') . '/user/sign_image/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
         $grid->paginate(self::DEFAULT_PER_PAGE);
         $grid->build();
         return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
