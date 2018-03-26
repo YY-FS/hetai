@@ -92,7 +92,7 @@ Route::group([
     $router->any('user/vip/edit','UserVipController@anyEdit');
 
     //日签图片管理
-    $router->any('signinimage/edit','SigninImageController@anyEdit');
-    $router->get('signinimage','SigninImageController@index');
-    $router->get('signinimage/oss','OssController@showObject');
+    $router->any('user/sign_image/edit','SigninImageController@anyEdit');
+    $router->get('user/sign_image','SigninImageController@index');
+    $router->get('user/sign_image/oss','OssController@showObject');
 });
