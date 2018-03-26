@@ -39,7 +39,7 @@
                 shadeClose: true,
                 scrollbar: false,
                 area: ['1024px', '640px'],
-                content: '/signinimage/oss?dir=SIGNINIMAGE/IMAGES/{!! $imageDir !!}/&single=true'
+                content: '/user/sign_image/oss?dir=SIGNINIMAGE/IMAGES/{!! $imageDir !!}/&single=true'
             });
         }
         //        删封面图
