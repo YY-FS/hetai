@@ -47,9 +47,9 @@ class Platv4UserPayment extends BaseModel
                 DB::connection('plat')->raw('GROUP_CONCAT( op.`price` ORDER BY op.`product_id` SEPARATOR "\n") as product_price'),
                 DB::connection('plat')->raw('GROUP_CONCAT( op.`total` ORDER BY op.`product_id` SEPARATOR "\n") as product_total'),
                 DB::connection('plat')->raw('GROUP_CONCAT( op.`pay_purpose` ORDER BY op.`product_id` SEPARATOR "\n") as product_purpose'),
-            ])
-            ->where($where)
-            ->groupBy('op.order_id');
+            ]);
+        if (!empty($where)) $result->where($where);
+        $result->groupBy('op.order_id');
         return $result;
     }
 }
