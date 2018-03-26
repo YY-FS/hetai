@@ -340,9 +340,18 @@ class CustomerVipController extends BaseController
         $title = '用户会员优惠活动';
         $filter = DataFilter::source(Platv4CustomerVipDiscount::rapydGrid());
 
-        $filter->add('id', 'ID', 'text');
-        $filter->add('name', '优惠活动名称', 'text');
-        $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4CustomerVipDiscount::$commonStatusText);
+        $filter->add('id', 'ID', 'text')
+            ->scope(function($query,$value){
+                return $value !== null?$query->where('cvd.id',$value):$query;
+            });
+        $filter->add('name', '优惠活动名称', 'text')
+            ->scope(function($query,$value){
+                return $value !== null?$query->where('cvd.name','like','%'.$value.'%'):$query;
+            });;
+        $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4CustomerVipDiscount::$commonStatusText)
+            ->scope(function($query,$value){
+                return $value !== null?$query->where('cvd.status',$value):$query;
+            });
 
         $filter->submit('筛选');
         $filter->reset('重置');
@@ -480,8 +489,9 @@ class CustomerVipController extends BaseController
         $id = Input::get('modify', 0);
         if ($id) {
             $activity = Platv4CustomerVipDiscount::rapydGrid($id)->first();
+            //dd($activity->terminals);
             $groupOption = explode(',',$activity->user_group_ids);
-            $terminalOption = explode(',',$activity->terminals);
+            $terminalOption = explode(',',$activity->terminalOpts);
 
             // 选中t
             Input::offsetSet('terminals',$terminalOption);

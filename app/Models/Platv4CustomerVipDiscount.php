@@ -69,6 +69,7 @@ EOT;
                 'm.id AS modal_id',
                 'b.id AS banner_id',
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct t.description) AS terminals'),
+                DB::connection('plat')->raw('GROUP_CONCAT(distinct cvdtt.terminal) AS terminalOpts'),
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct ug.name) AS user_groups'),
                 DB::connection('plat')->raw('GROUP_CONCAT(ug.id) AS user_group_ids'),
                 DB::connection('plat')->raw('SUM(distinct ug.user_total) AS target_count'),
