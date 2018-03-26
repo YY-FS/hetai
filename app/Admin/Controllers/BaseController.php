@@ -44,6 +44,36 @@ class BaseController extends Controller
         return '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . $this->route . "/edit?delete=" . $id . '\'})">删除</button>';
     }
 
+    public function getFrameBtn($link,$options = [],$refresh = false,$width = 1360,$height = 900)
+    {
+        $btnText = '详情';
+        isset($options['btn_text']) && $btnText = $options['btn_text'];
+
+        $btnClass = '';
+        isset($options['btn_class']) && $btnClass = $options['btn_class'];
+
+        if($refresh){
+            $endFresh = "window.location.reload();
+                            return false; ";
+        }else{
+            $endFresh = '';
+        }
+        $btn = "<a style='cursor:pointer' class=\"" . $btnClass . "\" onclick=\"layer.open({
+                                                                                type: 2, 
+                                                                                title: ['编辑', false], 
+                                                                                area: ['{$width}px', '{$height}px'], 
+                                                                                shadeClose: true,
+                                                                                scrollbar: false,
+                                                                                content: '" . $link . "',
+                                                                                end: function(index, layero){".
+            $endFresh.
+            "}".
+            "})\">" . $btnText . "</a>";
+
+        return $btn;
+    }
+
+
     public function error()
     {
         //需要使用 redirect()->with(['to'=>link,'msg'=>'xxxx']);调用该页面

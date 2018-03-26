@@ -39,6 +39,8 @@ class UserGroupController extends BaseController
         $grid->add('comment','备注',false);
         $grid->add('{{ \App\Models\Platv4UserGroup::$status[$status] }}','状态',false);
         $grid->add('created_at','创建时间',false);
+        $grid->add('rise_time','生成时间',false);
+        $grid->add('{{ $duration }}s','生成耗时',false);
         $grid->add('operation','操作',false);
 
         $url = new Url();
@@ -48,7 +50,8 @@ class UserGroupController extends BaseController
         $grid->row(function($row){
             $btnEdit = '<a href=\''.config('admin.route.prefix') .'/user/groups/edit?modify='.$row->data->id.'\' class=\'btn btn-primary\'>编辑</a>';
             $btnDelete = '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . "/user/groups/edit?delete=" . $row->data->id . '\'})">删除</button>';
-            $row->cell('operation')->value =  $btnEdit . $btnDelete;
+            $btnSearch = $this->getFrameBtn(config('admin.route.prefix') .'/user/groups/check_member?user_group_id='.$row->data->id,['btn_text'=>'搜索成员','btn_class'=>'btn btn-warning'],false,500,400);
+            $row->cell('operation')->value =  $btnEdit . $btnSearch . $btnDelete;
         });
 
         if (Input::get('export') == 1) {
@@ -107,7 +110,7 @@ class UserGroupController extends BaseController
         $form->submit('保存');
         $form->build();
 
-        return $form->view('admin.usergroup.form', ['obj'=>$form,'res'=>$res]);
+        return $form->view('usergroup.form', ['obj'=>$form,'res'=>$res]);
     }
 
     public function anyEdit()
@@ -177,7 +180,7 @@ class UserGroupController extends BaseController
         });
 
         $edit->build();
-        return $edit->view( 'admin.usergroup.form', ['obj'=>$edit,'res'=>$res,'groupIds'=>$groupIds]);
+        return $edit->view( 'usergroup.form', ['obj'=>$edit,'res'=>$res,'groupIds'=>$groupIds]);
 
     }
 
@@ -223,6 +226,14 @@ class UserGroupController extends BaseController
             Platv4UserGroup::where('id',$obj->model->id)->update(['status'=>-2]);
             $obj->message('** <h3>【ERROR】</h3>用户群组属性保存失败 **：' . $e->getMessage());
             $obj->link(config('admin.route.prefix') . '/groups',"返回列表");
+        }
+    }
+
+    public function checkMember()
+    {
+        $userGroupId = Input::get('user_group_id',null);
+        if($userGroupId){
+            return view('usergroup.search',compact('userGroupId'));
         }
     }
 

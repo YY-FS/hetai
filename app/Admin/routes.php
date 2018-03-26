@@ -35,6 +35,7 @@ Route::group([
     $router->get('user/groups','UserGroupController@index');
     $router->any('user/groups/create','UserGroupController@anyForm');
     $router->any('user/groups/edit', 'UserGroupController@anyEdit');
+    $router->get('user/groups/check_member','UserGroupController@checkMember');
 
 //    设计师余额
     $router->get('designers/balance', 'DesignerBalanceController@index');
