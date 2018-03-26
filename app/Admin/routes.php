@@ -90,4 +90,9 @@ Route::group([
     //会员用户
     $router->get('user/vip','UserVipController@index');
     $router->any('user/vip/edit','UserVipController@anyEdit');
+
+    //日签图片管理
+    $router->any('signinimage/edit','SigninImageController@anyEdit');
+    $router->get('signinimage','SigninImageController@index');
+    $router->get('signinimage/oss','OssController@showObject');
 });
