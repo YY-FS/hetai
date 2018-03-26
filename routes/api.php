@@ -36,3 +36,12 @@ Route::get('banners/cover',function(Request $request){
     $bannerId = $request->get('banner_id', 0);
     return \App\Models\Platv4Banner::getUserGroupCover($bannerId);
 });
+
+Route::get('user/groups/member',function(Request $request){
+    $uid = $request->get('uid', null);
+    if(!$uid)    return [];
+    $userGroupId = $request->get('user_group_id', 0);
+    $cacheKey = 'CMS:CMD:USER_GROUP:ID:' . $userGroupId;
+    $res = Illuminate\Support\Facades\Redis::sismember($cacheKey,$uid);
+    return ['uid'=>$uid,'res'=>$res];
+});
