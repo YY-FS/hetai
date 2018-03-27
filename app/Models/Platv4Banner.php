@@ -65,7 +65,6 @@ class Platv4Banner extends BaseModel
                 'b.title',
                 'b.url',
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct t.`description`) as terminal'),
-//                DB::connection('plat')->raw('GROUP_CONCAT(distinct t.`name`) as terminal_name'),
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct dug.`name`) as discount_group'),
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct bug.`name`) as banner_group'),
                 'b.comment',
