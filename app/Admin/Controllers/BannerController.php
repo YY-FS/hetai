@@ -36,7 +36,7 @@ class BannerController extends BaseController
         $filter->add('terminal','平台','select')
             ->options([''=>'全部终端']+Platv4Terminal::pluck('description','name')->toArray())
             ->scope(function($query,$value){
-                return $value?$query->where('t.terminal',$value):$query;
+                return $value?$query->having(DB::connection('plat')->raw('GROUP_CONCAT(distinct t.`name`)'),'like','%'.$value.'%'):$query;
             });
         $filter->add('position','位置','select')
             ->options([''=>'全部位置']+Platv4Layout::pluck('name','id')->toArray())
@@ -180,7 +180,7 @@ class BannerController extends BaseController
         $edit->add('group','用户分群','checkboxgroup')
             ->options(Platv4UserGroup::where('status','<>',-1)->get()->pluck('name','id')->toArray());
         $edit->add('discount_id','活动列表','select')
-            ->options(['请选择活动']+Platv4CustomerVipDiscount::all()->pluck('name','id')->toArray());
+            ->options(['请选择活动']+Platv4CustomerVipDiscount::all()->where('status','>',-1)->pluck('name','id')->toArray());
 
         $edit->add('start_time','开始时间','date')->format('Y-m-d', 'zh-CN')->rule('required');
         $edit->add('end_time','结束时间','date')->format('Y-m-d', 'zh-CN')->rule('required')

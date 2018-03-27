@@ -180,7 +180,7 @@ class ModalController extends BaseController
         $edit->add('group','用户分群','checkboxgroup')
             ->options(Platv4UserGroup::where('status','<>',-1)->get()->pluck('name','id')->toArray());
         $edit->add('discount_id','活动列表','select')
-            ->options(['请选择活动']+Platv4CustomerVipDiscount::all()->pluck('name','id')->toArray());
+            ->options(['请选择活动']+Platv4CustomerVipDiscount::all()->where('status','>',-1)->pluck('name','id')->toArray());
 
         $edit->add('begin_time','开始时间','date')->format('Y-m-d', 'zh-CN')->rule("required");
         $edit->add('over_time','结束时间','date')->format('Y-m-d', 'zh-CN')->rule("required");
