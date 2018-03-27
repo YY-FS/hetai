@@ -544,7 +544,7 @@ class CustomerVipController extends BaseController
 
         $edit->add('terminals', '终端', 'checkboxgroup')->options(Platv4Terminal::all()->pluck('description', 'name')->toArray());
 
-        $edit->add('comment','活动备注','textarea');
+        $edit->add('comment','活动备注','textarea')->rule('required');
 
         $edit->saved(function () use ($edit,$fields) {
 
