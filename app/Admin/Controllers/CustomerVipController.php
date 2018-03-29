@@ -186,7 +186,7 @@ class CustomerVipController extends BaseController
 
     public function cleanDiscountCache()
     {
-        $list = Redis::keys('QS:CUSTOMER_VIP_DISCOUNT_RULE:DEVICE:*');
+        $list = Redis::keys('QS:CUSTOMER_VIP_DISCOUNT_RULE_V2:DEVICE:*');
         foreach ($list AS $value) {
             Redis::del($value);
         }
