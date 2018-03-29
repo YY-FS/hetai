@@ -16,7 +16,7 @@ class Platv4UserInvoice extends BaseModel
         self::COMMON_STATUS_NORMAL=>'已通过'//1
     ];
     
-    public static function invoiceSpecialInfoRapydGrid()
+    public static function rapydGrid($invoiceType)
     {
         $result = DB::connection('plat')->table('platv4_user_invoice')
             ->select([
@@ -31,7 +31,7 @@ class Platv4UserInvoice extends BaseModel
                 'contact',//联系人
                 'reason',//备注
             ])
-            ->where('invoice_type','special')
+            ->where('invoice_type',$invoiceType)
             ->orderBy('created_at','desc');
         return $result;
     }

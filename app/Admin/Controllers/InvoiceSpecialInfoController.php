@@ -17,11 +17,11 @@ use Zofe\Rapyd\Url;
 
 class InvoiceSpecialInfoController extends BaseController
 {
-    public function index()
+    public function index($invoiceType)
     {
-        $this->route = '/invoice/special/info';
+        $this->route = '/invoice/'.$invoiceType.'/info';
         $title = '专用发票信息管理';
-        $filter = DataFilter::source(Platv4UserInvoice::invoiceSpecialInfoRapydGrid());
+        $filter = DataFilter::source(Platv4UserInvoice::rapydGrid($invoiceType));
         $filter->add('status', '状态', 'select')->options(['' => '全部状态'] + Platv4UserInvoice::$statusText);
         $filter->add('created_at', '申请时间', 'daterange')
             ->scope(function ($query, $value) {
@@ -112,7 +112,7 @@ class InvoiceSpecialInfoController extends BaseController
         $edit->add('contact', '联系方式', 'text')->attributes(['readOnly' => true])->rule('required');
         //允许修改部分
         $edit->add('status', '审核状态', 'select')->rule('required')->options(Platv4UserInvoice::$statusText);
-        $edit->add('reason', '描述', 'textarea')->rule('max:250')->placeholder('请输入发票描述');
+        $edit->add('reason', '备注', 'textarea')->rule('max:250')->placeholder('请输入备注');
 
         $edit->build();
         return $edit->view('invoicespecialinfo.frameEdit', compact('edit'));
@@ -145,8 +145,8 @@ class InvoiceSpecialInfoController extends BaseController
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $src);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $header);//传递header头
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);//以文件流的形式范围
-            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);//自动跳转
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);//以文件流的形式
+            curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);//自动跟踪重定向页面
             curl_setopt($ch, CURLOPT_ENCODING, 'gzip,deflate');//编码，防止乱码
             curl_setopt($ch, CURLOPT_HEADER, 0);//不显示header
             $img = curl_exec($ch);
