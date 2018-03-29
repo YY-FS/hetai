@@ -190,6 +190,7 @@ class BannerController extends BaseController
         $edit->add('comment','备注','textarea')->rule('required');
 
         $edit->saved(function() use ($edit){
+
             try {
                 DB::connection('plat')->beginTransaction();
 
@@ -226,6 +227,10 @@ class BannerController extends BaseController
 
                     Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_banners_v2')->delete();
                 }
+
+                //更新时间
+                $edit->model->start_time = Input::post('start_time',null);
+                $edit->model->end_time = Input::post('end_time',date(strtotime('+1 year')));
 
                 $edit->model->save();
 
