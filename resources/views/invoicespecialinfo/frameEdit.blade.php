@@ -54,18 +54,25 @@
             $.ajax({
                 url: '/invoice/special/info/download',
                 type: 'POST',
-                async:false,//将异步改成同步，否则windows.open会被拦截
+                async: false,//将异步改成同步，否则windows.open会被拦截
                 dataType: 'json',
                 data: {
                     src: src, id: id, invoice_title: '{!! $edit->model->invoice_title !!}'
                 },
                 success: function (e) {
-                    window.open("download?file="+e.data);
+                    jumpUrl(e.data);
                     if (e.success)
                         layer.msg('下载成功', {time: 2000});
                 }
             });
             @endif
+        }
+        function jumpUrl(url) {
+            var link = "<a href='download?file=" + url + "' target='_blank'>img</a>";
+            var a = $(link).get(0);
+            var e = document.createEvent('MouseEvents');
+            e.initEvent('click', true, true);
+            a.dispatchEvent(e);
         }
     </script>
 @endsection

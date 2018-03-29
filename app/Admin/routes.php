@@ -98,7 +98,7 @@ Route::group([
     $router->get('user/sign_image/oss', 'OssController@showObject');
 
     //增值税专用发票信息管理
-    $router->get('invoice/special/info', 'InvoiceSpecialInfoController@index');
+    $router->get('invoice/{invoiceType}/info', 'InvoiceSpecialInfoController@index');
     $router->any('invoice/special/info/edit', 'InvoiceSpecialInfoController@anyEdit');
     $router->any('invoice/special/info/download', 'InvoiceSpecialInfoController@downloadImg');
 });
