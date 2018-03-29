@@ -519,7 +519,7 @@ class CustomerVipController extends BaseController
 
         $edit->add('quantity', '可优惠的价格包', 'checkboxgroup')->options(Platv4CustomerVipPackage::where('status', 1)->groupBy('quantity')->pluck('name', 'quantity')->toArray());
 
-        $edit->add('user_groups','用户分群','checkboxgroup')->options(Platv4UserGroup::all()->pluck('name','id')->toArray());
+        $edit->add('user_groups','用户分群','checkboxgroup')->options(Platv4UserGroup::all()->where('status','>',-1)->pluck('name','id')->toArray());
 
         $edit->add('sort','活动排序','number')->placeholder('当用户命中两个活动时，排序靠前的活动有效，1为最靠前活动');
 
