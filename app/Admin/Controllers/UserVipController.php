@@ -52,9 +52,15 @@ class UserVipController extends BaseController
         $grid->link(config('admin.route.perfix') . '/user/vip/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
 
         $grid->row(function ($row) use (&$title) {
-            $row->cell('status')->value = Platv4UserToCustomerVip::$statusText[$row->data->status];
-            if ($row->data->status == -1 || $row->data->status == 0)
+            //状态颜色判断
+            if ($row->data->status !== 1)
                 $row->cell('status')->style('color:red;');
+            //状态正确判断
+            if (in_array($row->data->status, [0, 1]))
+                $row->cell('status')->value = Platv4UserToCustomerVip::$statusText[$row->data->status];
+            else
+                $row->cell('status')->value = '发生错误，请检查审核状态是否正确!!!';
+
             $row->cell('operation')->value = $this->getEditBtn($row->data->id);
         });
         if (Input::get('export') == 1) {
@@ -89,7 +95,7 @@ class UserVipController extends BaseController
         $edit->add('customer_vip_id', '会员类型', 'select')->rule('required|unique:plat.platv4_user_to_customer_vip,customer_vip_id,' . $edit->model->customer_vip_id . ',customer_vip_id,uid,' . $edit->model->uid)->options(['' => '全部类型'] + Platv4CustomerVip::pluck('name', 'id')->toArray());
         $edit->add('start_date', '开始时间', 'date')->rule('required')->placeholder('输入格式如：2018-03-15');
         $edit->add('end_date', '结束时间', 'date')->rule('required')->placeholder('输入格式如：2018-03-15');
-        $edit->add('status', '状态', 'select')->rule('required')->options([Platv4UserToCustomerVip::$statusText]);
+        $edit->add('status', '状态', 'select')->rule('required')->options(Platv4UserToCustomerVip::$statusText);
 
         $edit->saved(function () use ($edit) {
             try {

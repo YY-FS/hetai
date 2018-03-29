@@ -45,7 +45,7 @@
 <script src="{{ asset ("/packages/admin/bootstrap3-editable/js/bootstrap-editable.min.js") }}"></script>
 
 <script src="{{ asset ("/js/layer/layer.js") }}"></script>
-
+@yield('content')
 
 </body>
 </html>
