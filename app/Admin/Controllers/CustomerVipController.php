@@ -579,14 +579,16 @@ class CustomerVipController extends BaseController
             }
 
             //记录规则
+            $discount = Platv4CustomerVipDiscount::find($edit->model->id);
+            $editRule = json_decode($discount->rule, true);
             $rule = Input::all();
             foreach($rule AS $key => $item) {
-                if (!in_array($key, $fields)) unset($rule[$key]);
-                if (is_null($item)) $rule[$key] = '';
+                if (!in_array($key, $fields)) continue;
+//                if (is_null($item)) $rule[$key] = '';
+                $editRule[$key] = $item ? $item : '';
             }
-            if (!empty($rule)) {
-                $discount = Platv4CustomerVipDiscount::find($edit->model->id);
-                $discount->rule = json_encode($rule);
+            if (!empty($editRule)) {
+                $discount->rule = json_encode($editRule);
                 $discount->save();
             }
         });
