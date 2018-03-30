@@ -82,14 +82,15 @@ class UserFilterService
             }
             $endSet = (int)$offset + (int)self::PER_PAGE;
 
-            $bindings = $queryBuild->getBindings();
+            $bindings = $queryBuild->getRawBindings()['where'];
             $newBind = array_slice($bindings, 0, -2);
             $newBind[] = $offset;
             $newBind[] = $endSet;
             $queryBuild->setBindings($newBind);
 
             $result = $queryBuild->get()->toArray();
-            unset($query);
+//            var_dump($queryBuild->toSql());
+//            var_dump($queryBuild->getBindings());
 
             $ids = array_column((array)$result, 'uid');
             $inputData = implode(',', $ids);
