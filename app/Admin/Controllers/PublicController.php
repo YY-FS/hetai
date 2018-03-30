@@ -52,4 +52,33 @@ class PublicController extends BaseController
         return $this->respData();
     }
 
+
+    public function platConfig()
+    {
+
+        return view('redis.sign');
+    }
+
+
+    public function cleanSign($uid)
+    {
+        $month = date('Y-m');
+        $firstSignDay = $month . '-01';
+        $signCacheKey = 'MN:USER_DAILY_SIGN_IN:' . $month . ':' . $uid;
+        $shareCacheKey = 'MN:USER_DAILY_SIGN_SHARE:' . $month . ':' . $uid;
+        $today = date('Y-m-d');
+
+        $todayTime = strtotime($today);
+        $firstSignTime = strtotime($firstSignDay);
+
+        $signOffset = ($todayTime - $firstSignTime) / 86400;
+
+        Redis::setbit($signCacheKey, $signOffset, 0);
+        Redis::setbit($signCacheKey, $signOffset, 0);
+        Redis::del('MN:USER_SIGN_IN:' . $uid);
+        Redis::del('MN:USER_SIGN_IN_LIST:' . $today . ':' . $uid);
+
+        return $this->respData();
+    }
+
 }

@@ -83,9 +83,11 @@ Route::group([
     $router->any('banners/layouts/create', 'LayoutController@anyEdit');
     $router->get('banners/oss', 'OssController@showObject');
 
-    //用户支付
+    //平台配置
     $router->get('mina/version', 'PublicController@minaVersion');
     $router->post('mina/jx_version', 'PublicController@editMinaVersion');
+    $router->get('plat/config', 'PublicController@platConfig');
+    $router->post('plat/config/jx_clean_sign/{uid}', 'PublicController@cleanSign');
 
     //会员用户
     $router->get('user/vip', 'UserVipController@index');
