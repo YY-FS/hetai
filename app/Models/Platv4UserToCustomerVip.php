@@ -19,12 +19,10 @@ class Platv4UserToCustomerVip extends BaseModel
 
     const STATUS_OFFLINE = 1;//有效
     const STATUS_END = 0;//失效
-    const STATUS_DELETE = -1;//删除
 
     public static $statusText = [
         self::STATUS_OFFLINE => '有效',
         self::STATUS_END => '失效',
-        self::STATUS_DELETE => '删除'
     ];
 
     public static function rapdyGrid()
@@ -41,7 +39,8 @@ class Platv4UserToCustomerVip extends BaseModel
                 'v.start_date',
                 'v.end_date',
                 'v.status'
-            ]);
+            ])
+            ->where('v.status','<>',-1);
         return $result;
     }
 }

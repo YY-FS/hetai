@@ -5,9 +5,9 @@ use Illuminate\Routing\Router;
 Admin::registerAuthRoutes();
 
 Route::group([
-    'prefix'        => config('admin.route.prefix'),
-    'namespace'     => config('admin.route.namespace'),
-    'middleware'    => config('admin.route.middleware'),
+    'prefix' => config('admin.route.prefix'),
+    'namespace' => config('admin.route.namespace'),
+    'middleware' => config('admin.route.middleware'),
 ], function (Router $router) {
 
     $router->get('/', 'HomeController@index');
@@ -32,10 +32,10 @@ Route::group([
     $router->any('industries/edit', 'IndustryController@anyEdit');
 
 //    用户分群
-    $router->get('user/groups','UserGroupController@index');
-    $router->any('user/groups/create','UserGroupController@anyForm');
+    $router->get('user/groups', 'UserGroupController@index');
+    $router->any('user/groups/create', 'UserGroupController@anyForm');
     $router->any('user/groups/edit', 'UserGroupController@anyEdit');
-    $router->get('user/groups/check_member','UserGroupController@checkMember');
+    $router->get('user/groups/check_member', 'UserGroupController@checkMember');
 
 //    设计师余额
     $router->get('designers/balance', 'DesignerBalanceController@index');
@@ -62,38 +62,43 @@ Route::group([
     $router->get('customer_vips/discounts/data_detail', 'CustomerVipController@dataDetail');
 
     //模态窗
-    $router->get('modal','ModalController@index');
-    $router->any('modal/edit','ModalController@anyEdit');
-    $router->get('modal/oss','OssController@showObject');
+    $router->get('modal', 'ModalController@index');
+    $router->any('modal/edit', 'ModalController@anyEdit');
+    $router->get('modal/oss', 'OssController@showObject');
     $router->get('modal/cache', 'ModalController@cleanCache');
 
 
-    $router->get('error','BaseController@error');
+    $router->get('error', 'BaseController@error');
 
     //用户支付
-    $router->get("payment",'UserPaymentController@index');
+    $router->get("payment", 'UserPaymentController@index');
 
     //banner相关
-    $router->get('banners/list','BannerController@index');
-    $router->any('banners/edit','BannerController@anyEdit');
-    $router->any('banners/create','BannerController@anyEdit');
-    $router->get('banners/cache','BannerController@cleanCache');
-    $router->get('banners/layouts/list','LayoutController@index');
-    $router->any('banners/layouts/edit','LayoutController@anyEdit');
-    $router->any('banners/layouts/create','LayoutController@anyEdit');
-    $router->get('banners/oss','OssController@showObject');
+    $router->get('banners/list', 'BannerController@index');
+    $router->any('banners/edit', 'BannerController@anyEdit');
+    $router->any('banners/create', 'BannerController@anyEdit');
+    $router->get('banners/cache', 'BannerController@cleanCache');
+    $router->get('banners/layouts/list', 'LayoutController@index');
+    $router->any('banners/layouts/edit', 'LayoutController@anyEdit');
+    $router->any('banners/layouts/create', 'LayoutController@anyEdit');
+    $router->get('banners/oss', 'OssController@showObject');
 
     //用户支付
-    $router->get('mina/version','PublicController@minaVersion');
-    $router->post('mina/jx_version','PublicController@editMinaVersion');
+    $router->get('mina/version', 'PublicController@minaVersion');
+    $router->post('mina/jx_version', 'PublicController@editMinaVersion');
 
     //会员用户
-    $router->get('user/vip','UserVipController@index');
-    $router->any('user/vip/edit','UserVipController@anyEdit');
+    $router->get('user/vip', 'UserVipController@index');
+    $router->any('user/vip/edit', 'UserVipController@anyEdit');
 
     //日签图片管理
-    $router->any('user/sign_image/edit','SigninImageController@anyEdit');
-    $router->get('user/sign_image','SigninImageController@index');
-    $router->get('user/sign_image/cache','SigninImageController@cleanCache');
-    $router->get('user/sign_image/oss','OssController@showObject');
+    $router->any('user/sign_image/edit', 'SigninImageController@anyEdit');
+    $router->get('user/sign_image', 'SigninImageController@index');
+    $router->get('user/sign_image/cache', 'SigninImageController@cleanCache');
+    $router->get('user/sign_image/oss', 'OssController@showObject');
+
+    //增值税专用发票信息管理
+    $router->get('invoice/{invoiceType}/info', 'InvoiceSpecialInfoController@index');
+    $router->any('invoice/special/info/edit', 'InvoiceSpecialInfoController@anyEdit');
+    $router->any('invoice/special/info/download', 'InvoiceSpecialInfoController@downloadImg');
 });

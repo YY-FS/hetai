@@ -67,7 +67,10 @@ return [
             'region' => env('AWS_REGION'),
             'bucket' => env('AWS_BUCKET'),
         ],
-
+        'invoice' => [
+            'driver' => 'local',
+            'root' => storage_path('app/invoice'),
+        ],
     ],
 
 ];
