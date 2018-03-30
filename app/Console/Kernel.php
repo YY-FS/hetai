@@ -28,7 +28,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('Generate:UserFilter')->withoutOverlapping()->hourly();
+        $schedule->command('Generate:UserFilter')
+            ->withoutOverlapping()
+            ->dailyAt('00:30')
+            ->dailyAt('8:30')
+            ->dailyAt('12:30')
+            ->dailyAt('15:30')
+            ->dailyAt('18:30')
+            ->dailyAt('20:30');
         $schedule->command('Generate:UserGroup')->withoutOverlapping()->hourly();
 
     }
