@@ -19,6 +19,13 @@ class UserFilterService
 
     const PER_PAGE = '50000';// 每次生成的用户数
 
+    public $maxUid;
+
+    public function __construct()
+    {
+        $this->maxUid = DB::connection('plat')->table('platv4_user')->orderBy('id', 'desc')->first()->id;
+    }
+
     private function _getFile($source, $filterId)
     {
         $filePath = storage_path('users/filter/' . $source . '/');
@@ -32,41 +39,75 @@ class UserFilterService
         return $file;
     }
 
-    private function _putContents($queryBuild, $filter, $file)
-    {
 
+    /**
+     * @param $queryBuild
+     * @param $filter
+     * @param $file
+     * @param $options  @max_id @field
+     * @return bool
+     */
+    private function _putContents($queryBuild, $filter, $file, $options)
+    {
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
             \Log::error((array)$filter);
             return false;
         }
+        if (empty($options['max_id'])) {
+            \Log::error(__FUNCTION__ . ' Gen Error: Empty max_id');
+            \Log::error((array)$filter);
+            return false;
+        }
+        if (empty($options['field'])) {
+            \Log::error(__FUNCTION__ . ' Gen Error: Empty field');
+            \Log::error((array)$filter);
+            return false;
+        }
+
+        $maxId = $options['max_id'];
+        $field = $options['field'];
 
         $startTime = microtime(true);
         $page = 1;
         $totalUser = 0;
-        $inputData = '';
+
+        $queryBuild->where($field, '>', 0)->where($field, '<=', self::PER_PAGE);
         while ($page !== null) {
+
             $offset = ($page - 1) * self::PER_PAGE;
-            $result = $queryBuild->limit(self::PER_PAGE)->offset($offset)->get()->toArray();
+            if ($offset > $maxId) {
+                \Log::info('-----  id分页器，offset 大于最大用户ID，page: ' . $page);
+                break;
+            }
+            $endSet = (int)$offset + (int)self::PER_PAGE;
+
+            $bindings = $queryBuild->getBindings();
+            $newBind = array_slice($bindings, 0, -2);
+            $newBind[] = $offset;
+            $newBind[] = $endSet;
+            $queryBuild->setBindings($newBind);
+
+            $result = $queryBuild->get()->toArray();
+            unset($query);
 
             $ids = array_column((array)$result, 'uid');
-            $inputData .= implode(',', $ids);
+            $inputData = implode(',', $ids);
+            if ($inputData) {
+                file_put_contents($file, $inputData, FILE_APPEND);
+            }
 
-            if (empty($result)) break;
+//            if (empty($result)) break;
 
             $totalUser += count($result);
             $page++;
 
         }
-        if ($inputData) {
-            $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
 
-            file_put_contents($file, $inputData, FILE_APPEND);
-
-            $size = memory_get_peak_usage();
-            $top = @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
-            echo 'TOP: ' . $top, PHP_EOL;
-        }
+        $unit = array('b', 'kb', 'mb', 'gb', 'tb', 'pb');
+        $size = memory_get_peak_usage();
+        $top = @round($size / pow(1024, ($i = floor(log($size, 1024)))), 2) . ' ' . $unit[$i];
+        echo 'PAGE: ' . $page . ', TOP: ' . $top, PHP_EOL;
 
         $endTime = microtime(true);
         $userFilter = Platv4UserFilter::find($filter->filter_id);
@@ -151,18 +192,25 @@ class UserFilterService
         echo __FUNCTION__ . PHP_EOL;
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
 
+        $options = [
+            'max_id' => $this->maxUid,
+            'field' => 'id'
+        ];
+
         switch ($filter->filter_alias) {
             case 'true':
                 $queryBuild = DB::connection('plat')->table('platv4_user_viporder_v2')
                     ->select('uid')
                     ->where('status', 1)
                     ->groupBy('uid');
+                $options['max_id'] = DB::connection('plat')->table('platv4_user_viporder_v2')->orderBy('id', 'desc')->first()->id;
                 break;
             case 'expired':
                 $queryBuild = DB::connection('plat')->table('platv4_user_viporder_v2')
                     ->select('uid')
                     ->where('status', 0)
                     ->groupBy('uid');
+                $options['max_id'] = DB::connection('plat')->table('platv4_user_viporder_v2')->orderBy('id', 'desc')->first()->id;
                 break;
             case 'false':
                 $queryBuild = DB::connection('plat')->table('platv4_user AS u')
@@ -170,6 +218,7 @@ class UserFilterService
                     ->select('u.id AS uid')
                     ->where(['uv.id' => null])
                     ->groupBy('u.id');
+                $options['field'] = 'u.id';
                 break;
             default:
                 break;
@@ -181,7 +230,7 @@ class UserFilterService
             return false;
         }
 
-        $this->_putContents($queryBuild, $filter, $file);
+        $this->_putContents($queryBuild, $filter, $file, $options);
         return true;
     }
 
@@ -189,9 +238,17 @@ class UserFilterService
     {
         echo __FUNCTION__ . PHP_EOL;
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+
+        $options = [
+            'max_id' => 0,
+            'field' => 'id'
+        ];
+
         $queryBuild = DB::connection('plat')->table('platv4_user')
             ->select('id AS uid')
             ->where(['industry' => $filter->filter_alias]);
+
+        $options['max_id'] = $this->maxUid;
 
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
@@ -199,7 +256,7 @@ class UserFilterService
             return false;
         }
 
-        $this->_putContents($queryBuild, $filter, $file);
+        $this->_putContents($queryBuild, $filter, $file, $options);
         return true;
     }
 
@@ -207,6 +264,11 @@ class UserFilterService
     {
         echo __FUNCTION__ . PHP_EOL;
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+
+        $options = [
+            'max_id' => $this->maxUid,
+            'field' => 'id'
+        ];
 
         if (empty($filter->filter_remark)) return false;
         $total = explode(',', $filter->filter_remark);
@@ -225,7 +287,9 @@ class UserFilterService
                 ->having(DB::connection('plat')->raw('COUNT(auto_id)'), '>=', $min);
             if ($max !== null) $queryBuild->having(DB::connection('plat')->raw('COUNT(auto_id)'), '<=', $max);
 
-            $result = $this->_putContents($queryBuild, $filter, $file);
+            $options['field'] = 'u.id';
+
+            $result = $this->_putContents($queryBuild, $filter, $file, $options);
 
             $totalUser += $result->total_user;
             $duration += $result->duration;
@@ -245,6 +309,11 @@ class UserFilterService
         echo __FUNCTION__ . PHP_EOL;
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
 
+        $options = [
+            'max_id' => 0,
+            'field' => 'id'
+        ];
+
         if (empty($filter->filter_remark)) return false;
         $times = explode(',', $filter->filter_remark);
         $startDate = date('Y-m-d', strtotime('-' . ($times[0] - 1 ) . ' days'));
@@ -262,7 +331,7 @@ class UserFilterService
             return false;
         }
 
-        $this->_putContents($queryBuild, $filter, $file);
+        $this->_putContents($queryBuild, $filter, $file, $options);
         return true;
     }
 
@@ -270,6 +339,11 @@ class UserFilterService
     {
         echo __FUNCTION__ . PHP_EOL;
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+
+        $options = [
+            'max_id' => $this->maxUid,
+            'field' => 'id'
+        ];
 
         if (empty($filter->filter_remark)) return false;
         $times = explode(',', $filter->filter_remark);
@@ -287,7 +361,7 @@ class UserFilterService
             return false;
         }
 
-        $this->_putContents($queryBuild, $filter, $file);
+        $this->_putContents($queryBuild, $filter, $file, $options);
         return true;
 
     }
@@ -296,6 +370,11 @@ class UserFilterService
     {
         echo __FUNCTION__ . PHP_EOL;
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+
+        $options = [
+            'max_id' => $this->maxUid,
+            'field' => 'id'
+        ];
 
         if (empty($filter->filter_remark)) return false;
         $times = explode(',', $filter->filter_remark);
@@ -311,13 +390,15 @@ class UserFilterService
 
         if ($endDate !== null) $queryBuild->having(DB::connection('plat')->raw('MAX(pay_date)'), '>=', $endDate);
 
+        $options['max_id'] = DB::connection('plat')->table('platv4_user_payment')->orderBy('id', 'desc')->first()->id;
+
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
             \Log::error((array)$filter);
             return false;
         }
 
-        $this->_putContents($queryBuild, $filter, $file);
+        $this->_putContents($queryBuild, $filter, $file, $options);
         return true;
 
     }
@@ -326,6 +407,11 @@ class UserFilterService
     {
         echo __FUNCTION__ . PHP_EOL;
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+
+        $options = [
+            'max_id' => $this->maxUid,
+            'field' => 'id'
+        ];
 
         if (empty($filter->filter_remark)) return false;
         $total = explode(',', $filter->filter_remark);
@@ -347,18 +433,25 @@ class UserFilterService
             if ($max !== null) $queryBuild->having(DB::connection('plat')->raw('SUM(pay_amount)'), '<', $max);
         }
 
+        $options['field'] = 'u.id';
+
         if (empty($queryBuild)) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty QueryBuild');
             \Log::error((array)$filter);
             return false;
         }
 
-        $this->_putContents($queryBuild, $filter, $file);
+        $this->_putContents($queryBuild, $filter, $file, $options);
         return true;
     }
 
     private function _queryBuildCustomerVip($customerVipId, $filter, $file)
     {
+        $options = [
+            'max_id' => $this->maxUid,
+            'field' => 'id'
+        ];
+
         switch ($filter->filter_alias) {
             case 'gift_code':
                 $queryBuild = DB::connection('plat')->table('platv4_user_to_customer_vip AS u2v')
@@ -380,6 +473,8 @@ class UserFilterService
                     return false;
                 }
 
+                $options['max_id'] = DB::connection('plat')->table('platv4_user_to_customer_vip')->orderBy('id', 'desc')->first()->id;
+                $options['field'] = 'u2v.id';
                 break;
             case 'sub':
                 $queryBuild = DB::connection('plat')->table('platv4_user_to_customer_vip')
@@ -387,6 +482,8 @@ class UserFilterService
                     ->where('customer_vip_id', $customerVipId)
                     ->where('auto_renewal', (int)$filter->filter_remark)
                     ->groupBy('uid');
+                $options['max_id'] = DB::connection('plat')->table('platv4_user_to_customer_vip')->orderBy('id', 'desc')->first()->id;
+
                 break;
             case 'remain':
                 if (empty($filter->filter_remark)) break;
@@ -400,6 +497,8 @@ class UserFilterService
                 if ($endDate !== null) $queryBuild->where('end_date', '<', $endDate);
 
                 $queryBuild->groupBy('uid');
+                $options['max_id'] = DB::connection('plat')->table('platv4_user_to_customer_vip')->orderBy('id', 'desc')->first()->id;
+
                 break;
             case 'expired':
                 if (empty($filter->filter_remark)) break;
@@ -413,6 +512,7 @@ class UserFilterService
                 if ($endDate !== null) $queryBuild->where('end_date', '>', $endDate);
 
                 $queryBuild->groupBy('uid');
+                $options['max_id'] = DB::connection('plat')->table('platv4_user_to_customer_vip')->orderBy('id', 'desc')->first()->id;
                 break;
             case 'false':
                 $queryBuild = DB::connection('plat')->table('platv4_user AS u')
@@ -423,6 +523,7 @@ class UserFilterService
                     ->select('u.id AS uid')
                     ->where(['u2v.status' => null])
                     ->groupBy('u.id');
+                $options['field'] = 'u.id';
                 break;
             default:
                 break;
@@ -434,7 +535,7 @@ class UserFilterService
             return false;
         }
 
-        $this->_putContents($queryBuild, $filter, $file);
+        $this->_putContents($queryBuild, $filter, $file, $options);
         return true;
     }
 
