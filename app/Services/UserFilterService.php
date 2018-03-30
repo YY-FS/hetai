@@ -57,6 +57,7 @@ class UserFilterService
         if (empty($options['max_id'])) {
             \Log::error(__FUNCTION__ . ' Gen Error: Empty max_id');
             \Log::error((array)$filter);
+            \Log::error((array)$options);
             return false;
         }
         if (empty($options['field'])) {
