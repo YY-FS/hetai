@@ -1,4 +1,5 @@
 @extends('style')
+@section('content')
     {!! Rapyd::head() !!}
     <br>
     <div style="padding:2%;background-color: #ffffff;margin: 2px 20px 0 20px;border-radius: 5px;">
@@ -67,7 +68,6 @@
         </div>
     </div>
 
-<script src="{{ asset ("/packages/admin/AdminLTE/plugins/jQuery/jQuery-2.1.4.min.js") }}"></script>
 <script>
     if($('input[value="-1"]').is(':checked')){
         refuse();
@@ -100,3 +100,4 @@
         }
     });
 </script>
+@endsection

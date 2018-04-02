@@ -2,9 +2,12 @@
 namespace App\Admin\Controllers;
 
 use App\Models\Platv4Invoice;
+use App\Models\Platv4User;
+use App\Models\Platv4UserInvoice;
 use Illuminate\Support\Facades\Input;
 use Zofe\Rapyd\DataEdit\DataEdit;
 use Zofe\Rapyd\DataFilter\DataFilter;
+use Zofe\Rapyd\DataForm\DataForm;
 use Zofe\Rapyd\DataGrid\DataGrid;
 use Zofe\Rapyd\Url;
 
@@ -60,9 +63,9 @@ class InvoiceController extends BaseController
             //操作
             $auditLink = config('admin.route.prefix') . $this->route . '/' . $type . "/audit?modify=" . $row->data->id;
             $auditBtn = $this->getFrameBtn($auditLink,['btn_text'=>'审核','btn_class' => 'btn btn-primary'],true,940,780);
-            $sendLink = config('admin.route.prefix') . $this->route . '/' . $type . "/send?id=" . $row->data->id;
+            $sendLink = config('admin.route.prefix') . $this->route . '/' . $type . "/send?modify=" . $row->data->id;
             $sendText = $type == 'electron'?'发送邮件':'快递详情';
-            $sendBtn = $this->getFrameBtn($sendLink,['btn_text'=>$sendText,'btn_class' => 'btn btn-warning'],true);
+            $sendBtn = $this->getFrameBtn($sendLink,['btn_text'=>$sendText,'btn_class' => 'btn btn-warning'],true,940,780);
             //if($row->data->status != Platv4Invoice::STATUS_AUDIT_SUCCESS)   $sendBtn = null;  //审核不通过不显示发出按钮
             $editLink = config('admin.route.prefix') . $this->route . '/' . $type . "/edit?modify=" . $row->data->id;
             $editBtn = $this->getFrameBtn($editLink,['btn_text'=>'编辑','btn_class' => 'btn btn-info'],true,550,450);
@@ -148,7 +151,35 @@ class InvoiceController extends BaseController
     //发票发送邮件(快递)
     public function anySend($type)
     {
-        //邮件
+        if($type == Platv4Invoice::ROUTE_ELECTRON){     //邮件
+
+        }else{      //快递
+            //配置保存和撤销改动的位置
+            config([
+                'rapyd.data_edit.button_position.save' => 'BR',
+                'rapyd.data_edit.button_position.modify' => 'BL'
+            ]);
+            $edit = DataEdit::source(new Platv4Invoice());
+            //构建 tips  2018/1/31 普通纸质发票 申请单号：33300001112
+            $tips = date('Y/m/d', strtotime($edit->model->created_at));
+            $userInvoice = Platv4UserInvoice::find($edit->model->user_invoice_id,['invoice_type']);
+            if ($userInvoice->invoice_type === 'special')
+                $tips .= ' 专用纸质发票';
+            else
+                $tips .= ' 普通纸质发票';
+            $tips .= ' 申请单号：' . $edit->model->id;
+            $edit->label('快递状态更新');
+            $edit->add('express', '* 物流', 'text')->rule('required|max:20');
+            $edit->add('express_no', '* 单号', 'text')->rule('required|max:64');
+            $edit->saved(function() use ($edit){
+                if($edit->model->express && $edit->model->express_no){
+                    $edit->model->status = Platv4Invoice::STATUS_SENT;
+                    $edit->model->save();
+                }
+            });
+            $edit->build();
+            return $edit->view('invoice.deliveryFrameEdit', compact('edit', 'tips'));
+        }
 
     }
 

@@ -145,4 +145,5 @@ class Platv4Invoice extends BaseModel
             ->where('v.id',$invoiceId)
             ->first();
     }
+
 }
