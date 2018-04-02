@@ -60,7 +60,7 @@ class BaseController extends Controller
         }
         $btn = "<a style='cursor:pointer' class=\"" . $btnClass . "\" onclick=\"layer.open({
                                                                                 type: 2, 
-                                                                                title: ['编辑', false], 
+                                                                                title: ['', false], 
                                                                                 area: ['{$width}px', '{$height}px'], 
                                                                                 shadeClose: true,
                                                                                 scrollbar: false,
