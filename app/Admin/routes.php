@@ -72,6 +72,7 @@ Route::group([
 
     //用户支付
     $router->get("payment", 'UserPaymentController@index');
+    $router->get("payment/edit", 'UserPaymentController@anyEdit');
 
     //banner相关
     $router->get('banners/list', 'BannerController@index');

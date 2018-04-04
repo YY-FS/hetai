@@ -31,6 +31,10 @@ class UserVipController extends BaseController
             ->scope(function ($query, $value) {
                 return $value ? $query->where('u.id', $value) : $query;
             });
+        $filter->add('username', '账号', 'text')
+            ->scope(function ($query, $value) {
+                return $value ? $query->where('u.username', $value) : $query;
+            });
         $filter->submit('筛选');
         $filter->reset('重置');
         $filter->build();

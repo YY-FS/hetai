@@ -36,7 +36,7 @@ class InvoiceSpecialInfoController extends BaseController
             })->format('Y-m-d', 'zh-CN');
         $filter->add('uid', 'UID', 'number');
         $filter->add('invoice_title', '发票抬头', 'text');
-        $filter->add('invoice_no', '税号', 'text');
+        $filter->add('tax_no', '税号', 'text');
         $filter->add('contact_name', '联系人', 'text');
         $filter->add('contact', '联系方式', 'number');
         $filter->submit('筛选');
