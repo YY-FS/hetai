@@ -40,7 +40,7 @@ class Platv4UserToCustomerVip extends BaseModel
                 'v.end_date',
                 'v.status'
             ])
-            ->where('v.status','<>',-1);
+            ->where('v.status', '<>', -1);
         return $result;
     }
 }

@@ -11,6 +11,7 @@ use App\Models\Platv4PayPlatform;
 use App\Models\Platv4Terminal;
 use App\Models\Platv4UserPayment;
 use Illuminate\Support\Facades\Input;
+use Zofe\Rapyd\DataEdit\DataEdit;
 use Zofe\Rapyd\DataFilter\DataFilter;
 use Zofe\Rapyd\DataGrid\DataGrid;
 use Zofe\Rapyd\Url;
@@ -19,6 +20,7 @@ class UserPaymentController extends BaseController
 {
     public function index()
     {
+        $this->route = '/payment';
         $where = [];
         if (!Input::get('search', null)) {
             $date = date('Y-m-d', time());
@@ -39,8 +41,6 @@ class UserPaymentController extends BaseController
             ->scope(function ($query, $value) {
                 return $value ? $query->where('up.uid', $value) : $query;
             });
-        //->options(['' => '全部标签'] +
-        // Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->pluck('name', 'id')->toArray())
         $filter->add('order_type', '支付类型', 'select')->options(['' => '全部类型'] + Platv4PayPlatform::pluck('name', 'alias')->toArray())
             ->scope(function ($query, $value) {
                 return $value ? $query->where('up.order_type', $value) : $query;
@@ -101,6 +101,7 @@ class UserPaymentController extends BaseController
         $grid->add('product_price', '单价', false);
         $grid->add('product_total', '总价', false);
         $grid->add('product_purpose', '类型商品', false);
+        $grid->add('operation', '操作', false);
 
         $grid->orderBy('create_time', 'desc');
 
@@ -110,6 +111,12 @@ class UserPaymentController extends BaseController
         //改变status
         $grid->row(function ($row) {
             $row->cell('status')->value = Platv4UserPayment::$statusText[$row->data->status];
+            $options = [
+                'btn_class' => 'btn btn-primary',
+                'btn_text' => '查看详情'
+            ];
+            $link = config('admin.route.prefix') . $this->route . "/edit?modify=" . $row->data->id;
+            $row->cell('operation')->value = $this->getFrameBtn($link, $options, false,400,500);
         });
 
         if (Input::get('export') == 1) {
@@ -120,6 +127,14 @@ class UserPaymentController extends BaseController
             $grid->build();
             return view('rapyd.filtergrid', compact('filter', 'grid', 'title'));
         }
+    }
+
+    public function anyEdit()
+    {
+        //配置保存和撤销改动的位置
+        $edit = DataEdit::source(new Platv4UserPayment());
+        $edit->label('订单详情');
+        return $edit->view('userpayment.frameEdit',compact('edit'));
     }
 }
 

@@ -26,7 +26,7 @@ class Platv4UserInvoice extends BaseModel
                 'created_at',//申请日期
                 'uid',//UID
                 'invoice_title',//发票抬头
-                'invoice_no',//税号
+                'tax_no',//税号
                 'contact_name',//联系方式
                 'contact',//联系人
                 'reason',//备注
