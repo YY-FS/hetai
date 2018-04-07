@@ -97,7 +97,7 @@ class InvoiceController extends BaseController
                                             "})\">发送邮件</a>";
 
             }
-            //if($row->data->status != Platv4Invoice::STATUS_AUDIT_SUCCESS)   $sendBtn = null;  //审核不通过不显示发出按钮
+            if($row->data->status != Platv4Invoice::STATUS_AUDIT_SUCCESS)   $sendBtn = null;  //审核不通过不显示发出按钮
             $editLink = config('admin.route.prefix') . $this->route . '/' . $type . "/edit?modify=" . $row->data->id;
             $editBtn = $this->getFrameBtn($editLink, ['btn_text' => '编辑', 'btn_class' => 'btn btn-info'], true, 550, 450);
             $row->cell('operation')->value = $auditBtn . $sendBtn . $editBtn;
@@ -203,7 +203,6 @@ class InvoiceController extends BaseController
                             $message->from('luengwaiban@163.com', 'TEST');
                             $message->to(trim($email));
                             $attachmentDir = dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . $email;
-                            //$attachmentDir = 'upload';
                             $handel = opendir($attachmentDir);
                             while (($file = readdir($handel)) !== false) {
                                 if ($file != "." && $file != "..") {
@@ -287,7 +286,7 @@ class InvoiceController extends BaseController
         \Log::error(var_export($_FILES, true));
 
         $file = $request->file('file');
-        //chmod('upload',0777);    //upload文件夹位于public下，需要0777权限
+        chmod('upload',0777);    //upload文件夹位于public下，需要0777权限
         $fileName = $file->getClientOriginalName();
         $file->move($dir, $fileName);
 

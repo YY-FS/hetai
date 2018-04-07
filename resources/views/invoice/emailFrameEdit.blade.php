@@ -132,11 +132,12 @@
 
         //上传错误
         uploader.bind('Error',function(uploader,errObj){
-            console.log(errObj);
-            $('#'+errObj.file.id+'_percent').text('上传失败');
-            $('#'+errObj.file.id+'_percent').css('color','red');
-            $('#'+errObj.file.id+'_operation').html('');
             layer.msg(errObj.message, {icon: 5});
+            if(errObj.file){
+                $('#'+errObj.file.id+'_percent').text('上传失败');
+                $('#'+errObj.file.id+'_percent').css('color','red');
+                $('#'+errObj.file.id+'_operation').html('');
+            }
         });
 
         //上传文件列表中删除已上传文件
