@@ -5,6 +5,7 @@ use App\Models\Platv4Invoice;
 use App\Models\Platv4User;
 use App\Models\Platv4UserInvoice;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Mail;
 use Naux\Mail\SendCloudTemplate;
