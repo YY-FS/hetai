@@ -193,10 +193,7 @@
                         $('#sendBtn').text('已发送');
                         $('#sendBtn').attr('class','btn btn-info');
                         $('#sendBtn').attr('disabled','disabled');
-                        layer.msg('发送成功',{icon:6});
-                        setTimeout(function(){
-                            window.parent.location.reload();
-                        },1000);
+                        layer.msg('发送成功,请关闭窗口',{icon:6});
                     }
                 },
                 error:function(jqXHR,textStatus,errorThrown){

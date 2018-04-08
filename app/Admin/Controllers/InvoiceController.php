@@ -199,8 +199,8 @@ class InvoiceController extends BaseController
                 $email = Input::post('email',null);
                 $invoiceId = Input::get('invoice_id',null);
                 $templateName = 'invoice_maka';
-                $from = 'info@maka.im';
-                $fromName = 'MAKA';
+                $from = env('SEND_CLOUD_FROM','infos@maka.im');
+                $fromName = env('SEND_CLOUD_FROM_NAME','MAKA');
                 if($email){
                     try {
                         $bindData = ['bind' => 'nothing'];
@@ -293,7 +293,6 @@ class InvoiceController extends BaseController
             return $this->respFail('缺少邮箱',Response::HTTP_NOT_ACCEPTABLE);
         if(!is_dir($dir))
             mkdir($dir,0777,true);
-        \Log::error(var_export($_FILES, true));
 
         $file = $request->file('file');
         //chmod('upload',0777);    //upload文件夹位于public下，需要0777权限
