@@ -50,7 +50,7 @@ class InvoiceSpecialInfoController extends BaseController
         $grid->add('created_at', '申请日期', true);
         $grid->add('uid', 'UID', false);
         $grid->add('invoice_title', '发票抬头', false);
-        $grid->add('invoice_no', '税号', false);
+        $grid->add('tax_no', '税号', false);
         $grid->add('contact_name', '联系人', false);
         $grid->add('contact', '联系方式', false);
         $grid->add('reason', '备注', false);
@@ -73,7 +73,7 @@ class InvoiceSpecialInfoController extends BaseController
                 'btn_text' => '编辑'
             ];
             $link = config('admin.route.prefix') . $this->route . "/edit?modify=" . $row->data->id;
-            $row->cell('operation')->value = $this->getFrameBtn($link, $options, true);
+            $row->cell('operation')->value = $this->getFrameBtn($link, $options, true,1200,800);
         });
 
         if (Input::get('export') == 1) {
@@ -98,7 +98,7 @@ class InvoiceSpecialInfoController extends BaseController
         $edit->add('uid', 'UID', 'text')->attributes(['readOnly' => true])->rule('required');
         $edit->add('created_at', '申请日期', 'text')->attributes(['readOnly' => true])->rule('required');
         $edit->add('invoice_title', '发票抬头', 'text')->attributes(['readOnly' => true])->rule('required');
-        $edit->add('invoice_no', '税号', 'text')->attributes(['readOnly' => true])->rule('required');
+        $edit->add('tax_no', '税号', 'text')->attributes(['readOnly' => true])->rule('required');
         $edit->add('address', '公司注册地址', 'text')->attributes(['readOnly' => true])->rule('required');
         $edit->add('phone', '公司注册电话', 'text')->attributes(['readOnly' => true])->rule('required');
         $edit->add('bank_account', '开户银行名称', 'text')->attributes(['readOnly' => true])->rule('required');

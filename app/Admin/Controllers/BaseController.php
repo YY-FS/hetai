@@ -60,7 +60,7 @@ class BaseController extends Controller
         }
         $btn = "<a style='cursor:pointer' class=\"" . $btnClass . "\" onclick=\"layer.open({
                                                                                 type: 2, 
-                                                                                title: ['编辑', false], 
+                                                                                title: ['', false], 
                                                                                 area: ['{$width}px', '{$height}px'], 
                                                                                 shadeClose: true,
                                                                                 scrollbar: false,
@@ -78,5 +78,21 @@ class BaseController extends Controller
     {
         //需要使用 redirect()->with(['to'=>link,'msg'=>'xxxx']);调用该页面
         return view('error');
+    }
+
+    public function delDir($dir)
+    {
+        if(!is_dir($dir))
+            return false;
+        $handel = opendir($dir);
+        while(($item = readdir($handel)) !== false){
+            if ($item != "." && $item != "..") {
+                is_dir($dir . DIRECTORY_SEPARATOR . $item) ? $this->delDir($dir . DIRECTORY_SEPARATOR . $item) : unlink($dir . DIRECTORY_SEPARATOR . $item);
+            }
+        }
+        if(readdir($handel) === false){
+            closedir($handel);
+            return rmdir($dir);
+        }
     }
 }

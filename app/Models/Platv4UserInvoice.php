@@ -15,7 +15,7 @@ class Platv4UserInvoice extends BaseModel
         self::COMMON_STATUS_DELETE=>'不通过',
         self::COMMON_STATUS_NORMAL=>'已通过'//1
     ];
-    
+
     public static function rapydGrid($invoiceType)
     {
         $result = DB::connection('plat')->table('platv4_user_invoice')
@@ -36,3 +36,4 @@ class Platv4UserInvoice extends BaseModel
         return $result;
     }
 }
+

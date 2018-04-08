@@ -104,4 +104,11 @@ Route::group([
     $router->get('invoice/{invoiceType}/info', 'InvoiceSpecialInfoController@index');
     $router->any('invoice/special/info/edit', 'InvoiceSpecialInfoController@anyEdit');
     $router->any('invoice/special/info/download', 'InvoiceSpecialInfoController@downloadImg');
+
+    //发票管理
+    $router->get('invoice/{type}','InvoiceController@index');
+    $router->any('invoice/{type}/edit','InvoiceController@anyEdit');
+    $router->any('invoice/{type}/audit','InvoiceController@anyAudit');
+    $router->any('invoice/{type}/send','InvoiceController@anySend');
+    $router->post('invoice/upload','InvoiceController@upload');
 });
