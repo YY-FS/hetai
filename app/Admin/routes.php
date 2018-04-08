@@ -106,7 +106,6 @@ Route::group([
     $router->any('invoice/special/info/download', 'InvoiceSpecialInfoController@downloadImg');
 
     //发票管理
-    $router->get('invoice/testsend','InvoiceController@testSend');
     $router->get('invoice/{type}','InvoiceController@index');
     $router->any('invoice/{type}/edit','InvoiceController@anyEdit');
     $router->any('invoice/{type}/audit','InvoiceController@anyAudit');

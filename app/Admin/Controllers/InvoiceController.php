@@ -90,6 +90,7 @@ class InvoiceController extends BaseController
                                                         "success:function(data){".
                                                             "if(data.success){".
                                                             "layer.msg('已删除附件');".
+                                                            "window.location.reload();".
                                                             "}".
                                                         "}".
                                                     "});".
@@ -97,9 +98,9 @@ class InvoiceController extends BaseController
                                             "})\">发送邮件</a>";
 
             }
-            if($row->data->status != Platv4Invoice::STATUS_AUDIT_SUCCESS)   $sendBtn = null;  //审核不通过不显示发出按钮
+            if($row->data->status < Platv4Invoice::STATUS_AUDIT_SUCCESS)   $sendBtn = null;  //审核不通过不显示发出按钮
             $editLink = config('admin.route.prefix') . $this->route . '/' . $type . "/edit?modify=" . $row->data->id;
-            $editBtn = $this->getFrameBtn($editLink, ['btn_text' => '编辑', 'btn_class' => 'btn btn-info'], true, 550, 450);
+            $editBtn = $this->getFrameBtn($editLink, ['btn_text' => '编辑', 'btn_class' => 'btn btn-info'], true, 750, 650);
             $row->cell('operation')->value = $auditBtn . $sendBtn . $editBtn;
         });
 
@@ -195,12 +196,16 @@ class InvoiceController extends BaseController
             if ($request->isMethod('post')) {
                 //调用sendCloud
                 $email = Input::post('email',null);
+                $invoiceId = Input::get('invoice_id',null);
+                $templateName = 'invoice_maka';
+                $from = 'info@maka.im';
+                $fromName = 'MAKA';
                 if($email){
                     try {
                         $bindData = ['bind' => 'nothing'];
-                        $template = new SendCloudTemplate('test_template', $bindData);
-                        Mail::raw($template, function ($message) use ($email) {
-                            $message->from('luengwaiban@163.com', 'TEST');
+                        $template = new SendCloudTemplate($templateName, $bindData);
+                        Mail::raw($template, function ($message) use ($email,$from,$fromName) {
+                            $message->from($from, $fromName);
                             $message->to(trim($email));
                             $attachmentDir = dirname(dirname(dirname(__DIR__))) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'upload' . DIRECTORY_SEPARATOR . $email;
                             $handel = opendir($attachmentDir);
@@ -211,6 +216,7 @@ class InvoiceController extends BaseController
                                 }
                             }
                         });
+                        Platv4Invoice::where('id',$invoiceId)->update(['status'=>Platv4Invoice::STATUS_SENT]);
                         return $this->respData();
                     }catch(\Exception $e){
                         return $this->respFail($e->getMessage());
@@ -252,7 +258,10 @@ class InvoiceController extends BaseController
         $edit = DataEdit::source(new Platv4Invoice());
         $edit->label(Platv4Invoice::$routeText[$type] . '发票编辑');
         $edit->add('invoice_no', '发票编号', 'text');
-        $edit->add('comment', '备注', 'text');
+        if($type == Platv4Invoice::ROUTE_ELECTRON)
+            $edit->add('email','邮箱','text');
+        $edit->add('comment', '备注', 'textarea');
+
         $edit->build();
         return $edit->view('rapyd.frameEdit', compact('edit'));
     }
@@ -286,7 +295,7 @@ class InvoiceController extends BaseController
         \Log::error(var_export($_FILES, true));
 
         $file = $request->file('file');
-        chmod('upload',0777);    //upload文件夹位于public下，需要0777权限
+        //chmod('upload',0777);    //upload文件夹位于public下，需要0777权限
         $fileName = $file->getClientOriginalName();
         $file->move($dir, $fileName);
 
@@ -305,14 +314,4 @@ class InvoiceController extends BaseController
         return response()->json($fail);
     }
 
-    public function testSend(){
-        $email = '407261380@qq.com';
-        $bind_data = [];
-        $template = new SendCloudTemplate('test_template', $bind_data);
-        $res = Mail::raw($template, function ($message) use ($email) {
-            $message->from('info@maka.im', 'MAKA');
-            $message->to($email);
-        });
-        var_dump($res);
-    }
 }

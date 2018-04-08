@@ -82,17 +82,11 @@ class Platv4Banner extends BaseModel
         $start = strtotime($row->data->start_time);
         $end = strtotime($row->data->end_time);
 
-        $toStatus = self::STATUS_READY;
-        if(!$row->data->start_time || !$row->data->end_time){
-            $start = $now - 3600;
-            $end = $now + 3600;
-            $toStatus = self::STATUS_PROGRESS;
-        }
-
-        $toStatusText = '上线';
         if($row->data->status == self::STATUS_OFFLINE){
             $style = 'color:#CECECE;';
             $status = self::STATUS_OFFLINE;
+            $toStatus = self::STATUS_READY;
+            $toStatusText = '上线';
         }else{
             if($start >= $end && $start && $end) return [];
 

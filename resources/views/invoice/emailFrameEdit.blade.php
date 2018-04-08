@@ -23,7 +23,7 @@
                 <div class="form-group clearfix" id="fg_email">
                     <label for="email" class="col-sm-2 control-label">收件人</label>
                     <div class="col-sm-10" id="div_email">
-                        <input class="form-control" type="text" id="email" value="{{ $invoice->email }}" >
+                        <input class="form-control" type="text" id="email" value="{{ $invoice->email }}" disabled>
                     </div>
                 </div>
                 <div class="form-group clearfix" id="fg_content">
@@ -98,6 +98,7 @@
 
         //选择文件后自动上传
         uploader.bind('FilesAdded', function (uploader, files) {
+            console.log($('#email').val());
             if(!$('#email').val()){
                 uploader.trigger('Error',{code:406,message:'邮箱未指定'});
                 return false;
@@ -181,20 +182,21 @@
                 type:'post',
                 dataType:'json',
                 data:{
-                    email:$('#email').val()
+                    email:$('#email').val(),
+                    invoice_id:'{{ $invoice->id }}'
                 },
                 beforeSend:function(){
-                    loadWait('安排发送中，请勿点击关闭按钮');
-                    setTimeout(function(){
-                        layer.msg('安排发送成功，可关闭窗口',{icon:6,time:1500});
-                    },3000);
+                    loadWait('安排发送中，加载完毕可关闭窗口',3000);
                 },
                 success:function(data){
                     if(data.success){
                         $('#sendBtn').text('已发送');
                         $('#sendBtn').attr('class','btn btn-info');
                         $('#sendBtn').attr('disabled','disabled');
-                        layer.msg('发送成功',{icon:6,time:1500});
+                        layer.msg('发送成功',{icon:6});
+                        setTimeout(function(){
+                            window.parent.location.reload();
+                        },1000);
                     }
                 },
                 error:function(jqXHR,textStatus,errorThrown){
