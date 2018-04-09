@@ -61,8 +61,14 @@ EOT;
             ->leftJoin('platv4_customer_vip_discount_types AS cvdt','cvd.type','=','cvdt.name')
             ->leftJoin('platv4_customer_vip_discount_to_terminal AS cvdtt','cvd.id','=','cvdtt.customer_vip_discount_id')
             ->leftJoin('platv4_terminals AS t','t.name','=','cvdtt.terminal')
-            ->leftJoin('platv4_modal as m','cvd.id','=','m.customer_vip_discount_id')
-            ->leftJoin('platv4_banners_v2 as b','cvd.id','=','b.customer_vip_discount_id')
+            ->leftJoin('platv4_modal as m',function($join){
+                $join->on('cvd.id','=','m.customer_vip_discount_id')
+                    ->where('m.status','>',-1);
+            })
+            ->leftJoin('platv4_banners_v2 as b',function($join){
+                $join->on('cvd.id','=','b.customer_vip_discount_id')
+                    ->where('b.status','>',-1);
+            })
             ->select([
                 'cvd.*',
                 'cvdt.description AS type_name',
