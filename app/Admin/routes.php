@@ -75,14 +75,16 @@ Route::group([
     $router->get("payment/edit", 'UserPaymentController@anyEdit');
 
     //banner相关
-    $router->get('banners/list', 'BannerController@index');
-    $router->any('banners/edit', 'BannerController@anyEdit');
-    $router->any('banners/create', 'BannerController@anyEdit');
     $router->get('banners/cache', 'BannerController@cleanCache');
     $router->get('banners/layouts/list', 'LayoutController@index');
     $router->any('banners/layouts/edit', 'LayoutController@anyEdit');
     $router->any('banners/layouts/create', 'LayoutController@anyEdit');
     $router->get('banners/oss', 'OssController@showObject');
+    $router->get('banners/{layout}','BannerController@index');
+    $router->any('banners/{layout}/create', 'BannerController@anyEdit');
+    $router->any('banners/{layout}/edit', 'BannerController@anyEdit');
+
+
 
     //平台配置
     $router->get('mina/version', 'PublicController@minaVersion');

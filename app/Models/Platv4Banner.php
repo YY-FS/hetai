@@ -15,12 +15,26 @@ class Platv4Banner extends BaseModel
     const STATUS_READY = 2;
     const STATUS_PROGRESS = 3;
 
+    const TARGET_LINK = 'link';
+    const TARGET_MAKA = 'maka';
+    const TARGET_POSTER = 'poster';
+    const TARGET_VIDEO = 'video';
+    const TARGET_CATEGORY = 'category';
+
     public static $statusText = [
 //        self::STATUS_DELETE => '删除',
         self::STATUS_OFFLINE => '已下线',
         self::STATUS_END => '已结束',
         self::STATUS_READY => '未开始',
         self::STATUS_PROGRESS => '进行中'
+    ];
+
+    public static $targetText = [
+        self::TARGET_LINK => '链接',
+        self::TARGET_MAKA => 'H5',
+        self::TARGET_POSTER => '海报',
+        self::TARGET_VIDEO => '视频',
+        self::TARGET_CATEGORY => '更多分类'
     ];
 
     const SCRIPT = "$('.user-group').on('click', function(event){
@@ -39,10 +53,13 @@ class Platv4Banner extends BaseModel
                         });";
 
 
-    public static function rapydGrid()
+    public static function rapydGrid($layout)
     {
-        return  DB::connection('plat')->table('platv4_banners_v2 as b')
-            ->leftJoin('platv4_layout as l','b.layout_id','=','l.id')
+        return  DB::connection('plat')->table('platv4_layout as l')
+            ->leftJoin('platv4_banners_v2 as b',function($join){
+                $join->on('b.layout_id','=','l.id')
+                    ->where('b.status','>',-1);
+            })
             ->leftJoin('platv4_banner_to_terminal as b2t','b.id','=','b2t.banner_id')
             ->leftJoin('platv4_terminals as t','b2t.terminal','=','t.name')
             ->leftJoin('platv4_item_to_user_group as i2dug',function($join){
@@ -55,6 +72,7 @@ class Platv4Banner extends BaseModel
                     ->where('i2bug.item_table','=','platv4_banners_v2');
             })
             ->leftJoin('platv4_user_group_v2 as bug','i2bug.user_group_id','=','bug.id')
+            ->leftJoin('platv4_template_sets as ts','b.template_set_id','=','ts.id')
             ->select([
                 'b.id',
                 'b.sort',
@@ -64,6 +82,7 @@ class Platv4Banner extends BaseModel
                 'b.thumb',
                 'b.title',
                 'b.url',
+                'ts.name as template_set_name',
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct t.`description`) as terminal'),
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct dug.`name`) as discount_group'),
                 DB::connection('plat')->raw('GROUP_CONCAT(distinct bug.`name`) as banner_group'),
@@ -72,7 +91,7 @@ class Platv4Banner extends BaseModel
                 'b.end_time',
                 'b.created_at'
             ])
-            ->where('b.status','>',-1)
+            ->where('l.alias',$layout)
             ->groupBy('b.id');
     }
 
