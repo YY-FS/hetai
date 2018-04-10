@@ -68,7 +68,7 @@ class BannerController extends BaseController
         $grid->add('created_at','创建时间',true);
         $grid->add('operation','操作',false);
 
-        $grid->row(function($row) use ($grid,$layout){
+        $grid->row(function($row) use ($grid){
             $result = Platv4Banner::checkStatus($row);
             if(empty($result)){
                 $row->cell('status')->value = '发生错误，请检查各时间是否正确!!!';
