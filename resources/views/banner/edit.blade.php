@@ -26,19 +26,25 @@
             groupEndTime = '';
             allStartTime = '';
             allEndTime = '';
+            init();
             if($('input[value=group]').is(':checked')){
                 groupStartTime = $('#fg_start_time input').val();
                 groupEndTime = $('#fg_end_time input').val();
                 selectGroup();
             }else if($('input[value=discount]').is(':checked')){
                 selectDiscount();
-            }else if($('input[value=all]').is(':checked')){
+            }else if($('input[value=all]').is(':checked')) {
                 allStartTime = $('#fg_start_time input').val();
                 allEndTime = $('#fg_end_time input').val();
                 selectAll();
-            }else{
+            }
+
+            function init(){
+                $('#fg_template_set_id').hide();
+                $('#fg_url').hide();
                 $('#fg_discount_id').hide();
                 $('#fg_group').hide();
+                targetChange();
             }
 
             function selectGroup(){
@@ -89,10 +95,29 @@
                 }
             }
 
+            function targetChange(){
+                var targetVal = $('#div_target select').val();
+                if(targetVal == 'link'){
+                    $('#fg_template_set_id').hide();
+                    $('#template_set_id').val('0');
+                    $('#fg_url').show();
+                }else if(targetVal == 0){
+                    $('#fg_template_set_id').hide();
+                    $('#fg_url').hide();
+                }else{
+                    $('#fg_template_set_id').show();
+                    $('#url').val('');
+                    $('#fg_url').hide();
+                }
+            }
+
             $('input[value=group]').change(selectGroup);
             $('input[value=discount]').change(selectDiscount);
             $('input[value=all]').change(selectAll);
             $('#div_discount_id select').change(discountChange);
+            $('#div_target select').change(targetChange);
+
+
 
             //拼接html标签时，结束标签要分成'</'和'div>'来拼接，不然会报错或者结束标签被屏蔽，影响后面加载js
             var btnOss = '<br>' +

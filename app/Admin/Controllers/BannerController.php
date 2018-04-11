@@ -18,11 +18,13 @@ use Zofe\Rapyd\Url;
 
 class BannerController extends BaseController
 {
-    public function index()
+    public function index($layout)
     {
-        $this->route = '/banners';
-        $title = 'Banner列表';
-        $filter = DataFilter::source(Platv4Banner::rapydGrid());
+        $this->route = '/banners/'.$layout;
+        $layoutData = Platv4Layout::where('alias',$layout)->first();
+        $layoutId = $layoutData->id;
+        $title = $layoutData->name.'Banner列表';
+        $filter = DataFilter::source(Platv4Banner::rapydGrid($layout));
         $filter->add('id','Banner id','text')
             ->scope(function($query,$value){
                 return $value?$query->where('b.id',$value):$query;
@@ -38,11 +40,11 @@ class BannerController extends BaseController
             ->scope(function($query,$value){
                 return $value?$query->having(DB::connection('plat')->raw('GROUP_CONCAT(distinct t.`name`)'),'like','%'.$value.'%'):$query;
             });
-        $filter->add('position','位置','select')
-            ->options([''=>'全部位置']+Platv4Layout::pluck('name','id')->toArray())
-            ->scope(function($query,$value){
-                return $value?$query->where('layout_id',$value):$query;
-            });
+//        $filter->add('position','位置','select')
+//            ->options([''=>'全部位置']+Platv4Layout::pluck('name','id')->toArray())
+//            ->scope(function($query,$value){
+//                return $value?$query->where('layout_id',$value):$query;
+//            });
 
         $filter->submit('筛选');
         $filter->reset('重置');
@@ -54,7 +56,7 @@ class BannerController extends BaseController
         $grid->add('sort','优先级',true);
         $grid->add('status','状态',false);
         $grid->add('terminal','平台',false);
-        $grid->add('position','位置',false);
+        $grid->add('template_set_name','集合名称',false);
         $grid->add('thumb','缩略图',false);
         $grid->add('title','标题',false);
         $grid->add('url','url',false);
@@ -96,23 +98,20 @@ class BannerController extends BaseController
 
         \Admin::script(Platv4Banner::SCRIPT);
 
-        $layouts = Platv4Layout::all();
+        $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
+        $.get('"  . $this->route . "/cache?layout=".$layout."',
+            function (data) {
+                console.log(data);
+                if(data.success === true) {
+                    layer.msg('清理成功');
+                } else {
+                    layer.msg('清理失败');
+                }
+            });
+        })";
+        $grid->button('清缓存','TR',['class'=>'btn btn-small btn-warning','onclick'=>$cleanCache]);
 
-        foreach($layouts as $l){
-            $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
-            $.get('"  . $this->route . "/cache?layout=".$l->alias."',
-                function (data) {
-                    console.log(data);
-                    if(data.success === true) {
-                        layer.msg('清理成功');
-                    } else {
-                        layer.msg('清理失败');
-                    }
-                });
-            })";
-            $grid->button('清【'.$l->name.'】缓存','TR',['class'=>'btn btn-small btn-warning','onclick'=>$cleanCache]);
-        }
-        $grid->link('/banners/create','添加','TR',['class'=>'btn btn-success']);
+        $grid->link('/banners/'.$layout.'/create','添加','TR',['class'=>'btn btn-success']);
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
         $grid->orderBy('created_at','desc');
@@ -126,8 +125,9 @@ class BannerController extends BaseController
         }
     }
 
-    public function anyEdit()
+    public function anyEdit($layout)
     {
+        $this->route = 'banners/'.$layout;
         //        软删除
         $deleteId = Input::get('delete', null);
         if ($deleteId) {
@@ -141,6 +141,8 @@ class BannerController extends BaseController
             return redirect()->back();
         }
 
+        $layoutData = Platv4Layout::where('alias',$layout)->first();
+        Input::offsetSet('layout_id',$layoutData->id);
         $edit = DataEdit::source(new Platv4Banner());
         //如果是修改页面进入的
         $modifyId = Input::get('modify',0);
@@ -167,14 +169,17 @@ class BannerController extends BaseController
             Input::offsetSet('discount_id',$bindId);
         }
 
-        $edit->label('banner信息');
-        $edit->link(config('admin.route.prefix') . "/banners/list", "列表", "TR");
+        $edit->label($layoutData->name.'banner信息');
+        $edit->link(config('admin.route.prefix') . $this->route, "列表", "TR");
         $edit->add('title','banner标题','text')->rule('required');
         $edit->add('thumb','banner图片','text')->attributes(['readOnly' => true])->rule('required');
         $edit->add('terminal','平台','checkboxgroup')->rule('required')
             ->options(Platv4Terminal::pluck('description','name')->toArray());
-        $edit->add('layout_id','位置','select')->options(['请选择位置']+Platv4Layout::pluck('name','id')->toArray())->rule('required');
+        $edit->add('layout_id','位置','select')->options(['请选择位置']+Platv4Layout::pluck('name','id')->toArray())->attributes(['disabled' => true])->rule('required');
+        $edit->add('target','跳转类型','select')->options(['请选择类型']+Platv4Banner::$targetText)->rule('required');
         $edit->add('url','跳转链接','text');
+        $edit->add('template_set_id','集合id','number')->insertValue(0);
+
         $edit->add('way','banner策略','radiogroup')->rule('required')
             ->options(['group'=>'用户分群','discount'=>'绑定活动','all'=>'全量']);
         $edit->add('group','用户分群','checkboxgroup')
@@ -248,12 +253,12 @@ class BannerController extends BaseController
                 }
 
                 DB::connection('plat')->commit();
-                return redirect('/banners/list');
+                return redirect($this->route);
             }catch(\Exception $e){
                 \Log::error('出现错误：'.$e->getMessage());
                 DB::connection('plat')->rollback();
                 return redirect('error')->with([
-                    'to'=>config('admin.route.prefix') . '/banners/list',
+                    'to'=>$this->route,
                     'msg'=>'Banner保存失败:'.$e->getMessage()
                 ]);
             }
