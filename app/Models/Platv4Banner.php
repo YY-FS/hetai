@@ -55,8 +55,8 @@ class Platv4Banner extends BaseModel
 
     public static function rapydGrid($layout)
     {
-        return  DB::connection('plat')->table('platv4_layout as l')
-            ->leftJoin('platv4_banners_v2 as b',function($join){
+        return  DB::connection('plat')->table('platv4_banners_v2 as b')
+            ->leftJoin('platv4_layout as l',function($join){
                 $join->on('b.layout_id','=','l.id')
                     ->where('b.status','>',-1);
             })
