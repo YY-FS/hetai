@@ -46,7 +46,7 @@ class VipClassController extends BaseController
 
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.prefix') . $this->route . '/edit', '新增', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . $this->route . '/edit', '添加', 'TR', ['class' => 'btn btn-success']);
 
         $grid->row(function ($row) {
             $row->cell('logo')->value = '<img style="width:50px;height:auto" src="' . $row->data->logo . '" />';

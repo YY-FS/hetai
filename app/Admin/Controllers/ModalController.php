@@ -68,8 +68,8 @@ class ModalController extends BaseController
 
         $grid->orderBy('id', 'asc');
         $url = new Url();
-        $grid->link(config('admin.route.prefix') . '/modal/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
+        $grid->link(config('admin.route.prefix') . '/modal/edit', '添加', 'TR', ['class' => 'btn btn-success']);
         $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
             $.get('" . $this->route . "/cache',
                 function (data) {

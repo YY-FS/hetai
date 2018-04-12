@@ -61,7 +61,7 @@ class CustomerVipController extends BaseController
 
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.prefix') . $this->route . '/edit', '新增', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . $this->route . '/edit', '添加', 'TR', ['class' => 'btn btn-success']);
 
         $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
             $.get('"  . $this->route . "/cache',

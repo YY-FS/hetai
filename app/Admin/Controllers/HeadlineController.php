@@ -128,8 +128,8 @@ class HeadlineController extends BaseController
 
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.prefix') . '/headlines/create?type=' . Platv4Headline::TYPE_ARTICLE, '新增文章', 'TR', ['class' => 'btn btn-default']);
-        $grid->link(config('admin.route.prefix') . '/headlines/create?type=' . Platv4Headline::TYPE_VIDEO, '新增视频', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . '/headlines/create?type=' . Platv4Headline::TYPE_ARTICLE, '添加文章', 'TR', ['class' => 'btn btn-success']);
+        $grid->link(config('admin.route.prefix') . '/headlines/create?type=' . Platv4Headline::TYPE_VIDEO, '添加视频', 'TR', ['class' => 'btn btn-success']);
 
         $grid->row(function ($row) {
             $row->cell('type')->value = Platv4Headline::$typeText[$row->data->type];

@@ -53,7 +53,7 @@ class UserVipController extends BaseController
 
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.perfix') . '/user/vip/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
+        $grid->link(config('admin.route.perfix') . '/user/vip/edit', '添加', 'TR', ['class' => 'btn btn-success']);
 
         $grid->row(function ($row) use (&$title) {
             //状态颜色判断
