@@ -83,9 +83,7 @@ Route::group([
     $router->get('banners/{layout}','BannerController@index');
     $router->any('banners/{layout}/create', 'BannerController@anyEdit');
     $router->any('banners/{layout}/edit', 'BannerController@anyEdit');
-
-
-
+    
     //平台配置
     $router->get('mina/version', 'PublicController@minaVersion');
     $router->post('mina/jx_version', 'PublicController@editMinaVersion');
@@ -117,4 +115,7 @@ Route::group([
     $router->any('invoice/{type}/audit','InvoiceController@anyAudit');
     $router->any('invoice/{type}/send','InvoiceController@anySend');
     $router->post('invoice/upload','InvoiceController@upload');
+    
+    //用户筛选器
+    $router->get('user/filters','UserFilterController@index');
 });
