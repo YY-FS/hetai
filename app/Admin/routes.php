@@ -18,6 +18,7 @@ Route::group([
     $router->any('headlines/edit', 'HeadlineController@anyEdit');
     $router->any('headlines/html', 'HeadlineController@editHtml');
     $router->post('headlines/jx_html', 'HeadlineController@updateHtml');
+    $router->get('headlines/showhtml', 'HeadlineController@showHtml');
 
 //    OSS
     $router->get('headlines/oss', 'OssController@showObject');
