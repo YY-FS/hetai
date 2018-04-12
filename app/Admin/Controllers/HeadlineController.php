@@ -60,7 +60,7 @@ class HeadlineController extends BaseController
 
     public function index()
     {
-
+        $this->route = '/headlines';
         $title = '头条文章';
         $tips = '筛选标签时，只显示筛选的标签';
         $admin = ['administrator', 'operation-group', 'operation-admin', 'pm-admin', 'pm'];
@@ -141,54 +141,25 @@ class HeadlineController extends BaseController
 
 //            skin: 'layui-layer-rim', //加上边框
 //            shadeClose: true,   //点击遮罩关闭
-
             $btnEditHtml = ''; // 视频无法编辑
-            $contentType = 1;
             if ($row->data->type == Platv4Headline::TYPE_ARTICLE) {
                 $btnEditHtml = "btn: ['编辑'],btn1: function(index, layero){
                                     //按钮【按钮一】的回调
-                                    window.location.href = '" . config('admin.route.prefix') . "/headlines/html?modify=" . $row->data->id . "&link=" . $row->data->link . "';
+                                    window.location.href = '" . config('admin.route.prefix') . $this->route . "/html?modify=" . $row->data->id . "&link=" . $row->data->link . "';
                                     //return false; //开启该代码可禁止点击该按钮关闭
                                  },";
-
-                $content = '';
-                $object = str_replace('http://' . $this->ossBucket . '.' . $this->ossIntranetDomain . '/', '', $row->data->link);
-                $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
-                if (!empty($row->data->link) && $oss->doesObjectExist($this->ossBucket, $object))
-                    $content = $oss->getObject($this->ossBucket, $object);
-
-                if ($content) {
-                    $html = new Document($content);
-                    $content = $html->find('body');
-                    if (isset($content[0])) {
-                        $content = $content[0]->html();
-
-                        $content = str_replace('<body>', '', $content);
-                        $content = str_replace('</body>', '', $content);
-
-                        $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
-                    } else $content = '';
-                }
-                $content .= '<style>img {width: 100%}</style>';
-            } else {
-                $content = '<style>iframe {width: 100%}</style>' . $row->data->link;
             }
-
-            $content = htmlentities($content);
-
+            $link = config('admin.route.prefix') . $this->route . "/showhtml?modify=" . $row->data->id;
             $btnPreview = "<button class=\"btn btn-primary\" onclick=\"layer.open({
-                                                                                type: " . $contentType . ", 
+                                                                                type: 2, 
                                                                                 title: ['" . $row->data->title . "', false], 
                                                                                 area: ['375px', '667px'], 
                                                                                 " . $btnEditHtml . "
                                                                                 shadeClose: true,
                                                                                 scrollbar: false,
-                                                                                content: '" . $content . "'
+                                                                                content: '" . $link . "',
                                                                             })\">查看内容</button>";
-            $btnEdit = "<a class='btn btn-default' href='" . config('admin.route.prefix') . "/headlines/edit?modify=" . $row->data->id . "'>编辑</a>";
-            $btnDelete = '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . "/headlines/edit?delete=" . $row->data->id . '\'})">删除</button>';
-
-            $row->cell('operation')->value = $btnPreview . $btnEdit . $btnDelete;
+            $row->cell('operation')->value = $btnPreview.$this->getEditBtn($row->data->id).$this->getDeleteBtn($row->data->id);
 
 //            标签
             if (Input::get('tags', null)) {
@@ -213,6 +184,35 @@ class HeadlineController extends BaseController
 
     }
 
+    public function showHtml()
+    {
+        $edit = DataEdit::source(new Platv4Headline());
+        if ($edit->model->type == Platv4Headline::TYPE_ARTICLE) {
+            $content = '';
+            $object = str_replace('http://' . $this->ossBucket . '.' . $this->ossIntranetDomain . '/', '', $edit->model->link);
+            $oss = new OssClient($this->ossAppId, $this->ossAppSecret, $this->ossEndpoint);
+            if (!empty($edit->model->link) && $oss->doesObjectExist($this->ossBucket, $object))
+                $content = $oss->getObject($this->ossBucket, $object);
+
+            if ($content) {
+                $html = new Document($content);
+                $content = $html->find('body');
+                if (isset($content[0])) {
+                    $content = $content[0]->html();
+
+                    $content = str_replace('<body>', '', $content);
+                    $content = str_replace('</body>', '', $content);
+
+                    $content = str_replace(array("\r\n", "\r", "\n"), "", $content);
+                } else $content = '';
+            }
+            $content .= '<style>img {width: 100%}</style>';
+        } else {
+            $content = '<style>iframe {width: 100%}</style>' . $edit->model->link;
+        }
+
+        return $edit->view('headline.frameEdit', compact('content'));
+    }
 
     public function anyForm()
     {
