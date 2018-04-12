@@ -65,7 +65,7 @@ class SigninImageController extends BaseController
             $row->cell('thumb')->value = "<img src='http://" . env('ALI_OSS_PLAT_VIEW_DOMAIN') . '/' . $row->data->thumb . "' height=40 width=auto>";
         });
 
-        $grid->link(config('admin.route.perfix') . '/user/sign_image/edit', '添加', 'TR', ['class' => 'btn btn-primary']);
+        $grid->link(config('admin.route.perfix') . '/user/sign_image/edit', '添加', 'TR', ['class' => 'btn btn-success']);
         $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
             $.get('" . $this->route . "/cache',
                 function (data) {

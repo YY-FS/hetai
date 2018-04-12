@@ -44,7 +44,7 @@ class IndustryController extends BaseController
 
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.prefix') . '/industries/edit', '新增', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . '/industries/edit', '添加', 'TR', ['class' => 'btn btn-success']);
 
         $grid->row(function ($row) {
             $row->cell('display')->value = Platv4Industry::$commonStatusText[$row->data->display];

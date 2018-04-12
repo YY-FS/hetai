@@ -45,7 +45,7 @@ class UserGroupController extends BaseController
 
         $url = new Url();
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
-        $grid->link(config('admin.route.prefix') .'/user/groups/create','添加','TR',['class'=>'btn btn-primary']);
+        $grid->link(config('admin.route.prefix') .'/user/groups/create','添加','TR',['class'=>'btn btn-success']);
 
         $grid->row(function($row){
             $btnEdit = '<a href=\''.config('admin.route.prefix') .'/user/groups/edit?modify='.$row->data->id.'\' class=\'btn btn-primary\'>编辑</a>';

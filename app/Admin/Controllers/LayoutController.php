@@ -40,7 +40,7 @@ class LayoutController extends BaseController
 
         $grid = DataGrid::source($filter);
         $grid->attributes(array("class" => "table table-bordered table-striped table-hover"));
-        $grid->link(config('admin.route.prefix') . '/banners/layouts/create', '添加', 'TR', ['class' => 'btn btn-default']);
+        $grid->link(config('admin.route.prefix') . '/banners/layouts/create', '添加', 'TR', ['class' => 'btn btn-success']);
         $grid->add('id', 'ID', false);
         $grid->add('name', '展示位名称', false);
         $grid->add('alias', '展示位别名', false);
