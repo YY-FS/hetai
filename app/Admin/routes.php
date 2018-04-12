@@ -101,7 +101,11 @@ Route::group([
     $router->get('user/sign_image', 'SigninImageController@index');
     $router->get('user/sign_image/cache', 'SigninImageController@cleanCache');
     $router->get('user/sign_image/oss', 'OssController@showObject');
-
+    
+    //日签文案管理
+    $router->get('signin_text','SigninTextController@index');
+    $router->any('signin_text/edit','SigninTextController@anyEdit');
+    
     //增值税专用发票信息管理
     $router->get('invoice/{invoiceType}/info', 'InvoiceSpecialInfoController@index');
     $router->any('invoice/special/info/edit', 'InvoiceSpecialInfoController@anyEdit');
