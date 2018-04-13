@@ -192,7 +192,7 @@ class BannerController extends BaseController
             ->insertValue('Y-m-d H:i:s',date(strtotime('+1 year')));
 
         $edit->add('sort','排序','number')->placeholder('数值越小排序越靠前');
-        $edit->add('comment','备注','textarea')->rule('required');
+        $edit->add('comment','备注','textarea')->rule('required')->insertValue('无');
 
         $edit->saved(function() use ($edit){
 
