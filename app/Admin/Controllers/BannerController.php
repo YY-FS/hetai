@@ -271,9 +271,9 @@ class BannerController extends BaseController
         return $edit->view('banner.edit',compact('edit','imageDir'));
     }
 
-    public function cleanCache()
+    public function cleanCache($layout)
     {
-        $layout = Input::get('layout','*');
+//        $layout = Input::get('layout','*');
         $list = Redis::keys("MN:BANNER:LAYOUT:{$layout}:DEVICE:*");
 
         foreach ($list AS $value) {

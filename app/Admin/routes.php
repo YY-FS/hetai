@@ -76,7 +76,7 @@ Route::group([
     $router->get("payment/edit", 'UserPaymentController@anyEdit');
 
     //banner相关
-    $router->get('banners/cache', 'BannerController@cleanCache');
+    $router->get('banners/{layout}/cache', 'BannerController@cleanCache');
     $router->get('banners/layouts/list', 'LayoutController@index');
     $router->any('banners/layouts/edit', 'LayoutController@anyEdit');
     $router->any('banners/layouts/create', 'LayoutController@anyEdit');
