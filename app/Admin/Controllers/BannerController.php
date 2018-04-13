@@ -177,7 +177,7 @@ class BannerController extends BaseController
             ->options(Platv4Terminal::pluck('description','name')->toArray());
         $edit->add('layout_id','位置','select')->options(['请选择位置']+Platv4Layout::pluck('name','id')->toArray())->attributes(['disabled' => true])->rule('required');
         $edit->add('target','跳转类型','select')->options(['请选择类型']+Platv4Banner::$targetText)->rule('required');
-        $edit->add('url','跳转链接','text');
+        $edit->add('url','跳转链接','text')->insertValue('http://');
         $edit->add('template_set_id','集合id','number')->insertValue(0);
 
         $edit->add('way','banner策略','radiogroup')->rule('required')
