@@ -106,7 +106,7 @@
                     $('#fg_url').hide();
                 }else{
                     $('#fg_template_set_id').show();
-                    $('#url').val('');
+                    $('#url').val(' ');
                     $('#fg_url').hide();
                 }
             }
