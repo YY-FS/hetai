@@ -25,7 +25,7 @@ class Platv4UserToCustomerVip extends BaseModel
         self::STATUS_END => '失效',
     ];
 
-    public static function rapdyGrid()
+    public static function rapdyGrid($where)
     {
         $result = DB::connection('plat')->table('platv4_user_to_customer_vip AS v')
             ->leftJoin('platv4_user AS u', 'u.id', '=', 'v.uid')
@@ -41,6 +41,7 @@ class Platv4UserToCustomerVip extends BaseModel
                 'v.status'
             ])
             ->where('v.status', '<>', -1);
+        if (!empty($where)) $result->where($where);
         return $result;
     }
 }

@@ -26,7 +26,18 @@ class UserVipController extends BaseController
 
         $title = '会员用户管理';
 
-        $filter = DataFilter::source(Platv4UserToCustomerVip::rapdyGrid());
+        $where = [];
+        if (!Input::get('search', null)) {
+            $date = date('Y-m-d', time());
+            $tomorrow = date('Y-m-d', time()+24 * 60 * 60);
+            //默认取出当天的开通的会员用户
+            $where = [
+                ['v.create_time', '>=',$date],
+                ['v.create_time', '<',$tomorrow]
+            ];
+        }
+
+        $filter = DataFilter::source(Platv4UserToCustomerVip::rapdyGrid($where));
         $filter->add('uid', '用户ID', 'number')
             ->scope(function ($query, $value) {
                 return $value ? $query->where('u.id', $value) : $query;
@@ -35,6 +46,17 @@ class UserVipController extends BaseController
             ->scope(function ($query, $value) {
                 return $value ? $query->where('u.username', $value) : $query;
             });
+        $filter->add('create_time', '开通时间', 'daterange')
+            ->scope(function ($query, $value) {
+                $value = explode('|', $value);
+                if (!empty($value[0]))
+                    $query = $query->where('v.create_time', '>=', $value[0]);
+                if (!empty($value[1])) {
+                    $value[1] = date('Y-m-d', strtotime($value[1]) + 24 * 60 * 60);//增加一天，date_paid比后一天的00:00:00小就好
+                    $query = $query->where('v.create_time', '<=', $value[1]);
+                }
+                return $query;
+            })->format('Y-m-d', 'zh-CN');
         $filter->submit('筛选');
         $filter->reset('重置');
         $filter->build();
