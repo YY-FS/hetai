@@ -96,17 +96,18 @@
             }
 
             function targetChange(){
+                return 0;
                 var targetVal = $('#div_target select').val();
                 if(targetVal == 'link'){
                     $('#fg_template_set_id').hide();
-//                    $('#template_set_id').val('0');
+                    $('#template_set_id').val('0');
                     $('#fg_url').show();
                 }else if(targetVal == 0){
                     $('#fg_template_set_id').hide();
                     $('#fg_url').hide();
                 }else{
                     $('#fg_template_set_id').show();
-//                    $('#url').val('');
+                    $('#url').val('');
                     $('#fg_url').hide();
                 }
             }
