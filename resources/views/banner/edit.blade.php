@@ -40,8 +40,8 @@
             }
 
             function init(){
-                $('#fg_template_set_id').hide();
-                $('#fg_url').hide();
+//                $('#fg_template_set_id').hide();
+//                $('#fg_url').hide();
                 $('#fg_discount_id').hide();
                 $('#fg_group').hide();
                 targetChange();
