@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Platv4UserGroup;
 use App\Services\UserGroupService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Redis;
 
 class GenerateUserGroup extends Command
 {
@@ -41,7 +42,7 @@ class GenerateUserGroup extends Command
     {
         ini_set('memory_limit', '1024M');
 
-//        $this->_testArray();
+//        $this->_testRedis();
 //        return;
 
         $userGroups = Platv4UserGroup::where('mode', 'auto')->where('status', '!=', -1)->get()->toArray();
@@ -71,6 +72,29 @@ class GenerateUserGroup extends Command
         echo 'duration: ' . ($et - $st) . ' s' . PHP_EOL;
         echo 'in_array: ' . $this->convert(memory_get_usage()) , PHP_EOL;
         echo 'in_array: TOP: ' . $this->convert(memory_get_peak_usage()) , PHP_EOL;
+
+    }
+
+    private function _testRedis()
+    {
+        //
+        echo 'start: ' . $this->convert(memory_get_usage()) , PHP_EOL;
+
+        $a = [];
+        for ($i=0; $i<10; $i++) {
+            $a[] = $i;
+        }
+        echo '$a: ' . $this->convert(memory_get_usage()) , PHP_EOL;
+
+        $st = microtime(true);
+        $result = array_slice($a, 0, 4);
+        var_dump($result);
+        var_dump($a);
+//        Redis::sadd('TEST_ADD', $a);
+        $et = microtime(true);
+        echo 'duration: ' . ($et - $st) . ' s' . PHP_EOL;
+        echo 'set: ' . $this->convert(memory_get_usage()) , PHP_EOL;
+        echo 'set: TOP: ' . $this->convert(memory_get_peak_usage()) , PHP_EOL;
 
     }
 
