@@ -43,6 +43,8 @@ class UserGroupService
             // log todo
             return false;
         }
+        $cacheKey = self::CACHE_USER_GROUP . $userGroupId;
+        Redis::del($cacheKey);
 
         $groupUser = null; // 最终用户数组，用于取交集的数组
         foreach ($groupFilters as $groupFilter) {
@@ -52,24 +54,16 @@ class UserGroupService
                 $data = explode(',', file_get_contents($dataFile));
                 $filterUser = array_merge($filterUser, $data);
             }
-            if ($groupUser === null) {
-//                初始化
-                $groupUser = $filterUser;
-            } else {
-                $groupUser = array_intersect($groupUser, $filterUser);
-            }
-        }
 
-        var_dump('group user done');
-        $cacheKey = self::CACHE_USER_GROUP . $userGroupId;
-        if (empty($groupUser)) {
-            $groupUser = [];
-            var_dump('---- group empty ----');
-        } else {
-//            存redis
-            Redis::del($cacheKey);
-            Redis::sadd($cacheKey, ...$groupUser);
-            var_dump('redis done');
+            if (empty($filterUser)) {
+                \Log::info('---- filterUser ----');
+                \Log::info($groupFilter);
+            } else {
+//                存redis
+                Redis::sadd($cacheKey, ...$groupUser);
+                var_dump('redis done');
+            }
+
         }
 
         $endTime = microtime(true);
@@ -79,6 +73,8 @@ class UserGroupService
         $userGroup->rise_time = date('Y-m-d H:i:s');
         $userGroup->duration = $endTime - $startTime;
         $userGroup->save();
+
+        return true;
 
     }
 

@@ -312,7 +312,7 @@ class UserFilterService
         $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
 
         $options = [
-            'max_id' => 0,
+            'max_id' => $this->maxUid,
             'field' => 'id'
         ];
 
