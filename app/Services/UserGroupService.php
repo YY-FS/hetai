@@ -52,7 +52,7 @@ class UserGroupService
                 $filterUser = [];
                 $dataFile = storage_path('users/filter/' . $groupFilter->filter_type_alias . '/') . UserFilterService::FILE_NAME . $filterId;
                 if (file_exists($dataFile)) {
-                    $filterUser = explode(',', file_get_contents($dataFile));
+                    $filterUser = explode(',', trim(file_get_contents($dataFile), ','));
                     if (empty($filterUser)) {
                         \Log::info('---- filterUser ----');
                         \Log::info($groupFilter);
