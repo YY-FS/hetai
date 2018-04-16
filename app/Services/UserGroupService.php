@@ -58,7 +58,12 @@ class UserGroupService
                         \Log::info($groupFilter);
                     } else {
 //                        存redis
-                        Redis::sadd($cacheKey, ...$filterUser);
+                        $i = 0;
+                        while($i < count($filterUser)) {
+                            $i += 1000000;
+                            $setData = array_slice($filterUser, $i, 1000000);
+                            Redis::sadd($cacheKey, $setData);
+                        }
                         var_dump('redis done');
                     }
                 } else {
