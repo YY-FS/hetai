@@ -48,24 +48,22 @@ class UserGroupService
 
         $groupUser = null; // 最终用户数组，用于取交集的数组
         foreach ($groupFilters as $groupFilter) {
-            $filterUser = [];
             foreach (explode(',', $groupFilter->filter_ids) AS $filterId) {
+                $filterUser = [];
                 $dataFile = storage_path('users/filter/' . $groupFilter->filter_type_alias . '/') . UserFilterService::FILE_NAME . $filterId;
                 if (file_exists($dataFile)) {
-                    $data = explode(',', file_get_contents($dataFile));
-                    $filterUser = array_merge($filterUser, $data);
+                    $filterUser = explode(',', file_get_contents($dataFile));
+                    if (empty($filterUser)) {
+                        \Log::info('---- filterUser ----');
+                        \Log::info($groupFilter);
+                    } else {
+//                        存redis
+                        Redis::sadd($cacheKey, ...$filterUser);
+                        var_dump('redis done');
+                    }
                 } else {
                     \Log::info('----[!!!not exists FILE!!!] ----' . $dataFile);
                 }
-            }
-
-            if (empty($filterUser)) {
-                \Log::info('---- filterUser ----');
-                \Log::info($groupFilter);
-            } else {
-//                存redis
-                Redis::sadd($cacheKey, ...$groupUser);
-                var_dump('redis done');
             }
 
         }
