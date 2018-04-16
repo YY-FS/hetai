@@ -96,6 +96,7 @@ class UserFilterService
             $ids = array_column((array)$result, 'uid');
             $inputData = implode(',', $ids);
             if ($inputData) {
+                $inputData = ',' . $inputData;
                 file_put_contents($file, $inputData, FILE_APPEND);
             }
 
