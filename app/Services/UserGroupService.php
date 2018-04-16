@@ -60,9 +60,9 @@ class UserGroupService
 //                        存redis
                         $i = 0;
                         while($i < count($filterUser)) {
-                            $i += 1000000;
                             $setData = array_slice($filterUser, $i, 1000000);
                             Redis::sadd($cacheKey, $setData);
+                            $i += 1000000;
                         }
                         var_dump('redis done');
                     }
