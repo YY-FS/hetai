@@ -150,7 +150,10 @@ class UserGroupController extends BaseController
 
         $userGroupId = $edit->model->id;
         $cacheKey = 'CMS:CMD:USER_GROUP:ID:' . $userGroupId;
-        $groupIds = Redis::smembers($cacheKey)?implode(',',Redis::smembers($cacheKey)):null;
+        $groupIds = null;
+        if ($edit->model->mode === 'manual') {
+            $groupIds = Redis::smembers($cacheKey) ? implode(',', Redis::smembers($cacheKey)) : null;
+        }
 
         $edit->saved(function() use ($edit,$cacheKey){
             $group = Platv4UserGroup::find($edit->model->id);
