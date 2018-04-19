@@ -25,7 +25,7 @@
     -webkit-box-sizing: border-box !important;
     box-sizing: border-box !important;
     outline: 0 !important;
-    margin: 0 !important;
+    margin: 1px 0 !important;
     -webkit-transition: .1s !important;
     transition: .1s !important;
     font-weight: 500 !important;

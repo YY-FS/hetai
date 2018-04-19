@@ -55,7 +55,7 @@ class Platv4Banner extends BaseModel
 
     public static function rapydGrid($layout)
     {
-        return  DB::connection('plat')->table('platv4_banners_v2 as b')
+        $result = DB::connection('plat')->table('platv4_banners_v2 as b')
             ->leftJoin('platv4_layout as l',function($join){
                 $join->on('b.layout_id','=','l.id')
                     ->where('b.status','>',-1);
@@ -90,9 +90,13 @@ class Platv4Banner extends BaseModel
                 'b.start_time',
                 'b.end_time',
                 'b.created_at'
-            ])
-            ->where('l.alias',$layout)
-            ->groupBy('b.id');
+            ]);
+        if ($layout !== 'all')
+            $result->where('l.alias',$layout);
+
+        $result->groupBy('b.id');
+
+        return $result;
     }
 
     public static function checkStatus($row)

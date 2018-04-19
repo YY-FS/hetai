@@ -442,15 +442,16 @@ class CustomerVipController extends BaseController
             $row->cell('rule')->value = $btnRule;
             //绑定modal
             if($row->data->modal_id == null){
-                $row->cell('modal')->value = "<a href='/modal/edit?bind={$row->data->id}' style='color:#DC143C'>未绑定</a>";
+                $row->cell('modal')->value = "<a href='/modal/edit?bind={$row->data->id}' class='btn btn-warning'>未绑定</a>";
             }else{
-                $row->cell('modal')->value = "<a href='/modal?id={$row->data->modal_id}&search=1' style='color:#4169E1'>已绑定</a>";
+                $row->cell('modal')->value = "<a href='/modal?id={$row->data->modal_id}&search=1' class='btn btn-default'>已绑定</a>";
             }
             //绑定banner
             if($row->data->banner_id == null){
-                $row->cell('banner')->value = "<a href='/banners/edit?bind={$row->data->id}' style='color:#DC143C'>未绑定</a>";
+                $row->cell('banner')->value = "<a href='/banners/all/edit?bind={$row->data->id}' class='btn btn-warning'>未绑定</a>";
             }else{
-                $row->cell('banner')->value = "<a href='/banners/list?id={$row->data->banner_id}&search=1' style='color:#4169E1'>已绑定</a>";
+                $row->cell('banner')->value = "<a href='/banners/all?customer_vip_discount_id={$row->data->id}&search=1' class='btn btn-default'>已绑定</a><br ?>" .
+                                                "<a href='/banners/all/edit?bind={$row->data->id}' class='btn btn-success'>新增</a>";
             }
         });
         
