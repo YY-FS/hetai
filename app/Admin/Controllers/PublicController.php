@@ -81,4 +81,15 @@ class PublicController extends BaseController
         return $this->respData();
     }
 
+
+    public function cleanLogin($username)
+    {
+        $today = date('Y-m-d');
+        $cacheKey = 'QS:LOGIN_USERNAME_FAIL:' . $today;
+
+        Redis::hdel($cacheKey, $username);
+
+        return $this->respData();
+    }
+
 }
