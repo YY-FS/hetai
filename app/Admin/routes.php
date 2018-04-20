@@ -90,6 +90,7 @@ Route::group([
     $router->post('mina/jx_version', 'PublicController@editMinaVersion');
     $router->get('plat/config', 'PublicController@platConfig');
     $router->post('plat/config/jx_clean_sign/{uid}', 'PublicController@cleanSign');
+    $router->post('plat/config/jx_clean_login/{username}', 'PublicController@cleanLogin');
 
     //会员用户
     $router->get('user/vip', 'UserVipController@index');
