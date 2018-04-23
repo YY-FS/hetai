@@ -1,4 +1,5 @@
 @extends('style')
+@section('content')
     {!! Rapyd::head() !!}
     <style>
         #fg_tags label{
@@ -14,3 +15,4 @@
             {!! $edit !!}
         </div>
     </div>
+@endsection
