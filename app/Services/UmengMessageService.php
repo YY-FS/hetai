@@ -29,11 +29,11 @@ class UmengMessageService
         "-1" => "普通消息",
     ];
     const ALIAS_TYPE = 'MAKA', AFTER_OPEN = 'go_custom';
-
-    private $ios_key = '59a8cc68a40fa37429002328';
-    private $ios_secret = 'vfdn7dgyoy5iizyqirmair9fjadq1xkh';
-    private $android_key = '55c01fd7e0f55abe56006edc';
-    private $android_secret = 'ayl58qvs9ldcltfqyzgepea4qqkw355c';
+    
+//    private $ios_key = config('umeng.ios_key');
+//    private $ios_secret = config('umeng.ios_secret');
+//    private $android_key = config('umeng.android_key');
+//    private $android_secret = config('umeng.android_secret');
     private $android_production_mode = true;
     private $ios_production_mode = true;
     protected $iosApp;
@@ -41,12 +41,12 @@ class UmengMessageService
 
     private function initAndroid()
     {
-        $this->androidApp = new AndroidApp($this->android_key, $this->android_secret, $this->android_production_mode);
+        $this->androidApp = new AndroidApp(config('umeng.android_key'), config('umeng.android_secret'), $this->android_production_mode);
     }
 
     private function initIOS()
     {
-        $this->iosApp = new IOSApp($this->ios_key, $this->ios_secret, $this->ios_production_mode);
+        $this->iosApp = new IOSApp(config('umeng.ios_key'), config('umeng.ios_secret'), $this->ios_production_mode);
     }
 
 //    public function umengPush($messageId, $uid = null)

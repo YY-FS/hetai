@@ -88,7 +88,7 @@
             let url = $('#url').val();
             let template_set_id = $('#template_set_id').val();
             //前端判断是否为空
-            if (banner_id == '' || title == '') {
+            if (banner_id == '' || title == ''||uid=='') {
                 build_error('请完整填写数据');
                 return false;
             } else {

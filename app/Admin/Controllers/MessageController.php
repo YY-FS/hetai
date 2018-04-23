@@ -229,7 +229,7 @@ class MessageController extends BaseController
 //  template_set_id：模版集合id
         $edit = DataEdit::source();
         $edit->label('测试APP通知');
-        $edit->add('uid', 'uid', 'number')->insertValue(Cookie::get('uid', null));
+        $edit->add('uid', '*uid', 'number')->insertValue(Cookie::get('uid', null));
         $edit->add('banner_id', '*banner_id', 'number')->insertValue(Cookie::get('banner_id', null));
         $edit->add('device', '*设备', 'select')->options(Platv4Message::$deviceText)->insertValue(Cookie::get('device','app'));
         $edit->add('type', '*类型', 'select')->options(Platv4Message::$typeTestText)->insertValue(Cookie::get('type','maka'));
