@@ -120,4 +120,10 @@ Route::group([
     
     //用户筛选器
     $router->get('user/filters','UserFilterController@index');
+    
+    //主动通知管理
+    $router->get('message','MessageController@index');
+    $router->any('message/edit','MessageController@anyEdit');
+    $router->get('message/push','MessageController@push');
+    $router->post('message/push/test','MessageController@pushTest');
 });
