@@ -30,10 +30,6 @@ class UmengMessageService
     ];
     const ALIAS_TYPE = 'MAKA', AFTER_OPEN = 'go_custom';
     
-//    private $ios_key = config('umeng.ios_key');
-//    private $ios_secret = config('umeng.ios_secret');
-//    private $android_key = config('umeng.android_key');
-//    private $android_secret = config('umeng.android_secret');
     private $android_production_mode = true;
     private $ios_production_mode = true;
     protected $iosApp;
