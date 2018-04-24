@@ -23,35 +23,6 @@
                 'X-CSRF-TOKEN': "{{ csrf_token() }}"
             }
         });
-        //原代码
-        //        let submitBtn = $("input[type='submit']").parent();
-        //        toolBar = submitBtn.parent();//全局变量
-        //        let btn = "<div class='pull-right'><input id='pull-ok' class='btn btn-primary' value = '确定'></" + "div>";
-        //        submitBtn.remove();//清除submit的按钮
-        //        toolBar.append(btn);
-        //        $('#pull-ok').click(function () {
-        //            let messid = $('#messid').val();
-        //            let uid = $('#uid').val();
-        //            //前端判断是否为空
-        //            if (messid == '' || uid == '') {
-        //                build_error('请完整填写数据');
-        //                return false;
-        //            } else {
-        //                clear_error();
-        //            }
-        //            $.ajax({
-        //             url:"/message/push/test",
-        //             dataType:"json",
-        //             method:"POST",
-        //             data:{
-        //                 messid:messid,
-        //                 uid:uid
-        //             },
-        //             success:function (data) {
-        //                 build_error(data.msg);
-        //             }
-        //             })
-        //        });
         $(function () {
             typeShow();
         });
