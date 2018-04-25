@@ -14,23 +14,6 @@ use Illuminate\Http\Response;
 
 class UmengMessageService
 {
-
-<<<<<<< HEAD
-=======
-    private $defaultNickname = 'MAKA设计师';
-    private $passMsgTitle = '【模版动态】你的type模板上架啦！';
-    private $passMsgContent = '<div>亲爱的name：</div><div><br></div><div>恭喜！你的模版 “title” 已成功通过审核，现已上架到模版商城，快快开始你的创收之路吧</div><div><br></div>';
-    private $noPassMsgTitle = '【模版动态】你的type模板被下架啦，点击了解原因';
-    private $noPassMsgContent = '<div>亲爱的name：</div><div><br></div><div>抱歉，你的type模版 “title” 被下架了。</div><div><br></div><div><br></div><div><br></div><div>请联系设计师专属客服Moko了解下架原因（QQ：3056556257）</div>';
-    private $TYPE_ARRAY = [
-        "0" => "热门作品",
-        "1" => "热门作品列表",
-        "2" => "H5页面",
-        "3" => "专题模版",
-        "4" => "专题模版列表",
-        "-1" => "普通消息",
-    ];
->>>>>>> 1aedfc2... [FIX]android umeng push key
     const IOS_ALIAS_TYPE = 'MAKA';
     const Android_ALIAS_TYPE = 'com.maka.app.uid';
     const AFTER_OPEN = 'go_custom';
