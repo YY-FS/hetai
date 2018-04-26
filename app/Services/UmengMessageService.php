@@ -88,7 +88,12 @@ class UmengMessageService
         $retIos['ret'] = $retAndroid['ret'] = $retAndroidNew['ret'] = 'FREE';
         if ($device == 'app' || $device == 'ios') {
             $this->initIOS();
-            $retIos = $this->iosApp->sendIOSCustomizedcast($title, $uid, self::IOS_ALIAS_TYPE, $customData, $filter);
+            //拼接IOS显示数据
+            $pushData = [
+                'title'=>$title,
+                'body'=>$description,
+            ];
+            $retIos = $this->iosApp->sendIOSCustomizedcast($pushData, $uid, self::IOS_ALIAS_TYPE, $customData, $filter);
         }
         if ($device == 'app' || $device == 'android') {
             $this->initAndroid();

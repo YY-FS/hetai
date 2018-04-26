@@ -160,7 +160,7 @@ class IOSApp extends Umeng
     /**
      * 发送给指定用户
      */
-    function sendIOSCustomizedcast($title, $alias, $alias_type, $custom = null, $filter = null)
+    function sendIOSCustomizedcast($pushData, $alias, $alias_type, $custom = null, $filter = null)
     {
         try {
             $customizedcast = new \IOSCustomizedcast();
@@ -174,7 +174,7 @@ class IOSApp extends Umeng
             $customizedcast->setPredefinedKeyValue("alias", $alias);
             // Set your alias_type here
             $customizedcast->setPredefinedKeyValue("alias_type", $alias_type);
-            $customizedcast->setPredefinedKeyValue("alert", $title);
+            $customizedcast->setPredefinedKeyValue("alert", $pushData);
             $customizedcast->setPredefinedKeyValue("badge", 1);
             $customizedcast->setPredefinedKeyValue("sound", "chime");
             // Set 'production_mode' to 'true' if your app is under production mode
