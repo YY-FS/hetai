@@ -15,11 +15,12 @@ use Illuminate\Http\Response;
 class UmengMessageService
 {
     const IOS_ALIAS_TYPE = 'MAKA';
-    const Android_ALIAS_TYPE = 'com.maka.app.uid';
+    const Android_ALIAS_TYPE = 'MAKA';
+    const Android_ALIAS_TYPE_NEW = 'com.maka.app.uid';
     const AFTER_OPEN = 'go_custom';
 
     private $android_production_mode = true;
-    private $ios_production_mode = true;
+    private $ios_production_mode = false;
     protected $iosApp;
     protected $androidApp;
 
@@ -33,113 +34,6 @@ class UmengMessageService
         $this->iosApp = new IOSApp(config('umeng.ios_key'), config('umeng.ios_secret'), $this->ios_production_mode);
     }
 
-//    public function umengPush($messageId, $uid = null)
-//    {
-//        $message = Platv4Message::find($messageId);
-//        if (empty($message)) throw new \Exception('通知 not found');
-//        $msg = [
-//            'type' => $message->type,
-//            'type_param' => $message->type_param,
-//            'title' => $message->title,
-//            'content' => $message->content,
-//            'create_time' => date('Y-m-d H:i:s'),
-//            'label' => $message->label,
-//        ];
-//
-//        $customData = $this->buildCustomData($msg);
-//
-//        if ($uid == null) {
-//            $ret = $this->umengBroadcast($message->title, $message->content, $customData, $message->device);
-//        } else {
-//            $ret = $this->umengCustomizedcast($message->title, $message->content, $customData, $uid, $message->device);
-//        }
-//        return $ret;
-//    }
-//
-//    private function buildCustomData($msg)
-//    {
-//
-//        $custom['title'] = $msg['title'];
-//        $custom['description'] = $msg['content'];
-//        $custom['create_time'] = $msg['create_time'];
-//        $custom['type'] = $msg['type'];
-//        $custom['label'] = $msg['label'];
-//        $custom['data'] = [
-//            'id' => $msg['type_param'],
-//            'title' => $msg['title'],
-//        ];
-//        switch ($this->TYPE_ARRAY[$msg['type']]) {
-//            // 如果是普通消息,则直接发广播
-//            case  -1://"普通消息"
-//                unset($custom['data']);
-//                break;
-//            case 0://"热门项目"
-//                break;
-//            case 1://"热门项目列表"
-//                $custom['data'] = [
-//                    'url' => 'http://www.maka.im/app/publicEvents?order=lastest&cateId=' . $msg['type_param'],
-//                    'title' => $msg['title']
-//                ];
-//                break;
-//            case  2://"H5页面"
-//                $custom['data'] = [
-//                    'url' => $msg['type_param'],
-//                    'title' => $msg['title'],
-//                ];
-//                break;
-//            case 3://"专题模版"
-//                break;
-//            case 4://"专题模版列表"
-//                break;
-//        }
-//        return $custom;
-//    }
-//    public function umengBroadcast($title, $content, $customData = [], $device = 'all', $ticker = '您有新的消息', $filter = null)
-//    {
-//        if (!in_array($device, ['ios', 'app', 'android']) || !($title == null) || !($content == null))
-//            return ['code' => Response::HTTP_INTERNAL_SERVER_ERROR];
-//
-//        $after = empty($customData) ? 'go_app' : 'go_custom';
-//        $retIos['ret'] = $retAndroid['ret'] = 'FREE';
-//        if ($device == 'app' || $device == 'ios') {
-//            $this->initIOS();
-//            $retIos = $this->iosApp->sendIOS($title, $customData, $filter);
-//        }
-//        if ($device == 'app' || $device == 'android') {
-//            $this->initAndroid();
-//            $retAndroid = $this->androidApp->sendAndroid($ticker, $title, $content, $after, $customData, $filter);
-//        }
-//
-//        if ($retIos['ret'] == 'FAIL' && $retAndroid['ret'] == 'FAIL') {
-//            throw new \Exception('发送友盟广播失败, ios:' . json_encode($retIos) . ', android:' . json_encode($retAndroid));
-//        } else {
-//            return ['code' => Response::HTTP_OK];//成功
-//        }
-//    }
-//
-//    public function umengCustomizedcast($title, $content, $customData = [], $uid, $device = 'all', $ticker = '您有新的信息', $filter = null)
-//    {
-//        if (empty($uid)) throw new \Exception('单播时uid不能为空');
-//        if (!in_array($device, ['ios', 'app', 'android']) || $title == null || $content == null)
-//            return ['code' => Response::HTTP_INTERNAL_SERVER_ERROR];
-//
-//        $after = empty($customData) ? 'go_app' : 'go_custom';
-//        $retIos['ret'] = $retAndroid['ret'] = 'FREE';
-//        if ($device == 'app' || $device == 'ios') {
-//            $this->initIOS();
-//            $retIos = $this->iosApp->sendIOSCustomizedcast($title, $uid, self::ALIAS_TYPE, $customData, $filter);
-//        }
-//        if ($device == 'app' || $device == 'android') {
-//            $this->initAndroid();
-//            $retAndroid = $this->androidApp->sendAndroidCustomizedcast($ticker, $title, $content, $uid, self::ALIAS_TYPE, $customData, $after);
-//        }
-//
-//        if ($retIos['ret'] == 'FAIL' && $retAndroid['ret'] == 'FAIL') {
-//            throw new \Exception('发送友盟广播失败, ios:' . json_encode($retIos) . ', android:' . json_encode($retAndroid));
-//        } else {
-//            return ['code' => Response::HTTP_OK];//成功
-//        }
-//    }
     public function umengPush($uid = '', $banner_id, $device, $type, $title, $description = '', $url = null, $template_set_id = null)
     {
         $msg = [
@@ -188,6 +82,31 @@ class UmengMessageService
         return $custom;
     }
 
+    public function umengCustomizedcast($title, $description, $customData = [], $uid, $device = 'app', $ticker = '您有新的信息', $filter = null)
+    {
+        if (empty($uid)) throw new \Exception('单播时uid不能为空');
+        if (!in_array($device, ['ios', 'app', 'android']) || $title == null || $description == null)
+            return ['code' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+        $after = empty($customData) ? 'go_app' : 'go_custom';
+        $retIos['ret'] = $retAndroid['ret'] = $retAndroidNew['ret'] = 'FREE';
+        if ($device == 'app' || $device == 'ios') {
+            $this->initIOS();
+            $retIos = $this->iosApp->sendIOSCustomizedcast($title, $uid, self::IOS_ALIAS_TYPE, $customData, $filter);
+        }
+        if ($device == 'app' || $device == 'android') {
+            $this->initAndroid();
+            $retAndroidNew = $this->androidApp->sendAndroidCustomizedcast($ticker, $title, $description, $uid, self::Android_ALIAS_TYPE_NEW, $customData, $after);
+            $retAndroid = $this->androidApp->sendAndroidCustomizedcast($ticker, $title, $description, $uid, self::Android_ALIAS_TYPE, $customData, $after);
+        }
+
+        if ($retIos['ret'] == 'FAIL' && $retAndroid['ret'] == 'FAIL' && $retAndroidNew['ret'] == 'FAIL') {
+            throw new \Exception('发送友盟广播失败, ios:' . json_encode($retIos) . ', android:' . json_encode($retAndroid));
+        } else {
+            return ['code' => Response::HTTP_OK];//成功
+        }
+    }
+
     public function umengBroadcast($title, $description, $customData = [], $device = 'app', $ticker = '您有新的消息', $filter = null)
     {
         if (!in_array($device, ['ios', 'app', 'android']) || !($title == null) || !($description == null))
@@ -202,30 +121,6 @@ class UmengMessageService
         if ($device == 'app' || $device == 'android') {
             $this->initAndroid();
             $retAndroid = $this->androidApp->sendAndroid($ticker, $title, $description, $after, $customData, $filter);
-        }
-
-        if ($retIos['ret'] == 'FAIL' && $retAndroid['ret'] == 'FAIL') {
-            throw new \Exception('发送友盟广播失败, ios:' . json_encode($retIos) . ', android:' . json_encode($retAndroid));
-        } else {
-            return ['code' => Response::HTTP_OK];//成功
-        }
-    }
-
-    public function umengCustomizedcast($title, $description, $customData = [], $uid, $device = 'app', $ticker = '您有新的信息', $filter = null)
-    {
-        if (empty($uid)) throw new \Exception('单播时uid不能为空');
-        if (!in_array($device, ['ios', 'app', 'android']) || $title == null || $description == null)
-            return ['code' => Response::HTTP_INTERNAL_SERVER_ERROR];
-
-        $after = empty($customData) ? 'go_app' : 'go_custom';
-        $retIos['ret'] = $retAndroid['ret'] = 'FREE';
-        if ($device == 'app' || $device == 'ios') {
-            $this->initIOS();
-            $retIos = $this->iosApp->sendIOSCustomizedcast($title, $uid, self::IOS_ALIAS_TYPE, $customData, $filter);
-        }
-        if ($device == 'app' || $device == 'android') {
-            $this->initAndroid();
-            $retAndroid = $this->androidApp->sendAndroidCustomizedcast($ticker, $title, $description, $uid, self::Android_ALIAS_TYPE, $customData, $after);
         }
 
         if ($retIos['ret'] == 'FAIL' && $retAndroid['ret'] == 'FAIL') {
