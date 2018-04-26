@@ -54,8 +54,7 @@ class Platv4Message extends BaseModel
         'maka' => 'maka',
         'poster' => 'poster',
         'link' => 'link',
-        'danye' => 'danye',
-        'category' => 'category',
+        'danye' => 'danye'
     ];
 
     public static function rapydGrid($where)

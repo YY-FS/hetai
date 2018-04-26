@@ -74,10 +74,6 @@ class UmengMessageService
             case  'link':
                 $custom['template_set_id'] = '';
                 break;
-            case 'category':
-                $custom['url'] = '';
-                $custom['template_set_id'] = '';
-                break;
         }
         return $custom;
     }

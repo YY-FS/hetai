@@ -184,49 +184,9 @@ class MessageController extends BaseController
         $edit->build();
         return $edit->view('rapyd.frameEdit', compact('edit'));
     }
-    //测试app通知原代码
-//    //测试APP通知界面
-//    public function push()
-//    {
-//        $edit = DataEdit::source();
-//        $edit->label('测试APP通知');
-//        $edit->add('messid', '推送的通知编号', 'number')->insertValue(Cookie::get('messid', null));
-//        $edit->add('uid', '接受uid', 'number')->insertValue(Cookie::get('uid', null));
-//        $edit->build();
-//        return $edit->view('message.frameEdit', compact('edit'));
-//    }
-//
-//    //测试APP通知ajax接口
-//    public function pushTest()
-//    {
-//        $this->requestValidate([
-//            'messid' => 'required|numeric',
-//            'uid' => 'required|numeric',
-//        ]);
-//        $messid = Input::get('messid', null);
-//        $uid = Input::get('uid', null);
-//        if ($messid !== null && $uid !== null) {
-//            Cookie::queue('messid', $messid);
-//            Cookie::queue('uid', $uid);
-//        }
-//        $messageService = new UmengMessageService();
-//        $return = $messageService->umengPush($messid, $uid);
-//        if ($return['code'] == 200) return $this->respData('', '数据推送成功');
-//        $result = [
-//            'code' => 500,
-//            'data' => [],
-//            'msg' => '数据推送失败'
-//        ];
-//        return response()->json($result);
-//    }
     //测试APP通知界面
     public function push()
     {
-//  banner_id：唯一标识
-//  type：maka/poster/link/danye/category。当为link时url存在，当为maka/poster/danye时setId存在
-//  当为category时即跳转到分类选择页面
-//  url：网页url或原生路由（type为link）
-//  template_set_id：模版集合id
         $edit = DataEdit::source();
         $edit->label('测试APP通知');
         $edit->add('uid', '*uid', 'text')->placeholder('可输入多个uid,用“,”号隔开')->insertValue(Cookie::get('uid', null));
@@ -238,7 +198,7 @@ class MessageController extends BaseController
         $edit->add('url', '*url', 'text')->insertValue(Cookie::get('url', 'http://'));
         $edit->add('template_set_id', '*模版集合id', 'number')->insertValue(Cookie::get('template_set_id', null));
         $edit->build();
-        return $edit->view('message.frameTestEdit', compact('edit'));
+        return $edit->view('message.frameEdit', compact('edit'));
     }
 
     //测试APP通知ajax接口
