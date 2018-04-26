@@ -96,6 +96,7 @@ abstract class UmengNotification {
           	 // Time out
            	throw new Exception("Curl error number:" . $curlErrNo . " , Curl error details:" . $curlErr . "\r\n");
         }
+
 		return json_decode($result,true);
     }
 	
