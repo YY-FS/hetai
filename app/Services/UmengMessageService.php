@@ -88,7 +88,16 @@ class UmengMessageService
         $retIos['ret'] = $retAndroid['ret'] = $retAndroidNew['ret'] = 'FREE';
         if ($device == 'app' || $device == 'ios') {
             $this->initIOS();
-            $retIos = $this->iosApp->sendIOSCustomizedcast($title, $uid, self::IOS_ALIAS_TYPE, $customData, $filter);
+//            "alert":""/{ // 当content-available=1时(静默推送)，可选; 否则必填。
+//                // 可为JSON类型和字符串类型
+//                "title":"title",
+//            "subtitle":"subtitle",
+//            "body":"body"
+            $pushData = [
+                'title'=>$title,
+                'body'=>$description,
+            ];
+            $retIos = $this->iosApp->sendIOSCustomizedcast($pushData, $uid, self::IOS_ALIAS_TYPE, $customData, $filter);
         }
         if ($device == 'app' || $device == 'android') {
             $this->initAndroid();

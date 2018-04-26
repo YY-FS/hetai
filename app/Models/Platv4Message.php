@@ -42,14 +42,13 @@ class Platv4Message extends BaseModel
         '无' => '无',
         '重要' => '重要',
     ];
-    //通知类型
+    //设备
     public static $deviceText = [
         'app' => 'app',
         'android' => 'android',
         'ios' => 'ios',
     ];
-
-    //通知类型
+    //测试推送类型
     public static $typeTestText = [
         'maka' => 'maka',
         'poster' => 'poster',
