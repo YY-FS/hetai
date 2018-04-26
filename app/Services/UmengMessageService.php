@@ -88,11 +88,7 @@ class UmengMessageService
         $retIos['ret'] = $retAndroid['ret'] = $retAndroidNew['ret'] = 'FREE';
         if ($device == 'app' || $device == 'ios') {
             $this->initIOS();
-//            "alert":""/{ // 当content-available=1时(静默推送)，可选; 否则必填。
-//                // 可为JSON类型和字符串类型
-//                "title":"title",
-//            "subtitle":"subtitle",
-//            "body":"body"
+            //拼接IOS显示数据
             $pushData = [
                 'title'=>$title,
                 'body'=>$description,
