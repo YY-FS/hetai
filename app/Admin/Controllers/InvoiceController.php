@@ -242,6 +242,7 @@ class InvoiceController extends BaseController
             $edit->label('快递状态更新');
             $edit->add('express', '* 物流', 'text')->rule('required|max:20');
             $edit->add('express_no', '* 单号', 'text')->rule('required|max:64');
+            $edit->add('express_time', '* 发出时间', 'datetime')->rule('required');
             $edit->saved(function () use ($edit) {
                 if ($edit->model->express && $edit->model->express_no) {
                     $edit->model->status = Platv4Invoice::STATUS_SENT;
