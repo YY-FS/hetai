@@ -18,14 +18,15 @@ class IOSApp extends Umeng
      * @return mixed
      * 组播或广播
      */
-    function sendIOS($text, $custom = null, $filter = null, $badge = 0, $sound = "chime")
+    //重新封装sdk,解决ios标题显示问题
+    function sendIOS($pushData, $custom = null, $filter = null, $badge = 0, $sound = "chime")
     {
         $brocast = new \IOSBroadcast($filter);
         $brocast->setAppMasterSecret($this->appMasterSecret);
         $brocast->setPredefinedKeyValue("appkey", $this->appkey);
         $brocast->setPredefinedKeyValue("timestamp", $this->timestamp);
 
-        $brocast->setPredefinedKeyValue("alert", $text);
+        $brocast->setPredefinedKeyValue("alert", $pushData);
         $brocast->setPredefinedKeyValue("badge", $badge);
         $brocast->setPredefinedKeyValue("sound", $sound);
         $brocast->setPredefinedKeyValue("production_mode", $this->productionMode);

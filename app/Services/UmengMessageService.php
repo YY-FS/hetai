@@ -20,7 +20,7 @@ class UmengMessageService
     const AFTER_OPEN = 'go_custom';
 
     private $android_production_mode = true;
-    private $ios_production_mode = false;
+    private $ios_production_mode = true;//true正式服，test测试服
     protected $iosApp;
     protected $androidApp;
 
@@ -47,7 +47,7 @@ class UmengMessageService
 
         $customData = $this->buildCustomData($msg);
 
-        if ($uid == '') {
+        if ($uid == '0000') {
             $ret = $this->umengBroadcast($title, $description, $customData, $device);
         } else {
             $ret = $this->umengCustomizedcast($title, $description, $customData, $uid, $device);
@@ -90,8 +90,8 @@ class UmengMessageService
             $this->initIOS();
             //拼接IOS显示数据
             $pushData = [
-                'title'=>$title,
-                'body'=>$description,
+                'title' => $title,
+                'body' => $description,
             ];
             $retIos = $this->iosApp->sendIOSCustomizedcast($pushData, $uid, self::IOS_ALIAS_TYPE, $customData, $filter);
         }
@@ -117,7 +117,12 @@ class UmengMessageService
         $retIos['ret'] = $retAndroid['ret'] = 'FREE';
         if ($device == 'app' || $device == 'ios') {
             $this->initIOS();
-            $retIos = $this->iosApp->sendIOS($title, $customData, $filter);
+            //拼接IOS显示数据
+            $pushData = [
+                'title' => $title,
+                'body' => $description,
+            ];
+            $retIos = $this->iosApp->sendIOS($pushData, $customData, $filter);
         }
         if ($device == 'app' || $device == 'android') {
             $this->initAndroid();

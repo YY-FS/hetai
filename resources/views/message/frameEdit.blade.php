@@ -17,6 +17,7 @@
         </div>
     </div>
     <script type="text/javascript">
+        var count = 5;//定义全局变量,间隔函数,1秒执行
         //为之后的所有ajax作csrf防护
         $.ajaxSetup({
             headers: {
@@ -42,7 +43,7 @@
         }
         let submitBtn = $("input[type='submit']").parent();
         toolBar = submitBtn.parent();//全局变量
-        let btn = "<div class='pull-right'><input id='pull-ok' class='btn btn-primary' value = '确定'></" + "div>";
+        let btn = "<div class='pull-right'><input id='pull-ok' class='btn btn-primary' value = '确认发送'></" + "div>";
         submitBtn.remove();//清除submit的按钮
         toolBar.append(btn);
         $('#pull-ok').click(function () {
@@ -54,8 +55,10 @@
             let description = $('#description').val();
             let url = $('#url').val();
             let template_set_id = $('#template_set_id').val();
+            //按钮倒计时
+            pushBtn = setInterval(CountDown, 1000);
             //前端判断是否为空
-            if (banner_id == '' || title == ''||uid=='') {
+            if (banner_id == '' || title == '' || uid == '') {
                 build_error('请完整填写数据');
                 return false;
             } else {
@@ -80,6 +83,20 @@
                 }
             })
         });
+        function CountDown() {
+            let push = $("#pull-ok");
+            if (count == 0) {
+                push.val("确认发送").removeAttr("disabled");
+                push.attr("class", 'btn btn-primary');
+                clearInterval(pushBtn);
+                count = 5;
+            } else {
+                count--;
+                push.attr("disabled", true);
+                push.attr("class", 'btn btn-default');
+                push.val("重新发送(" + count + "s)");
+            }
+        }
         function build_error(message) {
             if ($('#data-error').length == 0) {
                 let error = "<div style='color: red' id='data-error'>" + message + "</" + "div>";
