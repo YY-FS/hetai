@@ -58,7 +58,7 @@
             //按钮倒计时
             pushBtn = setInterval(CountDown, 1000);
             //前端判断是否为空
-            if (banner_id == '' || title == '' || uid == '') {
+            if (title == '' || uid == '') {
                 build_error('请完整填写数据');
                 return false;
             } else {
