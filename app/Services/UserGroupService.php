@@ -48,6 +48,7 @@ class UserGroupService
 
         $groupUser = null; // 最终用户数组，用于取交集的数组
         foreach ($groupFilters as $groupFilter) {
+            $filterUser = [];
             foreach (explode(',', $groupFilter->filter_ids) AS $filterId) {
                 $filterUser = [];
                 $dataFile = storage_path('users/filter/' . $groupFilter->filter_type_alias . '/') . UserFilterService::FILE_NAME . $filterId;
@@ -56,21 +57,33 @@ class UserGroupService
                     if (empty($filterUser)) {
                         \Log::info('---- filterUser ----');
                         \Log::info($groupFilter);
-                    } else {
-//                        存redis
-                        $i = 0;
-                        while($i < count($filterUser)) {
-                            $setData = array_slice($filterUser, $i, 1000000);
-                            Redis::sadd($cacheKey, $setData);
-                            $i += 1000000;
-                        }
-                        var_dump('redis done');
                     }
                 } else {
                     \Log::info('----[!!!not exists FILE!!!] ----' . $dataFile);
                 }
             }
 
+            if ($groupUser === null) {
+//                初始化
+                $groupUser = $filterUser;
+            } else {
+                $groupUser = array_intersect($groupUser, $filterUser);
+            }
+
+        }
+
+        var_dump('group user done');
+        if (empty($groupUser)) {
+            var_dump('---- group empty ----');
+        } else {
+//            存redis
+            $i = 0;
+            while($i < count($groupUser)) {
+                $setData = array_slice($groupUser, $i, 1000000);
+                Redis::sadd($cacheKey, $setData);
+                $i += 1000000;
+            }
+            var_dump('redis done');
         }
 
         $endTime = microtime(true);
