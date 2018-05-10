@@ -95,6 +95,7 @@ class IndustryController extends BaseController
             ->placeholder("请输入 名称");
         $edit->add('sort', '排序', 'number')
             ->rule("required|integer")
+            ->attributes(['min'=>0])
             ->placeholder("请输入 排序");
         $edit->add('display', '状态', 'radiogroup')
             ->option(Platv4Industry::COMMON_STATUS_NORMAL,Platv4Industry::$commonStatusText[Platv4Industry::COMMON_STATUS_NORMAL])
