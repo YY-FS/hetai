@@ -110,7 +110,7 @@ class UmengMessageService
 
     public function umengBroadcast($title, $description, $customData = [], $device = 'app', $ticker = '您有新的消息', $filter = null)
     {
-        if (!in_array($device, ['ios', 'app', 'android']) || !($title == null) || !($description == null))
+        if (!in_array($device, ['ios', 'app', 'android']) || $title == null || $description == null)
             return ['code' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
         $after = empty($customData) ? 'go_app' : 'go_custom';
