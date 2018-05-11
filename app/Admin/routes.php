@@ -31,6 +31,7 @@ Route::group([
 //    用户画像、头条标签关联
     $router->get('industries', 'IndustryController@index');
     $router->any('industries/edit', 'IndustryController@anyEdit');
+    $router->get('industries/cache', 'IndustryController@cleanCache')->name('industries.cache.clean');
 
 //    用户分群
     $router->get('user/groups', 'UserGroupController@index');

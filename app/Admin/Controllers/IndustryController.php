@@ -47,6 +47,19 @@ class IndustryController extends BaseController
         $grid->link($url->append('export', 1)->get(), "导出Excel", "TR", ['class' => 'btn btn-export', 'target' => '_blank']);
         $grid->link(config('admin.route.prefix') . '/industries/edit', '添加', 'TR', ['class' => 'btn btn-success']);
 
+        $cleanCache = "layer.confirm( '确定清理缓存吗？！',{ btn: ['确定','取消'] }, function(){ 
+            $.get('" . route('industries.cache.clean') . "',
+                function (data, status) {
+                    console.log(data, status);
+                    if(data.success === true) {
+                        layer.msg(data.msg);
+                    } else {
+                        layer.msg(data.msg);
+                    }
+                });
+            })";
+        $grid->button('清缓存', 'TR', ['class' => 'btn btn-warning', 'onclick' => $cleanCache]);
+
         $grid->row(function ($row) {
             $row->cell('display')->value = Platv4Industry::$commonStatusText[$row->data->display];
 
@@ -104,8 +117,6 @@ class IndustryController extends BaseController
         $edit->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->orderBy('sort', 'asc')->pluck('name', 'id'));
 
         $edit->saved(function () use ($edit) {
-            // 清理缓存
-            Redis::del('USER_INDUSTRY');
 
             $this->saveIndustryTag($edit->model->id, Input::get('tags'));
             $edit->model->save();
@@ -130,5 +141,22 @@ class IndustryController extends BaseController
             ];
         }
         return DB::table('platv4_industry_to_headline_tag')->insert($insertData);
+    }
+
+    /**
+     * 清理缓存
+     *
+     * @return \Illuminate\Http\JsonResponse|void
+     * @throws \Exception
+     */
+    public function cleanCache()
+    {
+        try {
+            // 清理缓存
+            Redis::del('USER_INDUSTRY');
+            return $this->respData([], '清理成功');
+        } catch (\Exception $e) {
+            return $this->respError('清理失败');
+        }
     }
 }
