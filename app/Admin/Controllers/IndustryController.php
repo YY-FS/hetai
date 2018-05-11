@@ -11,6 +11,7 @@ use Zofe\Rapyd\DataGrid\DataGrid;
 use Zofe\Rapyd\DataFilter\DataFilter;
 use Zofe\Rapyd\Url;
 use App\Models\Platv4Industry;
+use Illuminate\Support\Facades\Redis;
 
 class IndustryController extends BaseController
 {
@@ -89,10 +90,25 @@ class IndustryController extends BaseController
         $edit->label('用户行业标签信息');
         $edit->link(config('admin.route.prefix') . "/industries", "列表", "TR")->back();
 
+        $edit->add('industry', '名称', 'text')
+            ->rule("required")
+            ->placeholder("请输入 名称");
+        $edit->add('sort', '排序', 'number')
+            ->rule("required|integer")
+            ->attributes(['min'=>0])
+            ->placeholder("请输入 排序");
+        $edit->add('display', '状态', 'radiogroup')
+            ->option(Platv4Industry::COMMON_STATUS_NORMAL,Platv4Industry::$commonStatusText[Platv4Industry::COMMON_STATUS_NORMAL])
+            ->option(Platv4Industry::COMMON_STATUS_OFFLINE,Platv4Industry::$commonStatusText[Platv4Industry::COMMON_STATUS_OFFLINE]);
+        $edit->add('icon', 'icon', 'text')->extra('<img style="width:30px;height:30px" src="'. $edit->model->icon .'" />');
         $edit->add('tags', '标签', 'checkboxgroup')->options(Platv4HeadlineTag::where('status', Platv4HeadlineTag::COMMON_STATUS_NORMAL)->orderBy('sort', 'asc')->pluck('name', 'id'));
 
         $edit->saved(function () use ($edit) {
+            // 清理缓存
+            Redis::del('USER_INDUSTRY');
+
             $this->saveIndustryTag($edit->model->id, Input::get('tags'));
+            $edit->model->save();
         });
 
         $edit->build();
