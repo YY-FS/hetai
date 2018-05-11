@@ -50,14 +50,14 @@ class UserGroupService
         foreach ($groupFilters as $groupFilter) {
             $filterUser = [];
             foreach (explode(',', $groupFilter->filter_ids) AS $filterId) {
-                $filterUser = [];
                 $dataFile = storage_path('users/filter/' . $groupFilter->filter_type_alias . '/') . UserFilterService::FILE_NAME . $filterId;
                 if (file_exists($dataFile)) {
-                    $filterUser = explode(',', trim(file_get_contents($dataFile), ','));
-                    if (empty($filterUser)) {
+                    $filterUserRead = explode(',', trim(file_get_contents($dataFile), ','));
+                    if (empty($filterUserRead)) {
                         \Log::info('---- filterUser ----');
                         \Log::info($groupFilter);
                     }
+                    $filterUser = array_merge($filterUserRead,$filterUser);
                 } else {
                     \Log::info('----[!!!not exists FILE!!!] ----' . $dataFile);
                 }
