@@ -7,7 +7,7 @@
     "repositories": [
         {
             "type": "git",
-            "url": "git@git.maka.mobi:lvsongdong/rapyd-laravel.git",
+            "url": "git@gitlab.maka.mobi:lvsongdong/rapyd-laravel.git",
             "reference":"master"
         }
     ],
