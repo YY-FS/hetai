@@ -15,17 +15,26 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    protected function respData($data = [], $msg = '操作成功')
+    protected function respData($data = [], $msg = '操作成功', $code = Response::HTTP_OK, $status = Response::HTTP_OK)
+    {
+        return $this->resp($data, $msg, true, $code, $status);
+    }
+
+    protected function respError($msg = '操作失败', $code = Response::HTTP_INTERNAL_SERVER_ERROR, $status = Response::HTTP_OK)
+    {
+        return $this->resp([], $msg, false, $code, $status);
+    }
+
+    private function resp($data = [], $msg = '操作成功', $success = true, $code = Response::HTTP_OK, $status = Response::HTTP_OK)
     {
         $result = [
-            'code'      => Response::HTTP_OK,
-            'success'   => true,
+            'code'      => $code,
+            'success'   => $success,
             'data'      => $data,
             'msg'       => $msg
         ];
-        return response()->json($result, Response::HTTP_OK);
+        return response()->json($result, $status);
     }
-
 
     protected function respFail($msg = '操作失败', $code = Response::HTTP_INTERNAL_SERVER_ERROR)
     {
