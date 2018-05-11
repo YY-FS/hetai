@@ -123,10 +123,10 @@ class UserFilterService
     }
 
 
-    public function customerVipMaka($filter)
+    public function customerVipMaka($filter,$source = __FUNCTION__)
     {
-        echo __FUNCTION__ . PHP_EOL;
-        $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+        echo $source . PHP_EOL;
+        $file = $this->_getFile($source, $filter->filter_id);
 
         $customerVipAlias = 'maka';
         $customerVip = Platv4CustomerVip::where('alias', $customerVipAlias)->first();
@@ -137,11 +137,19 @@ class UserFilterService
 
     }
 
+    public function customerVipMakaGiftCode($filter,$source = __FUNCTION__){
+        $this->customerVipMaka($filter,$source);
+    }
 
-    public function customerVipPoster($filter)
+    public function customerVipMakaSub($filter,$source = __FUNCTION__){
+        $this->customerVipMaka($filter,$source);
+    }
+
+
+    public function customerVipPoster($filter,$source = __FUNCTION__)
     {
-        echo __FUNCTION__ . PHP_EOL;
-        $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+        echo $source . PHP_EOL;
+        $file = $this->_getFile($source, $filter->filter_id);
 
         $customerVipAlias = 'poster';
         $customerVip = Platv4CustomerVip::where('alias', $customerVipAlias)->first();
@@ -151,10 +159,18 @@ class UserFilterService
         return true;
     }
 
-    public function customerVipVideo($filter)
+    public function customerVipPosterGiftCode($filter,$source = __FUNCTION__){
+        $this->customerVipPoster($filter,$source);
+    }
+
+    public function customerVipPosterSub($filter,$source = __FUNCTION__){
+        $this->customerVipPoster($filter,$source);
+    }
+
+    public function customerVipVideo($filter,$source = __FUNCTION__)
     {
-        echo __FUNCTION__ . PHP_EOL;
-        $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+        echo $source . PHP_EOL;
+        $file = $this->_getFile($source, $filter->filter_id);
 
         $customerVipAlias = 'video';
         $customerVip = Platv4CustomerVip::where('alias', $customerVipAlias)->first();
@@ -164,10 +180,18 @@ class UserFilterService
         return true;
     }
 
-    public function customerVipSenior($filter)
+    public function customerVipVideoGiftCode($filter,$source = __FUNCTION__){
+        $this->customerVipVideo($filter,$source);
+    }
+
+    public function customerVipVideoSub($filter,$source = __FUNCTION__){
+        $this->customerVipVideo($filter,$source);
+    }
+
+    public function customerVipSenior($filter,$source = __FUNCTION__)
     {
-        echo __FUNCTION__ . PHP_EOL;
-        $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+        echo $source . PHP_EOL;
+        $file = $this->_getFile($source, $filter->filter_id);
 
         $customerVipAlias = 'senior';
         $customerVip = Platv4CustomerVip::where('alias', $customerVipAlias)->first();
@@ -177,10 +201,18 @@ class UserFilterService
         return true;
     }
 
-    public function customerVipSuper($filter)
+    public function customerVipSeniorGiftCode($filter,$source = __FUNCTION__){
+        $this->customerVipSenior($filter,$source);
+    }
+
+    public function customerVipSeniorSub($filter,$source = __FUNCTION__){
+        $this->customerVipSenior($filter,$source);
+    }
+
+    public function customerVipSuper($filter,$source = __FUNCTION__)
     {
-        echo __FUNCTION__ . PHP_EOL;
-        $file = $this->_getFile(__FUNCTION__, $filter->filter_id);
+        echo $source . PHP_EOL;
+        $file = $this->_getFile($source, $filter->filter_id);
 
         $customerVipAlias = 'super';
         $customerVip = Platv4CustomerVip::where('alias', $customerVipAlias)->first();
@@ -188,6 +220,14 @@ class UserFilterService
         $this->_queryBuildCustomerVip($customerVipId, $filter, $file);
 
         return true;
+    }
+
+    public function customerVipSuperGiftCode($filter,$source = __FUNCTION__){
+        $this->customerVipSuper($filter,$source);
+    }
+
+    public function customerVipSuperSub($filter,$source = __FUNCTION__){
+        $this->customerVipSuper($filter,$source);
     }
 
     public function vipClass($filter)
