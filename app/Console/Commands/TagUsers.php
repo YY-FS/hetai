@@ -55,9 +55,8 @@ class TagUsers extends Command
      */
     public function handle()
     {
-        // TODO: 需要更改公众号
         // 微信服务
-        $wechat = EasyWechat::officialAccount('yys_test');
+        $wechat = EasyWechat::officialAccount('default');
 
         // TODO: 需要填写每个标签多少人
         // 每组 50 万
