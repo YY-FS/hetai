@@ -62,8 +62,8 @@ class TagUsers extends Command
         // TODO: 需要填写每个标签多少人
         // 每组 50 万
         $perGroup = 50 * 10000;
-        // 每次标记50人
-        $chunk = 50;
+        // 每次查询标记 10000 人
+        $chunk = 1 * 10000;
         // 当前组别
         $group = 1;
         // 获取总人数
@@ -109,41 +109,45 @@ class TagUsers extends Command
             ->doesntHave('platv4User')
             ->select('id', 'open_id')
             ->chunkById($chunk, function ($users) use ($wechat, &$tagsList, &$group, $perGroup, $groupNum, $progressBar) {
-                // 4.1 大于预设分组数，退出
-                if ($group > $groupNum) {
-                    $progressBar->finish();
-                    return false;
-                }
+                $users->pluck('open_id')
+                    ->chunk(50)
+                    ->map(function ($openIds, $key) use ($wechat, &$tagsList, &$group, $perGroup, $groupNum, $progressBar) {
+                        // 4.1 大于预设分组数，退出
+                        if ($group > $groupNum) {
+                            $progressBar->finish();
+                            return false;
+                        }
 
-                // 标签组
-                $tagsName = '非MAKA用户【' . $group . '】';
+                        // 标签组
+                        $tagsName = '非MAKA用户【' . $group . '】';
 
-                // 进度条
-                $progressBar->setMessage('正在归类');
-                $progressBar->setMessage($tagsName, 'tagsName');
+                        // 进度条
+                        $progressBar->setMessage('正在归类');
+                        $progressBar->setMessage($tagsName, 'tagsName');
 
-                // 4.2 获取 50 个 open_id
-                $openIds = $users->pluck('open_id')->toArray();
-                $openIdsCount = count($openIds);
-                // 4.3 设置标签
-                $resp = $wechat->user_tag->tagUsers($openIds, $tagsList[$tagsName]['id']);
-                if (isset($resp['errcode']) && $resp['errcode'] == 0) {
-                    // 4.4.1 设置成功 标签计数
-                    $tagsList[$tagsName]['count'] = $tagsList[$tagsName]['count'] + $openIdsCount;
-                    $progressBar->setMessage('成功', 'status');
-                } else {
-                    // 4.4.2 设置失败
-                    $this->error("\n【标签归类失败】\n");
-                    $progressBar->setMessage('失败' . $resp['errcode'] . ':' . $resp['errmsg'], 'status');
-                }
+                        // 4.2 获取 50 个 open_id
+                        $openIds = $openIds->toArray();
+                        $openIdsCount = count($openIds);
+                        // 4.3 设置标签
+                        $resp = $wechat->user_tag->tagUsers($openIds, $tagsList[$tagsName]['id']);
+                        if (isset($resp['errcode']) && $resp['errcode'] == 0) {
+                            // 4.4.1 设置成功 标签计数
+                            $tagsList[$tagsName]['count'] = $tagsList[$tagsName]['count'] + $openIdsCount;
+                            $progressBar->setMessage('成功', 'status');
+                        } else {
+                            // 4.4.2 设置失败
+                            $this->error("\n【标签归类失败】\n");
+                            $progressBar->setMessage('失败' . $resp['errcode'] . ':' . $resp['errmsg'], 'status');
+                        }
 
-                // 进度条增加
-                $progressBar->advance($openIdsCount);
+                        // 进度条增加
+                        $progressBar->advance($openIdsCount);
 
-                // 4.5 标签分组大于预设每组数量，进行下一组
-                if ($tagsList[$tagsName]['count'] >= $perGroup) {
-                    $group++;
-                }
+                        // 4.5 标签分组大于预设每组数量，进行下一组
+                        if ($tagsList[$tagsName]['count'] >= $perGroup) {
+                            $group++;
+                        }
+                    });
             });
         $this->info('处理完成');
     }
