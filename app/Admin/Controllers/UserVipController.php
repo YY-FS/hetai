@@ -126,7 +126,7 @@ class UserVipController extends BaseController
         $edit->saved(function () use ($edit) {
             try {
                 //清除redis缓存
-                Redis::del('QUERYSERVICE:TYPE:VIP:CONFIG:{$edit->model->uid}');
+                Redis::del('QUERYSERVICE:TYPE:VIP:CONFIG:' . $edit->model->uid);
                 Redis::hdel('CUSTOMER_VIP_USER_LEASE_TYPE', $edit->model->uid);
 
                 DB::connection('plat')->beginTransaction();
