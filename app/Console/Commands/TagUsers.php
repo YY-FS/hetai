@@ -127,6 +127,7 @@ class TagUsers extends Command
                         // 4.2 获取 50 个 open_id
                         $openIds = $openIds->toArray();
                         $openIdsCount = count($openIds);
+                        $openIds = array_values($openIds);
                         // 4.3 设置标签
                         $resp = $wechat->user_tag->tagUsers($openIds, $tagsList[$tagsName]['id']);
                         if (isset($resp['errcode']) && $resp['errcode'] == 0) {
