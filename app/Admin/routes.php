@@ -127,8 +127,15 @@ Route::group([
     $router->any('message/edit','MessageController@anyEdit');
     $router->get('message/push','MessageController@push');
     $router->post('message/push/test','MessageController@pushTest');
+
     
     //公众号素材管理
     $router->get('official_account/material','WechatController@material');
     $router->get('official_account/image','WechatController@image');
+
+
+    //公众号通知
+    $router->get('official_account','OfficialAccountInformController@index');
+    $router->any('official_account/{alias}/create','OfficialAccountInformController@anyEdit');
+    $router->any('official_account/{alias}/edit','OfficialAccountInformController@anyEdit');
 });

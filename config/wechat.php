@@ -92,6 +92,12 @@ return [
             'token' => env('YYS_TEST_WECHAT_TOKEN', 'your-token'),           // Token
             'aes_key' => env('YYS_TEST_WECHAT_AES_KEY', ''),
         ],
+        'lwb_test' => [
+            'app_id' => env('LWB_TEST_WECHAT_APP_ID', 'your-app-id'),         // AppID
+            'secret' => env('LWB_TEST_WECHAT_APP_SECRET', 'your-app-secret'),    // AppSecret
+            'token' => env('LWB_TEST_WECHAT_TOKEN', 'your-token'),           // Token
+            'aes_key' => env('LWB_TEST_WECHAT_AES_KEY', ''),
+        ],
     ],
 
     /*

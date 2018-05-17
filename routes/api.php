@@ -45,3 +45,9 @@ Route::get('user/groups/member',function(Request $request){
     $res = Illuminate\Support\Facades\Redis::sismember($cacheKey,$uid);
     return ['uid'=>$uid,'res'=>$res];
 });
+
+Route::any('wechat/template',function(){
+    $controller = new \App\Admin\Controllers\OfficialAccountInformController();
+    $result = $controller->getTpl();
+    return $result;
+});
