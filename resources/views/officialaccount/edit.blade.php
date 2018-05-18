@@ -70,10 +70,11 @@
                      'dataType':'json',
                      'type':'get',
                      'success':function(data){
+                         var tplId = '';
                          templateOpt = data.tpl_opt;
                          templateItem = data.tpl_item;
                          @if(isset($extraData['template_id']))
-                         var tplId = '{{ $extraData['template_id'] }}';
+                         tplId = '{{ $extraData['template_id'] }}';
                          extraJson = {!! json_encode($extraData) !!};
                          valueJson = extraJson['field'];
                          var i = 0;
@@ -141,12 +142,14 @@
 
         function renderAction(){
             //渲染url
-            if(extraJson['url'])
-                $('.link').val(extraJson['url']);
-            if(extraJson['mini_program_id'])
-                $('.mini_program_id').val(extraJson['mini_program_id']);
-            if(extraJson['mini_program_id'])
-                $('.mini_program_path').val(extraJson['mini_program_path']);
+            if(extraJson !== null){
+                if(extraJson['url'])
+                    $('.link').val(extraJson['url']);
+                if(extraJson['mini_program_id'])
+                    $('.mini_program_id').val(extraJson['mini_program_id']);
+                if(extraJson['mini_program_id'])
+                    $('.mini_program_path').val(extraJson['mini_program_path']);
+            }
         }
 
     </script>

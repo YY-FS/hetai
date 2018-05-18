@@ -216,7 +216,7 @@ class OfficialAccountInformController extends BaseController
     public function getTpl($app = null)
     {
         // 微信模板服务
-        $app = app('wechat.official_account.lwb_test');
+        $app = app('wechat.official_account.default');
         $tpls = $app->template_message->getPrivateTemplates();
         $data = [];
         $tplOpt = [];
