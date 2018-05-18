@@ -44,6 +44,10 @@ class BaseController extends Controller
         return '<button class="btn btn-danger" onclick="layer.confirm( \'确定删除吗？！\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . config('admin.route.prefix') . $this->route . "/edit?delete=" . $id . '\'})">删除</button>';
     }
 
+    public function getConfirmBtn($question,$link,$btnText,$btnClass){
+        return '<button class="btn '.$btnClass.'" onclick="layer.confirm( \''.$question.'\',{ btn: [\'确定\',\'取消\'] }, function(){ window.location.href = \'' . $link . '\'})">' . $btnText . '</button>';
+    }
+
     public function getFrameBtn($link,$options = [],$refresh = false,$width = 1360,$height = 900)
     {
         $btnText = '详情';
