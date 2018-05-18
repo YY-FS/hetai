@@ -130,4 +130,5 @@ Route::group([
     
     //公众号素材管理
     $router->get('official_account/material','WechatController@material');
+    $router->get('official_account/image','WechatController@image');
 });
