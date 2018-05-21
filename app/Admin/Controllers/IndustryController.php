@@ -34,6 +34,7 @@ class IndustryController extends BaseController
         $grid->attributes(array("class" => "table table-bordered table-striped table-hover"));
         $grid->add('id', 'ID', true);
         $grid->add('industry', '名称', false);
+        $grid->add('content', '描述', false);
         $grid->add('sort', '排序', true);
         $grid->add('display', '状态', true);
         $grid->add('icon', 'icon', true);
@@ -106,6 +107,9 @@ class IndustryController extends BaseController
         $edit->add('industry', '名称', 'text')
             ->rule("required")
             ->placeholder("请输入 名称");
+        $edit->add('content', '描述', 'textarea')
+            ->rule("required")
+            ->placeholder("请输入 描述");
         $edit->add('sort', '排序', 'number')
             ->rule("required|integer")
             ->attributes(['min'=>0])
