@@ -128,7 +128,11 @@ Route::group([
     $router->get('message/push','MessageController@push');
     $router->post('message/push/test','MessageController@pushTest');
 
-    
+    //PC通知管理
+    $router->get('pc_message/{pageType}', 'PCMessageController@index');
+    $router->any('pc_message/{pageType}/edit', 'PCMessageController@anyEdit');
+    $router->any('pc_message/{pageType}/create', 'PCMessageController@anyEdit');
+
     //公众号素材管理
     $router->get('official_account/material','WechatController@material');
     $router->get('official_account/image','WechatController@image');
