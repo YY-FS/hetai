@@ -51,3 +51,10 @@ Route::any('wechat/template',function(){
     $result = $controller->getTpl();
     return $result;
 });
+
+Route::delete('wechat/template',function(Request $request){
+    $controller = new \App\Admin\Controllers\OfficialAccountInformController();
+    $id = $request->get('id',null);
+    $result = $controller->delTpl($id);
+    return $result;
+});

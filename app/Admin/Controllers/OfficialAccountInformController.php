@@ -20,26 +20,27 @@ use Zofe\Rapyd\DataGrid\DataGrid;
 
 class OfficialAccountInformController extends BaseController
 {
-    public function index(){
+    public function index()
+    {
         $this->route = '/official_account';
         $title = '公众号通知管理';
         $filter = DataFilter::source(Platv4MessageWechat::rapydGrid());
-        $filter->add('id', '通知id', 'text')->scope(function($query,$value){
-            $q =  $value?$query->where('mw.id',$value):$query;
+        $filter->add('id', '通知id', 'text')->scope(function ($query, $value) {
+            $q = $value ? $query->where('mw.id', $value) : $query;
             return $q;
         });
 
-        $filter->add('title', '通知标题', 'text')->scope(function($query,$value){
-            return $value?$query->where('mw.title','like','%'.$value.'%'):$query;
+        $filter->add('title', '通知标题', 'text')->scope(function ($query, $value) {
+            return $value ? $query->where('mw.title', 'like', '%' . $value . '%') : $query;
         });
-        $filter->add('inform_type', '通知类型', 'select')->options([''=>'请选择'] + Platv4MessageWechatType::get()->pluck('name','alias')->toArray())
-        ->scope(function($query,$value){
-            return $value?$query->where('mwt.alias','like','%'.$value.'%'):$query;
-        });
+        $filter->add('inform_type', '通知类型', 'select')->options(['' => '请选择'] + Platv4MessageWechatType::get()->pluck('name', 'alias')->toArray())
+            ->scope(function ($query, $value) {
+                return $value ? $query->where('mwt.alias', 'like', '%' . $value . '%') : $query;
+            });
 
-        $filter->add('status', '通知状态', 'select')->options([''=>'请选择'] + Platv4MessageWechat::$commonStatusText)
-            ->scope(function($query,$value){
-                return ($value!==null && $value!=='')?$query->where('mw.status',$value):$query;
+        $filter->add('status', '通知状态', 'select')->options(['' => '请选择'] + Platv4MessageWechat::$commonStatusText)
+            ->scope(function ($query, $value) {
+                return ($value !== null && $value !== '') ? $query->where('mw.status', $value) : $query;
             });
 
         $filter->submit('筛选');
@@ -61,22 +62,22 @@ class OfficialAccountInformController extends BaseController
         $grid->add('open_count', '打开数', true);
         $grid->add('operation', '操作', false);
 
-        $grid->row(function ($row) use ($grid){
-            $this->route = '/official_account/'.$row->data->alias;
-            if($row->data->status == Platv4MessageWechat::COMMON_STATUS_UNPUSH ){
+        $grid->row(function ($row) use ($grid) {
+            $this->route = '/official_account/' . $row->data->alias;
+            if ($row->data->status == Platv4MessageWechat::COMMON_STATUS_UNPUSH) {
                 $row->cell('operation')->value = $this->getEditBtn($row->data->id);
                 $sendTime = strtotime($row->data->send_time);
                 $now = time();
-                if($now<$sendTime){
-                    $row->cell('operation')->value .= $this->getConfirmBtn('确定推送吗？',config('admin.route.prefix') . $this->route .'/edit?push='.$row->data->id.'&send='.$row->data->send_time,'推送','btn-warning');
+                if ($now < $sendTime) {
+                    $row->cell('operation')->value .= $this->getConfirmBtn('确定推送吗？', config('admin.route.prefix') . $this->route . '/edit?push=' . $row->data->id . '&send=' . $row->data->send_time, '推送', 'btn-warning');
                 }
             }
-            if($row->data->status == Platv4MessageWechat::COMMON_STATUS_PUSHING){
-                $row->cell('operation')->value = "<a class='btn btn-success' href='".config('admin.route.prefix') . $this->route ."/edit?modify=".$row->data->id."&info=1'>详情</a>";
+            if ($row->data->status == Platv4MessageWechat::COMMON_STATUS_PUSHING) {
+                $row->cell('operation')->value = "<a class='btn btn-success' href='" . config('admin.route.prefix') . $this->route . "/edit?modify=" . $row->data->id . "&info=1'>详情</a>";
                 $sendTime = strtotime($row->data->send_time);
                 $now = time();
-                if($now<$sendTime) {
-                    $row->cell('operation')->value .= $this->getConfirmBtn('确定撤回吗？',config('admin.route.prefix') . $this->route .'/edit?cancel='.$row->data->id.'&send='.$row->data->send_time,'撤回','btn-info');;
+                if ($now < $sendTime) {
+                    $row->cell('operation')->value .= $this->getConfirmBtn('确定撤回吗？', config('admin.route.prefix') . $this->route . '/edit?cancel=' . $row->data->id . '&send=' . $row->data->send_time, '撤回', 'btn-info');;
                 }
             }
             $row->cell('operation')->value .= $this->getDeleteBtn($row->data->id);
@@ -90,12 +91,13 @@ class OfficialAccountInformController extends BaseController
         return view('rapyd.filtergrid', compact('grid', 'filter', 'title'));
     }
 
-    public function anyEdit($alias = Platv4MessageWechat::ROUTE_ARTICLE){
+    public function anyEdit($alias = Platv4MessageWechat::ROUTE_ARTICLE)
+    {
         $this->route = '/official_account';
         $extraData = [];
         $edit = DataEdit::source(new Platv4MessageWechat());
-        $edit->label(Platv4MessageWechat::$routeText[$alias].'通知');
-        $edit->link(config('admin.route.prefix') .$this->route, '返回列表', 'TR', ['class' => 'btn btn-primary']);
+        $edit->label(Platv4MessageWechat::$routeText[$alias] . '通知');
+        $edit->link(config('admin.route.prefix') . $this->route, '返回列表', 'TR', ['class' => 'btn btn-primary']);
 
         //软删除
         $deleteId = Input::get('delete', null);
@@ -108,7 +110,7 @@ class OfficialAccountInformController extends BaseController
         if ($pushId) {
             $sendTime = strtotime(Input::get('send', null));
             $now = time();
-            if($sendTime > $now){
+            if ($sendTime > $now) {
                 Platv4MessageWechat::where('id', $pushId)->update(['status' => Platv4MessageWechat::COMMON_STATUS_PUSHING]);
             }
             return redirect()->back();
@@ -118,25 +120,25 @@ class OfficialAccountInformController extends BaseController
         if ($cancelId) {
             $sendTime = strtotime(Input::get('send', null));
             $now = time();
-            if($sendTime > $now) {
+            if ($sendTime > $now) {
                 Platv4MessageWechat::where('id', $cancelId)->update(['status' => Platv4MessageWechat::COMMON_STATUS_UNPUSH]);
             }
             return redirect()->back();
         }
         //修改
-        if(Input::get('modify',null)){
+        if (Input::get('modify', null)) {
             //选中分群
-            Input::offsetSet('user_group',Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_message_wechat')->pluck('user_group_id')->toArray());
-            $extraData = json_decode($edit->model->extra_data,true);
+            Input::offsetSet('user_group', Platv4ItemToUserGroup::where('item_id', $edit->model->id)->where('item_table', 'platv4_message_wechat')->pluck('user_group_id')->toArray());
+            $extraData = json_decode($edit->model->extra_data, true);
             //推文通知选中客服转发
-            if(isset($extraData['transfer']) && $extraData['transfer'] == 1)
-                Input::OffsetSet('transfer','1');
+            if (isset($extraData['transfer']) && $extraData['transfer'] == 1)
+                Input::OffsetSet('transfer', '1');
             //模板消息 动作选中
-            if(isset($extraData['mini_program_id']) && !empty($extraData['mini_program_id']))
-                Input::OffsetSet('action','mini_program');
+            if (isset($extraData['mini_program_id']) && !empty($extraData['mini_program_id']))
+                Input::OffsetSet('action', 'mini_program');
         }
         //详情页
-        if(Input::get('info',null)){
+        if (Input::get('info', null)) {
             \Rapyd::script("
             var toolbar = $('.btn-toolbar').first().find('a.btn-default');
             toolbar.remove();
@@ -147,26 +149,26 @@ class OfficialAccountInformController extends BaseController
             ");
         }
 
-        $edit->add('title','标题','text')->rule('required');
-        $edit->add('message_wechat_type_id','通知类型','hidden')->insertValue(Platv4MessageWechatType::where('alias',$alias)->first()['id']);
-        if($alias == Platv4MessageWechat::ROUTE_CUSTOMER_SERVICE || $alias == Platv4MessageWechat::ROUTE_ARTICLE){
-            $edit->add('material_id','素材id','text')->placeholder('请输入素材id')->attributes(['class'=>'push service'])->insertValue('');
+        $edit->add('title', '标题', 'text')->rule('required');
+        $edit->add('message_wechat_type_id', '通知类型', 'hidden')->insertValue(Platv4MessageWechatType::where('alias', $alias)->first()['id']);
+        if ($alias == Platv4MessageWechat::ROUTE_CUSTOMER_SERVICE || $alias == Platv4MessageWechat::ROUTE_ARTICLE) {
+            $edit->add('material_id', '素材id', 'text')->placeholder('请输入素材id')->attributes(['class' => 'push service'])->insertValue('');
         }
-        if($alias == Platv4MessageWechat::ROUTE_ARTICLE){
-            $edit->add('transfer','转客服','checkboxgroup')->options(['1'=>'48小时内活跃用户自动转客服消息发送']);
+        if ($alias == Platv4MessageWechat::ROUTE_ARTICLE) {
+            $edit->add('transfer', '转客服', 'checkboxgroup')->options(['1' => '48小时内活跃用户自动转客服消息发送']);
         }
-        if($alias == Platv4MessageWechat::ROUTE_TEMPLATE){
-            $edit->add('template','模板','select')->options([''=>'暂未加载'])->attributes(['class'=>'template']);
-            $edit->add('action','动作','select')->options(['link'=>'跳转链接','mini_program'=>'小程序'])->attributes(['class'=>'template']);
-            $edit->add('extra[url]','URL','text')->insertValue('http://')->attributes(['class'=>'template link action']);
-            $edit->add('extra[mini_program_id]','小程序id','text')->placeholder('请输入小程序id')->attributes(['class'=>'template mini_program mini_program_id action']);
-            $edit->add('extra[mini_program_path]','路径','text')->placeholder('请输入小程序路径')->attributes(['class'=>'template mini_program mini_program_path action']);
+        if ($alias == Platv4MessageWechat::ROUTE_TEMPLATE) {
+            $edit->add('template', '模板', 'select')->options(['' => '暂未加载'])->attributes(['class' => 'template']);
+            $edit->add('action', '动作', 'select')->options(['link' => '跳转链接', 'mini_program' => '小程序'])->attributes(['class' => 'template']);
+            $edit->add('extra[url]', 'URL', 'text')->insertValue('http://')->attributes(['class' => 'template link action']);
+            $edit->add('extra[mini_program_id]', '小程序id', 'text')->placeholder('请输入小程序id')->attributes(['class' => 'template mini_program mini_program_id action']);
+            $edit->add('extra[mini_program_path]', '路径', 'text')->placeholder('请输入小程序路径')->attributes(['class' => 'template mini_program mini_program_path action']);
         }
-        $edit->add('user_group','用户分群','checkboxgroup')->options(Platv4UserGroup::where('status',Platv4UserGroup::COMMON_STATUS_NORMAL)->get()->pluck('name','id')->toArray());
-        $edit->add('send_time','发送时间','text');
+        $edit->add('user_group', '用户分群', 'checkboxgroup')->options(Platv4UserGroup::where('status', Platv4UserGroup::COMMON_STATUS_NORMAL)->get()->pluck('name', 'id')->toArray());
+        $edit->add('send_time', '发送时间', 'text');
 
 
-        $edit->saved(function() use ($edit,$alias,$extraData){
+        $edit->saved(function () use ($edit, $alias, $extraData) {
             //同步分群信息 到 platv4_item_to usergroup
             $groupData = [];
             $groups = Input::post('user_group', null);
@@ -182,32 +184,33 @@ class OfficialAccountInformController extends BaseController
                 Platv4ItemToUserGroup::insert($groupData);
             }
 
-            if($alias == Platv4MessageWechat::ROUTE_ARTICLE){
-                $extraData['transfer'] = Input::post('transfer','0')[0];
-            }else if($alias == Platv4MessageWechat::ROUTE_TEMPLATE){
-                $extra = Input::post('extra',[]);
+            if ($alias == Platv4MessageWechat::ROUTE_ARTICLE) {
+                $extraData['transfer'] = Input::post('transfer', '0')[0];
+            } else if ($alias == Platv4MessageWechat::ROUTE_TEMPLATE) {
+                $extra = Input::post('extra', []);
                 //模板中动作选择跳转链接
-                if(Input::post('action')=='link'){
+                if (Input::post('action') == 'link') {
                     unset($extra['mini_program_id']);
                     unset($extra['mini_program_path']);
-                }else if(Input::post('action')=='mini_program'){
+                } else if (Input::post('action') == 'mini_program') {
                     unset($extra['url']);
                 }
                 $extraData = $extra;
-                $extraData['template_id'] = Input::post('template','');
-                $extraData['action'] = Input::post('action','');
+                $extraData['template_id'] = Input::post('template', '');
+                $extraData['action'] = Input::post('action', '');
             }
 
             $extraJson = json_encode((object)$extraData);
-            Platv4MessageWechat::where('id',$edit->model->id)->update(['extra_data'=>$extraJson]);
+            Platv4MessageWechat::where('id', $edit->model->id)->update(['extra_data' => $extraJson]);
             return redirect($this->route);
         });
 
         $edit->build();
-        return $edit->view('officialaccount.edit',compact('edit','alias','extraData'));
+        return $edit->view('officialaccount.edit', compact('edit', 'alias', 'extraData'));
     }
 
-    public function getTpls(){
+    public function getTpls()
+    {
         $app = app('wechat.official_account.lwb_test');
         $result = $app->template_message->getPrivateTemplates();
         dd($result);
@@ -256,4 +259,9 @@ class OfficialAccountInformController extends BaseController
         return $keys;
     }
 
+    public function delTpl($id = null)
+    {
+        $result = Platv4MessageWechat::where('id',$id)->delete();
+        return $result;
+    }
 }
