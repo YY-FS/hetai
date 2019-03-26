@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>{{ Admin::title() }}</title>
+    <title>合泰传感器数据</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
 
@@ -37,19 +37,11 @@
     {{--<link rel="stylesheet" href="{{ asset("/css/admin.css") }}">--}}
 </head>
 
-<body class="hold-transition {{config('admin.skin')}} {{join(' ', config('admin.layout'))}}">
+<body>
 <div class="wrapper">
 
-    @include('admin::partials.header')
-
-    @include('admin::partials.sidebar')
-
-    <div class="content-wrapper" id="pjax-container">
         @yield('content')
         {!! Admin::script() !!}
-    </div>
-
-    @include('admin::partials.footer')
 
 </div>
 
@@ -102,7 +94,7 @@
             });
         });
     });
-    
+
     $(document).on('pjax:send', function(xhr) {
         if(xhr.relatedTarget && xhr.relatedTarget.tagName && xhr.relatedTarget.tagName.toLowerCase() === 'form') {
             $submit_btn = $('form[pjax-container] :submit');
@@ -111,7 +103,7 @@
             }
         }
     })
-    
+
     $(document).on('pjax:complete', function(xhr) {
         if(xhr.relatedTarget && xhr.relatedTarget.tagName && xhr.relatedTarget.tagName.toLowerCase() === 'form') {
             $submit_btn = $('form[pjax-container] :submit');

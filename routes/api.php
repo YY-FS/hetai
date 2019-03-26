@@ -58,3 +58,10 @@ Route::delete('wechat/template',function(Request $request){
     $result = $controller->delTpl($id);
     return $result;
 });
+
+Route::get('wechat/mini_template',function(Request $request){
+    $mini = $request->get('mini',null);
+    $controller = new \App\Admin\Controllers\ServiceNoticeController();
+    $result = $controller->getTpl($mini);
+    return $result;
+});

@@ -11,6 +11,12 @@
 |
 */
 
-//Route::get('/', function () {
-//    return view('welcome');
+Route::get('/','IndexController@index');
+//Route::group([
+//    'prefix' => config('admin.route.prefix'),
+//    'namespace' => config('admin.route.namespace'),
+//], function (Rou $router) {
+//
+//    $router->get('/', 'UserPaymentController@index');
+//
 //});
