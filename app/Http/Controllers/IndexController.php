@@ -23,7 +23,7 @@ class IndexController extends BaseController
 //                ['pay_date', '=', $date]
 //            ];
 //        }
-
+exit('666');
         $title = "合泰传感器数据";
         $filter = DataFilter::source(HtSensor::rapydGrid());
 
